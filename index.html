@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Valentine's Day, Charlotte!</title>
+  <!-- Inline CSS Styles -->
+  <style>
+    /* Reset default styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Body styling */
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff0f5;
+      /* Light pastel pink */
+      color: #333;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    /* Countdown Container styling */
+    #countdownContainer {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #fff0f5;
+    }
+
+    #countdownContainer h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    #countdownContainer p {
+      font-size: 1.2rem;
+    }
+
+    #countdown {
+      font-size: 2rem;
+      margin-top: 20px;
+    }
+
+    /* Website Container (hidden until countdown is over) */
+    #websiteContainer {
+      display: none;
+    }
+
+    /* Navigation Menu */
+    header {
+      background: rgba(255, 182, 193, 0.3);
+      /* Light pink tint */
+      padding: 10px 0;
+    }
+
+    .nav-menu {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+    }
+
+    .nav-menu li {
+      margin: 0 15px;
+    }
+
+    .nav-menu a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* Main Content Sections */
+    main {
+      padding: 20px;
+    }
+
+    .page-section {
+      display: none;
+    }
+
+    /* Home (Hero) Section */
+    #home {
+      display: block;
+      /* Show Home by default within websiteContainer */
+      text-align: center;
+      padding: 50px 20px;
+    }
+
+    /* Slideshow Container */
+    .slideshow-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .slideshow-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 1s ease-in-out;
+      opacity: 1;
+    }
+
+    #home h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    #home p {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    /* Audio Player styling */
+    audio {
+      margin-top: 15px;
+    }
+
+    /* Button styling */
+    button {
+      background: #ff69b4;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #ff1493;
+    }
+
+    /* Love Letter Section */
+    .love-letter {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: left;
+    }
+
+    /* Gallery Section updated to Videos & PPTX */
+    .gallery {
+      max-width: 1000px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+
+    .gallery h1 {
+      margin-bottom: 30px;
+    }
+
+    .video-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .video-item {
+      width: 320px;
+    }
+
+    .video-item video {
+      width: 100%;
+      height: auto;
+      border: 2px solid #ff69b4;
+      border-radius: 5px;
+    }
+
+    .video-item h2 {
+      margin: 10px 0 5px;
+      font-size: 1.2rem;
+    }
+
+    .video-item p {
+      font-size: 1rem;
+    }
+
+    .pptx-container {
+      margin-top: 40px;
+    }
+
+    .pptx-container h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    .pptx-container p {
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .pptx-container a {
+      font-size: 1rem;
+      text-decoration: none;
+      color: #ff69b4;
+      border: 1px solid #ff69b4;
+      padding: 8px 16px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+
+    .pptx-container a:hover {
+      background: #ff69b4;
+      color: #fff;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #ffe4e1;
+      margin-top: 50px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    .game-container {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .card {
+      width: 100px;
+      height: 100px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .hidden {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Countdown Container (shown until Valentine's Day) -->
+  <div id="countdownContainer">
+    <img id="" src="banner4.png" alt="Chiri & Charlotte" />
+    <h1>Your Surprise is almost here xx</h1>
+    <p>
+      Valentine's Day is almost here, once the timer finishes the surprise
+      will be ready xx Sorryyy babeeee i knowww.
+    </p>
+    <div id="countdown"></div>
+  </div>
+
+  <!-- Website Container (hidden until countdown expires) -->
+  <div id="websiteContainer">
+    <!-- Navigation Header -->
+    <header>
+      <img id="" src="topbar.png" alt="" />
+      <br></br>
+      <nav>
+        <ul class="nav-menu">
+          <li><a data-section="home">Home</a></li>
+          <!--<li><a data-section="our-story">Our Story</a></li> -->
+          <li><a data-section="gallery">Videos</a></li>
+          <li><a data-section="love-letter">Love Letter</a></li>
+          <li><a data-section="game">Memory Game</a></li>
+          <li><a data-section="cards">UNO</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <!-- Home Section -->
+      <section id="home" class="page-section">
+        <div class="hero">
+          <!-- Slideshow Container -->
+          <div class="slideshow-container">
+            <img id="slideshow" src="image.png" alt="" />
+          </div>
+          <h1>Happy Valentine's Day, Charlotte! ❤️</h1>
+          <p>From your Hubby xx Mwahhhh.</p>
+          <br />
+          <button id="heartBtn">Click for a Surprise!</button>
+        </div>
+      </section>
+      <h1>Chiri FM</h1>
+      <h3>Current Song: Those Eyes - Chiri</h3>
+      <audio controls autoplay>
+        <source src="song.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+      </audio>
+
+      <!-- Our Story Section -->
+      <section id="our-story" class="page-section">
+        <div class="story">
+          <h1>Our Story</h1>
+          <article>
+            <h2>How It All Began</h2>
+            <p>
+              It all started with a chance meeting that turned into a
+              beautiful journey. [Add your special memories here.]
+            </p>
+          </article>
+          <article>
+            <h2>Special Moments</h2>
+            <p>
+              From our first date to our latest adventure, every moment has
+              been a treasure.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Gallery Section (Now Videos & Trivia) -->
+      <section id="gallery" class="page-section">
+        <div class="gallery">
+          <h1>Videos & Trivia</h1>
+          <div class="video-grid">
+            <!-- Video 1 -->
+            <div class="video-item">
+              <video controls>
+                <source src="video1.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              <h2>I Love You Always Forever Song</h2>
+              <p>
+                Hehe The Video i put on the QR Code on our Moana 2 Date xx
+              </p>
+            </div>
+            <!-- Video 2 -->
+            <div class="video-item">
+              <video controls>
+                <source src="video2222.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              <h2>My Second Video I Sent you!</h2>
+              <p>
+                This video is the one i sent you, showing how your brought
+                sunshine into my life xx
+              </p>
+            </div>
+            <!-- Video 3 -->
+            <div class="video-item">
+              <video controls>
+                <source src="video33.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              <h2>Special Memories</h2>
+              <p>A Video of all the special memories of us together xx</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="game" class="page-section">
+        <h1>Memory Game</h1>
+        <div class="game-container"></div>
+        <script>
+          async function createMemoryGame() {
+            const imageUrls = [
+              'image.png', 'image2.png', 'image3.png', 'image4.png',
+              'image5.png', 'image6.png', 'image7.png'
+            ];
+
+            // Preload images
+            const preloadImages = imageUrls.map(url => {
+              return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(url);
+                img.onerror = reject;
+                img.src = url;
+              });
+            });
+
+            // Wait for all images to load
+            await Promise.all(preloadImages);
+
+            const images = [...imageUrls, ...imageUrls]; // Duplicate for pairs
+            let flippedCards = [];
+            let matchedPairs = 0;
+
+            const gameContainer = document.querySelector('.game-container');
+
+            // Shuffle images
+            const shuffledImages = images.sort(() => Math.random() - 0.5);
+
+            // Create cards
+            shuffledImages.forEach((img, index) => {
+              const card = document.createElement('div');
+              card.classList.add('card', 'hidden');
+              card.dataset.index = index;
+              card.dataset.image = img;
+
+              card.addEventListener('click', () => flipCard(card));
+              gameContainer.appendChild(card);
+            });
+
+            function flipCard(card) {
+              if (flippedCards.length === 2 || flippedCards.includes(card) || !card.classList.contains('hidden')) {
+                return;
+              }
+
+              card.style.backgroundImage = `url(${card.dataset.image})`;
+              card.style.backgroundSize = 'cover';
+              card.classList.remove('hidden');
+              flippedCards.push(card);
+
+              if (flippedCards.length === 2) {
+                setTimeout(checkMatch, 1000);
+              }
+            }
+
+            function checkMatch() {
+              const [card1, card2] = flippedCards;
+              if (card1.dataset.image === card2.dataset.image) {
+                matchedPairs++;
+                if (matchedPairs === images.length / 2) {
+                  alert('Congratulations! You won! ❤️');
+                }
+              } else {
+                card1.style.backgroundImage = '';
+                card2.style.backgroundImage = '';
+                card1.classList.add('hidden');
+                card2.classList.add('hidden');
+              }
+              flippedCards = [];
+            }
+          }
+
+          // Initialize the game when the section becomes visible
+          const gameSection = document.getElementById('game');
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.target.style.display === 'block') {
+                createMemoryGame();
+              }
+            });
+          });
+
+          observer.observe(gameSection, {
+            attributes: true,
+            attributeFilter: ['style']
+          });
+        </script>
+      </section>
+
+      <!-- Card Game Section -->
+      <section id="cards" class="page-section">
+        <h1>Love UNO (with me and wifeyy cards hehe)</h1>
+        <div class="card-game-container">
+          <div class="card-deck"></div>
+          <button onclick="dealCards()" class="deal-button">Deal New Cards</button>
+        </div>
+        <script>
+          function createCardGame() {
+            const cardImages = [
+              'image.png', 'image2.png', 'image3.png', 'image4.png',
+              'image5.png', 'image6.png', 'image7.png'
+            ];
+
+            const colors = ['red', 'blue', 'green', 'yellow'];
+            const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            const deck = document.querySelector('.card-deck');
+            let currentCard = null;
+            let playerCards = [];
+            let computerCards = [];
+            let drawPile = [];
+            let isPlayerTurn = true;
+            let canCallUno = true;
+
+            function createCard(image, color, number, isComputer = false) {
+              const card = document.createElement('div');
+              card.className = 'playing-card';
+              card.style.backgroundImage = `url(${image})`;
+              card.style.borderColor = color;
+              card.style.borderWidth = '3px';
+              card.style.borderStyle = 'solid';
+              card.dataset.color = color;
+              card.dataset.number = number;
+
+              const numberDisplay = document.createElement('div');
+              numberDisplay.className = 'card-number';
+              numberDisplay.style.color = color;
+              numberDisplay.textContent = number;
+              card.appendChild(numberDisplay);
+
+              card.addEventListener('click', () => playCard(card));
+              return card;
+            }
+
+            function playCard(card) {
+              if (!currentCard ||
+                card.dataset.color === currentCard.dataset.color ||
+                card.dataset.number === currentCard.dataset.number) {
+                currentCard = card;
+                card.remove();
+                deck.querySelector('.current-card').innerHTML = '';
+                deck.querySelector('.current-card').appendChild(card.cloneNode(true));
+
+                if (playerCards.length === 0) {
+                  alert('You won! 🎉');
+                  dealCards();
+                }
+              }
+            }
+
+            function createBackCard() {
+              const card = document.createElement('div');
+              card.className = 'playing-card computer-back';
+              return card;
+            }
+
+            function computerTurn() {
+              const validCards = computerCards.filter(card =>
+                card.dataset.color === currentCard.dataset.color ||
+                card.dataset.number === currentCard.dataset.number
+              );
+
+              if (validCards.length > 0) {
+                setTimeout(() => {
+                  const cardToPlay = validCards[Math.floor(Math.random() * validCards.length)];
+                  playCard(cardToPlay, true);
+                  updateComputerCardsDisplay();
+                }, 1000);
+              } else if (drawPile.length > 0) {
+                setTimeout(() => {
+                  drawCardFunc(true);
+                  computerTurn();
+                }, 1000);
+              }
+            }
+
+            function updateComputerCardsDisplay() {
+              const container = document.querySelector('.computer-cards');
+              container.innerHTML = '';
+              for (let i = 0; i < computerCards.length; i++) {
+                container.appendChild(createBackCard());
+              }
+            }
+
+            function drawCardFunc(isComputer = false) {
+              if (drawPile.length === 0) return;
+
+              const card = drawPile.pop();
+              if (isComputer) {
+                computerCards.push(card);
+                updateComputerCardsDisplay();
+              } else {
+                playerCards.push(card);
+                document.querySelector('.player-cards').appendChild(card);
+              }
+            }
+
+            window.drawCard = drawCardFunc;
+
+            function dealCards() {
+              deck.innerHTML = `
+                  <div class="computer-cards-section">
+                    <h3>Computer's Cards</h3>
+                    <div class="computer-cards"></div>
+                  </div>
+                  <div class="game-center">
+                    <div class="current-card-section">
+                      <h3>Current Card</h3>
+                      <div class="current-card"></div>
+                    </div>
+                    <div class="draw-pile" onclick="drawCard()">
+                      <h3>Draw Pile</h3>
+                      <div class="pile-card"></div>
+                    </div>
+                    <div class="turn-indicator">
+                      <h3 id="turnDisplay">Your Turn</h3>
+                    </div>
+                  </div>
+                  <button id="unoButton" onclick="callUno()" class="uno-button" style="display: none;">UNO!</button>
+                  <div class="player-cards-section">
+                    <h3>Your Cards</h3>
+                    <div class="player-cards"></div>
+                  </div>
+                `;
+
+              playerCards = [];
+              computerCards = [];
+              drawPile = [];
+
+              // Create initial card
+              const initialImage = cardImages[Math.floor(Math.random() * cardImages.length)];
+              const initialColor = colors[Math.floor(Math.random() * colors.length)];
+              const initialNumber = numbers[Math.floor(Math.random() * numbers.length)];
+              currentCard = createCard(initialImage, initialColor, initialNumber);
+              deck.querySelector('.current-card').appendChild(currentCard);
+
+              // Create draw pile
+              for (let i = 0; i < 20; i++) {
+                const image = cardImages[Math.floor(Math.random() * cardImages.length)];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const number = numbers[Math.floor(Math.random() * numbers.length)];
+                drawPile.push(createCard(image, color, number));
+              }
+
+              // Deal cards to player and computer
+              const playerCardsContainer = deck.querySelector('.player-cards');
+              const computerCardsContainer = deck.querySelector('.computer-cards');
+
+              for (let i = 0; i < 7; i++) {
+                // Player cards
+                const playerCard = drawPile.pop();
+                playerCards.push(playerCard);
+                playerCardsContainer.appendChild(playerCard);
+
+                // Computer cards
+                const computerCard = drawPile.pop();
+                computerCards.push(computerCard);
+                computerCardsContainer.appendChild(createBackCard());
+              }
+            }
+
+            function playCard(card, isComputer = false) {
+              if (!isPlayerTurn && !isComputer) return;
+              if (isPlayerTurn && isComputer) return;
+
+              if (!currentCard ||
+                card.dataset.color === currentCard.dataset.color ||
+                card.dataset.number === currentCard.dataset.number) {
+                currentCard = card;
+                card.remove();
+                deck.querySelector('.current-card').innerHTML = '';
+                deck.querySelector('.current-card').appendChild(card.cloneNode(true));
+
+                if (isComputer) {
+                  computerCards = computerCards.filter(c => c !== card);
+                  if (computerCards.length === 0) {
+                    alert('Computer wins! 😢');
+                    dealCards();
+                    return;
+                  }
+                  if (computerCards.length === 1) {
+                    setTimeout(() => alert('Computer says UNO!'), 500);
+                  }
+                  isPlayerTurn = true;
+                  document.getElementById('turnDisplay').textContent = 'Your Turn';
+                } else {
+                  playerCards = playerCards.filter(c => c !== card);
+                  if (playerCards.length === 0) {
+                    alert('You won! 🎉');
+                    dealCards();
+                    return;
+                  }
+                  document.getElementById('unoButton').style.display = playerCards.length === 1 ? 'block' : 'none';
+                  isPlayerTurn = false;
+                  document.getElementById('turnDisplay').textContent = 'Computer\'s Turn';
+                  setTimeout(computerTurn, 1000);
+                }
+              }
+            }
+
+            function callUno() {
+              if (playerCards.length === 1 && canCallUno) {
+                alert('UNO called successfully!');
+                canCallUno = false;
+              }
+            }
+
+            function drawCardFunc(isComputer = false) {
+              if (!isPlayerTurn && !isComputer) return;
+              if (isPlayerTurn && isComputer) return;
+
+              if (drawPile.length === 0) return;
+
+              const card = drawPile.pop();
+              if (isComputer) {
+                computerCards.push(card);
+                updateComputerCardsDisplay();
+                isPlayerTurn = true;
+                document.getElementById('turnDisplay').textContent = 'Your Turn';
+              } else {
+                playerCards.push(card);
+                document.querySelector('.player-cards').appendChild(card);
+                isPlayerTurn = false;
+                document.getElementById('turnDisplay').textContent = 'Computer\'s Turn';
+                setTimeout(computerTurn, 1000);
+              }
+            }
+
+            window.dealCards = dealCards;
+            dealCards(); // Initial deal
+          }
+
+          // Initialize the card game when the section becomes visible
+          const cardSection = document.getElementById('cards');
+          const cardObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.target.style.display === 'block') {
+                createCardGame();
+              }
+            });
+          });
+
+          cardObserver.observe(cardSection, {
+            attributes: true,
+            attributeFilter: ['style']
+          });
+        </script>
+        <style>
+          .card-game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+          }
+
+          .card-deck {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-height: 600px;
+            padding: 20px;
+          }
+
+          .game-center {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin: 20px 0;
+          }
+
+          .draw-pile {
+            cursor: pointer;
+          }
+
+          .pile-card {
+            width: 120px;
+            height: 160px;
+            background-color: #ff69b4;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          }
+
+          .computer-cards {
+            min-height: 160px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+          }
+
+          .computer-back {
+            background-color: #ff69b4;
+            background-image: none !important;
+          }
+
+          .current-card-section {
+            text-align: center;
+          }
+
+          .current-card,
+          .player-cards {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 20px;
+          }
+
+          .playing-card {
+            width: 120px;
+            height: 160px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.3s ease;
+            position: relative;
+            cursor: pointer;
+          }
+
+          .playing-card:hover {
+            transform: translateY(-10px);
+          }
+
+          .card-number {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 24px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2px 8px;
+            border-radius: 5px;
+          }
+
+          .deal-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+          }
+
+          .deal-button:hover {
+            background-color: #ff1493;
+          }
+
+          .uno-button {
+            padding: 10px 30px;
+            font-size: 20px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+          }
+
+          @keyframes pulse {
+            0% {
+              transform: scale(1);
+            }
+
+            50% {
+              transform: scale(1.1);
+            }
+
+            100% {
+              transform: scale(1);
+            }
+          }
+
+          .turn-indicator {
+            margin: 10px 0;
+            font-weight: bold;
+            color: #ff69b4;
+          }
+
+          .music-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #ff69b4;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+          }
+
+          .music-button:hover {
+            transform: scale(1.1);
+          }
+        </style>
+      </section>
+
+      <!-- Love Letter Section -->
+      <section id="love-letter" class="page-section">
+        <div class="love-letter">
+          <h1>A Letter from Chiri to Charlotte</h1>
+          <p>
+            Listen to my pretty voice you love and fell for, as I read the
+            letter xx
+          </p>
+          <!-- Audio File for the Love Letter -->
+          <audio controls>
+            <source src="voice.mp3" type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+          <br /><br />
+          <!-- Initially, display a preview or placeholder text -->
+          <p id="letterContent">Dear Wifey,</p>
+          <button id="readMoreBtn">Read More</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer></footer>
+  </div>
+
+  <!-- Background Music -->
+  <!-- Inline JavaScript -->
+  <script>
+    function toggleMusic() {
+      const music = document.getElementById('bgMusic');
+      const button = document.getElementById('musicToggle');
+      if (music.paused) {
+        music.play();
+        button.innerHTML = '🔇';
+      } else {
+        music.pause();
+        button.innerHTML = '🎵';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      /* --------------------------------------
+         Countdown Timer Logic
+      -----------------------------------------*/
+      var countdownContainer = document.getElementById("countdownContainer");
+      var websiteContainer = document.getElementById("websiteContainer");
+      var countdownDisplay = document.getElementById("countdown");
+
+      // Set target date for Valentine's Day (adjust as needed)
+      var targetDate = new Date("Feb 14, 2025 00:00:00").getTime();
+
+      var countdownInterval = setInterval(function () {
+        var now = new Date().getTime();
+        var distance = targetDate - now;
+
+        // Calculate time components
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor(
+          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Update the countdown display
+        countdownDisplay.innerHTML =
+          days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+
+        // When the countdown is finished, reveal the website
+        if (distance < 0) {
+          clearInterval(countdownInterval);
+          countdownContainer.style.display = "none";
+          websiteContainer.style.display = "block";
+          toggleMusic()
+        }
+      }, 1000);
+
+      // For testing: Press the Right Shift key to finish the countdown immediately.
+      document.addEventListener("keydown", function (e) {
+        if (e.code === "ShiftRight") {
+          clearInterval(countdownInterval);
+          countdownContainer.style.display = "none";
+          websiteContainer.style.display = "block";
+        }
+      });
+
+      /* --------------------------------------
+         Website Functionality (Navigation, Slider, etc.)
+      -----------------------------------------*/
+      // Navigation: Show the corresponding section when a nav link is clicked.
+      const navLinks = document.querySelectorAll(".nav-menu a");
+      navLinks.forEach(function (link) {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          const targetSection = this.getAttribute("data-section");
+          showSection(targetSection);
+        });
+      });
+
+      // Function to display the chosen section and hide the others.
+      function showSection(sectionId) {
+        const sections = document.querySelectorAll(".page-section");
+        sections.forEach(function (section) {
+          section.style.display = section.id === sectionId ? "block" : "none";
+        });
+      }
+
+      // Home page interactive heart button.
+      const heartBtn = document.getElementById("heartBtn");
+      if (heartBtn) {
+        heartBtn.addEventListener("click", function () {
+          alert("I love you more than more than more x 9 trillion hehee xx");
+        });
+      }
+
+      // Love Letter "Read More" functionality.
+      const readMoreBtn = document.getElementById("readMoreBtn");
+      const letterContent = document.getElementById("letterContent");
+      if (readMoreBtn && letterContent) {
+        readMoreBtn.addEventListener("click", function () {
+          letterContent.innerHTML = `
+              Dear Wifey, <br><br>
+              i love you so much and i say it all the time but i honestly do, we always go through thick and thin, tough and easy times. <br><br>
+              We have done so much together every moment im with you i love and it feels like magic, your my sunrise, your my sunset and you will forever be xx. <br><br>
+              I love you endlessly for making my world brighter with you in it xx. <br><br>
+              I can't wait until we are older xoxo, we will grow old together xx, I will always help you through any moment that life brings our way. <br><br>
+              Happy Valentines Day My Wifeyyy xx
+            `;
+          readMoreBtn.style.display = "none";
+        });
+      }
+
+      // Slideshow functionality for the Home section.
+      const images = [
+        "image.png",
+        "image2.png",
+        "image3.png",
+        "image4.png",
+        "image5.png",
+        "image6.png",
+        "image7.png",
+      ];
+      const slideshow = document.getElementById("slideshow");
+      let currentImageIndex = 0;
+
+      // Timing settings in milliseconds.
+      const displayTime = 3000; // Time the image is fully visible.
+      const fadeTime = 1000; // Time for fade-out and fade-in.
+
+      // Recursive function to cycle through images.
+      function cycleImages() {
+        setTimeout(function () {
+          // Fade out the current image.
+          slideshow.style.opacity = 0;
+          setTimeout(function () {
+            // Update the image after fade-out.
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            slideshow.src = images[currentImageIndex];
+            // Fade in the new image.
+            slideshow.style.opacity = 1;
+            // Start the next cycle.
+            cycleImages();
+          }, fadeTime);
+        }, displayTime);
+      }
+      cycleImages();
+
+      // Background Music Control
+      function toggleMusic() {
+        const music = document.getElementById('bgMusic');
+        const button = document.getElementById('musicToggle');
+        if (music.paused) {
+          music.play();
+          button.innerHTML = '🔇';
+        } else {
+          music.pause();
+          button.innerHTML = '🎵';
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
