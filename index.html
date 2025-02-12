@@ -261,6 +261,48 @@
 </head>
 
 <body>
+         <section id="collage" class="page-section">
+          <h1>Photo Collage Creator</h1>
+          <p>Select from our photos or upload your own to create a collage!</p>
+          <div id="predefined-photos">
+            <h3>Choose from our photos:</h3>
+            <div class="predefined-photos-grid">
+              <label><input type="checkbox" value="image1.png"> <img src="image1.png" alt="Image 1" width="80"></label>
+              <label><input type="checkbox" value="image2.png"> <img src="image2.png" alt="Image 2" width="80"></label>
+              <label><input type="checkbox" value="image3.png"> <img src="image3.png" alt="Image 3" width="80"></label>
+              <label><input type="checkbox" value="image4.png"> <img src="image4.png" alt="Image 4" width="80"></label>
+              <label><input type="checkbox" value="image5.png"> <img src="image5.png" alt="Image 5" width="80"></label>
+              <label><input type="checkbox" value="image6.png"> <img src="image6.png" alt="Image 6" width="80"></label>
+              <label><input type="checkbox" value="image7.png"> <img src="image7.png" alt="Image 7" width="80"></label>
+            </div>
+          </div>
+          <div id="upload-photos">
+            <h3>Or upload your own photos:</h3>
+            <input type="file" id="collageUpload" multiple accept="image/*">
+          </div>
+          <br>
+          <button id="createCollageBtn">Create Collage</button>
+          <br><br>
+          <canvas id="collageCanvas"></canvas>
+        </section>
+        
+        <!-- Love Letter Section -->
+        <section id="love-letter" class="page-section">
+          <div class="love-letter">
+            <h1>A Letter from Chiri to Charlotte</h1>
+            <p>Listen to my pretty voice you love and fell for, as I read the letter xx</p>
+            <!-- Audio File for the Love Letter -->
+            <audio controls>
+              <source src="voice.mp3" type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+            <br /><br />
+            <!-- Initially, display a preview or placeholder text -->
+            <p id="letterContent">Dear Wifey,</p>
+            <button id="readMoreBtn">Read More</button>
+          </div>
+        </section>
+      </main>
   <!-- Countdown Container (shown until Valentine's Day) -->
   <div id="countdownContainer">
     <img id="" src="banner4.png" alt="Chiri & Charlotte" />
@@ -286,6 +328,7 @@
           <li><a data-section="love-letter">Love Letter</a></li>
           <li><a data-section="game">Memory Game</a></li>
           <li><a data-section="cards">UNO</a></li>
+          <li><a data-section="collage">Collage</a></li>
         </ul>
       </nav>
     </header>
