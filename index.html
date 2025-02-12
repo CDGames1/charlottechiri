@@ -342,7 +342,7 @@
     background-size: cover;
     background-position: center;
     border-radius: 50%;
-    animation: wander 12s ease-in-out infinite;
+    /* No preset transition so we can add it dynamically when chasing */
   }
   @keyframes wander {
     0% { transform: translate(0, 0); opacity: 1; }
@@ -462,23 +462,30 @@
     mouse.appendChild(mouseBubble);
     container.appendChild(mouse);
     
-    // Special behavior: every 10 seconds, make the cat (image8) chase the mouse (image9)
-    setInterval(() => {
+    // Function to make the cat chase the mouse
+    const chaseMouse = () => {
       const catRect = cat.getBoundingClientRect();
       const mouseRect = mouse.getBoundingClientRect();
       const deltaX = mouseRect.left - catRect.left;
       const deltaY = mouseRect.top - catRect.top;
-      // Move cat 50% closer to the mouse over 2 seconds
+      // Set a transition so the movement is animated over 2 seconds
       cat.style.transition = 'all 2s ease-in-out';
-      cat.style.left = (cat.offsetLeft + deltaX * 0.5) + 'px';
-      cat.style.top = (cat.offsetTop + deltaY * 0.5) + 'px';
-      // Change dialogue briefly
+      // Move the cat straight to the mouse’s position
+      cat.style.left = (cat.offsetLeft + deltaX) + 'px';
+      cat.style.top = (cat.offsetTop + deltaY) + 'px';
+      // Change the cat's dialogue to indicate a chase
       catBubble.innerText = "Gotcha!";
-      // After 2 seconds, revert dialogue
+      // After 2 seconds, revert the dialogue
       setTimeout(() => {
         catBubble.innerText = "Meow, i love eating and scratching carpet.";
       }, 2000);
-    }, 10000);
+    };
+    
+    // Chase the mouse immediately when it appears
+    setTimeout(chaseMouse, 100);
+    
+    // Optionally, continue to have the cat chase the mouse every 10 seconds
+    setInterval(chaseMouse, 10000);
   }
 
   document.addEventListener('DOMContentLoaded', function(){
@@ -486,6 +493,7 @@
     createWanderingPhotos(3);      // Create 3 random wandering photos + cat & mouse
   });
 </script>
+
 
 
 
