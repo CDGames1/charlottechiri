@@ -417,14 +417,13 @@
       "Can't wait for the big day!"
     ];
     
-    // Create some random wandering photos (non-cat/mouse)
+    // Create random wandering photos (choose from image1.png to image7.png)
     for (let i = 0; i < numPhotos; i++) {
       const photo = document.createElement('div');
       photo.classList.add('wander-photo');
       const images = ["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
       const randomImg = images[Math.floor(Math.random() * images.length)];
       photo.style.backgroundImage = 'url(' + randomImg + ')';
-      // For these, we'll keep the original percentage positions
       photo.style.top = Math.random() * 80 + '%';
       photo.style.left = Math.random() * 80 + '%';
       photo.style.animationDuration = (10 + Math.random() * 5) + 's';
@@ -451,7 +450,7 @@
     // Place cat at a random position within the container (in px)
     cat.style.left = Math.random() * (containerRect.width - 80) + 'px';
     cat.style.top = Math.random() * (containerRect.height - 80) + 'px';
-    // (Optional) You can remove any CSS animation if desired:
+    // Remove any CSS animation for manual control
     cat.style.animation = 'none';
     const catBubble = document.createElement('div');
     catBubble.classList.add('speech-bubble');
@@ -516,7 +515,7 @@
     // Main Game Loop       //
     // -------------------- //
     setInterval(() => {
-      // Only update positions if the mouse is alive
+      // Only update positions if the mouse is alive and the cat is not resting.
       if (isMouseAlive && !catResting) {
         // Get current positions (in pixels)
         let catX = parseFloat(cat.style.left);
@@ -533,9 +532,9 @@
           // Normalize direction vector
           const dirX = dx / distance;
           const dirY = dy / distance;
-          // Set speeds (you can adjust these values)
-          const catSpeed = 4;    // cat moves faster
-          const mouseSpeed = 2;  // mouse runs away slower
+          // Set speeds: cat is really fast and mouse runs away
+          const catSpeed = 10;    // Cat speed increased significantly
+          const mouseSpeed = 4;   // Mouse speed (still slower than the cat)
           
           // Update cat's position (chasing the mouse)
           catX += dirX * catSpeed;
@@ -558,12 +557,11 @@
           }
         }
       }
-      // If the cat is tired (resting), it no longer chases—
-      // Meanwhile, allow the mouse to wander randomly.
+      // If the cat is resting, allow the mouse to move with slight random jitter.
       else if (isMouseAlive && catResting) {
         let mouseX = parseFloat(mouse.style.left);
         let mouseY = parseFloat(mouse.style.top);
-        // Random jitter movement for the mouse
+        // Apply small random movements
         const randomOffsetX = (Math.random() - 0.5) * 4;
         const randomOffsetY = (Math.random() - 0.5) * 4;
         mouseX = Math.max(0, Math.min(mouseX + randomOffsetX, containerRect.width - 80));
@@ -589,6 +587,7 @@
     createWanderingPhotos(3);      // Create 3 random wandering photos + cat & mouse
   });
 </script>
+
 
 
 
