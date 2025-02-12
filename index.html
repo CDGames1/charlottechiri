@@ -404,14 +404,14 @@
     
     // Extended dialogues for extra photos
     const extraDialogues = [
-      "Hello!",
-      "What a lovely day!",
+      "Hello! i cant wait for Valentines Day!",
+      "Is it Raining Charlotte and Chiri photos???",
       "Have you seen my friend?",
       "I'm just wandering around...",
       "Stay cool!",
       "Chase me if you can!",
-      "I love to chat!",
-      "What's happening here?"
+      "Look the countdown is almost done!",
+      "Ugh cmon i wanna see the valentines gift alreadyyy"
     ];
     
     // Array to store the extra (non-cat/non-mouse) photos
@@ -484,7 +484,7 @@
     let catEnergy = 100;
     let catResting = false;
     let userKillCount = 0;     // count of times user "kills" the mouse
-    let catAttackMode = false; // becomes true after 3 user kills
+    let catAttackMode = true; // becomes true after 3 user kills
     let userCursorX = containerRect.width / 2;
     let userCursorY = containerRect.height / 2;
     
@@ -622,7 +622,7 @@
         if (catEnergy >= 100) {
           catEnergy = 100;
           catResting = false;
-          catBubble.innerText = "Meow, i love eating and scratching carpet.";
+          catBubble.innerText = "Meow, i love eating and scratching carpet, im clingy asf";
         }
       }
     }, 50); // update every 50 milliseconds (~20 FPS)
