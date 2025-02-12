@@ -342,7 +342,8 @@
     background-size: cover;
     background-position: center;
     border-radius: 50%;
-    /* No preset transition so we can add it dynamically when chasing */
+    /* We won’t use preset animations for the cat & mouse since
+       their movement is controlled via JavaScript */
   }
   @keyframes wander {
     0% { transform: translate(0, 0); opacity: 1; }
@@ -416,13 +417,14 @@
       "Can't wait for the big day!"
     ];
     
-    // Create random wandering photos (choose from image1.png to image7.png)
+    // Create some random wandering photos (non-cat/mouse)
     for (let i = 0; i < numPhotos; i++) {
       const photo = document.createElement('div');
       photo.classList.add('wander-photo');
       const images = ["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
       const randomImg = images[Math.floor(Math.random() * images.length)];
       photo.style.backgroundImage = 'url(' + randomImg + ')';
+      // For these, we'll keep the original percentage positions
       photo.style.top = Math.random() * 80 + '%';
       photo.style.left = Math.random() * 80 + '%';
       photo.style.animationDuration = (10 + Math.random() * 5) + 's';
@@ -436,63 +438,158 @@
       container.appendChild(photo);
     }
     
-    // Add a special wandering photo for Charlotte cat (image8)
+    // For controlled movement we want pixel positions.
+    // Get container dimensions:
+    const containerRect = container.getBoundingClientRect();
+    
+    // ---------------------- //
+    // Create the Cat Element //
+    // ---------------------- //
     const cat = document.createElement('div');
     cat.classList.add('wander-photo');
     cat.style.backgroundImage = 'url(image8.png)';
-    cat.style.top = Math.random() * 80 + '%';
-    cat.style.left = Math.random() * 80 + '%';
-    cat.style.animationDuration = '12s';
+    // Place cat at a random position within the container (in px)
+    cat.style.left = Math.random() * (containerRect.width - 80) + 'px';
+    cat.style.top = Math.random() * (containerRect.height - 80) + 'px';
+    // (Optional) You can remove any CSS animation if desired:
+    cat.style.animation = 'none';
     const catBubble = document.createElement('div');
     catBubble.classList.add('speech-bubble');
     catBubble.innerText = "Meow, i love eating and scratching carpet.";
     cat.appendChild(catBubble);
     container.appendChild(cat);
     
-    // Add a wandering photo for the mouse (image9)
+    // ----------------------- //
+    // Create the Mouse Element //
+    // ----------------------- //
     const mouse = document.createElement('div');
     mouse.classList.add('wander-photo');
     mouse.style.backgroundImage = 'url(image9.png)';
-    mouse.style.top = Math.random() * 80 + '%';
-    mouse.style.left = Math.random() * 80 + '%';
-    mouse.style.animationDuration = '10s';
+    mouse.style.left = Math.random() * (containerRect.width - 80) + 'px';
+    mouse.style.top = Math.random() * (containerRect.height - 80) + 'px';
+    mouse.style.animation = 'none';
     const mouseBubble = document.createElement('div');
     mouseBubble.classList.add('speech-bubble');
     mouseBubble.innerText = "Squeak!";
     mouse.appendChild(mouseBubble);
     container.appendChild(mouse);
     
-    // Function to make the cat chase the mouse
-    const chaseMouse = () => {
-      const catRect = cat.getBoundingClientRect();
-      const mouseRect = mouse.getBoundingClientRect();
-      const deltaX = mouseRect.left - catRect.left;
-      const deltaY = mouseRect.top - catRect.top;
-      // Set a transition so the movement is animated over 2 seconds
-      cat.style.transition = 'all 2s ease-in-out';
-      // Move the cat straight to the mouse’s position
-      cat.style.left = (cat.offsetLeft + deltaX) + 'px';
-      cat.style.top = (cat.offsetTop + deltaY) + 'px';
-      // Change the cat's dialogue to indicate a chase
+    // -------------- //
+    // Game Variables //
+    // -------------- //
+    let isMouseAlive = true;
+    let mouseRespawnDelay = 5000; // start with a 5-second delay
+    let catEnergy = 100;
+    let catResting = false;
+    
+    // -------------------------- //
+    // Collision & Respawn Logic  //
+    // -------------------------- //
+    function killMouse() {
+      if (!isMouseAlive) return;
+      isMouseAlive = false;
+      mouse.style.display = 'none';
       catBubble.innerText = "Gotcha!";
-      // After 2 seconds, revert the dialogue
-      setTimeout(() => {
-        catBubble.innerText = "Meow, i love eating and scratching carpet.";
-      }, 2000);
-    };
+      // Reduce cat's energy for the chase
+      catEnergy -= 30;
+      if (catEnergy <= 0) {
+        catResting = true;
+        catBubble.innerText = "I'm tired...";
+      }
+      // Schedule mouse respawn after the current delay
+      setTimeout(respawnMouse, mouseRespawnDelay);
+      // Decrease the respawn delay for subsequent catches (minimum 1 second)
+      mouseRespawnDelay = Math.max(1000, mouseRespawnDelay - 500);
+    }
     
-    // Chase the mouse immediately when it appears
-    setTimeout(chaseMouse, 100);
+    function respawnMouse() {
+      // Place the mouse at a new random position within the container
+      const newX = Math.random() * (containerRect.width - 80);
+      const newY = Math.random() * (containerRect.height - 80);
+      mouse.style.left = newX + 'px';
+      mouse.style.top = newY + 'px';
+      mouse.style.display = 'block';
+      isMouseAlive = true;
+    }
     
-    // Optionally, continue to have the cat chase the mouse every 10 seconds
-    setInterval(chaseMouse, 10000);
+    // -------------------- //
+    // Main Game Loop       //
+    // -------------------- //
+    setInterval(() => {
+      // Only update positions if the mouse is alive
+      if (isMouseAlive && !catResting) {
+        // Get current positions (in pixels)
+        let catX = parseFloat(cat.style.left);
+        let catY = parseFloat(cat.style.top);
+        let mouseX = parseFloat(mouse.style.left);
+        let mouseY = parseFloat(mouse.style.top);
+        
+        // Calculate vector from cat to mouse
+        const dx = mouseX - catX;
+        const dy = mouseY - catY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > 0) {
+          // Normalize direction vector
+          const dirX = dx / distance;
+          const dirY = dy / distance;
+          // Set speeds (you can adjust these values)
+          const catSpeed = 4;    // cat moves faster
+          const mouseSpeed = 2;  // mouse runs away slower
+          
+          // Update cat's position (chasing the mouse)
+          catX += dirX * catSpeed;
+          catY += dirY * catSpeed;
+          cat.style.left = catX + 'px';
+          cat.style.top = catY + 'px';
+          
+          // Update mouse's position (running away from the cat)
+          mouseX -= dirX * mouseSpeed;
+          mouseY -= dirY * mouseSpeed;
+          // Ensure the mouse stays within the container bounds
+          mouseX = Math.max(0, Math.min(mouseX, containerRect.width - 80));
+          mouseY = Math.max(0, Math.min(mouseY, containerRect.height - 80));
+          mouse.style.left = mouseX + 'px';
+          mouse.style.top = mouseY + 'px';
+          
+          // If the cat gets very close, trigger a "catch"
+          if (distance < 30) {
+            killMouse();
+          }
+        }
+      }
+      // If the cat is tired (resting), it no longer chases—
+      // Meanwhile, allow the mouse to wander randomly.
+      else if (isMouseAlive && catResting) {
+        let mouseX = parseFloat(mouse.style.left);
+        let mouseY = parseFloat(mouse.style.top);
+        // Random jitter movement for the mouse
+        const randomOffsetX = (Math.random() - 0.5) * 4;
+        const randomOffsetY = (Math.random() - 0.5) * 4;
+        mouseX = Math.max(0, Math.min(mouseX + randomOffsetX, containerRect.width - 80));
+        mouseY = Math.max(0, Math.min(mouseY + randomOffsetY, containerRect.height - 80));
+        mouse.style.left = mouseX + 'px';
+        mouse.style.top = mouseY + 'px';
+      }
+      
+      // When the cat is resting, recover energy gradually.
+      if (catResting) {
+        catEnergy += 0.5; // adjust recovery rate as needed
+        if (catEnergy >= 100) {
+          catEnergy = 100;
+          catResting = false;
+          catBubble.innerText = "Meow, i love eating and scratching carpet.";
+        }
+      }
+    }, 50); // update every 50 milliseconds (~20 FPS)
   }
-
+  
   document.addEventListener('DOMContentLoaded', function(){
     createRainDrops(50);         // Create 50 rain drops (smaller photos)
     createWanderingPhotos(3);      // Create 3 random wandering photos + cat & mouse
   });
 </script>
+
 
 
 
