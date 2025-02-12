@@ -543,8 +543,9 @@
           cat.style.top = catY + 'px';
           
           // Update mouse's position (running away from the cat)
-          mouseX -= dirX * mouseSpeed;
-          mouseY -= dirY * mouseSpeed;
+          // Now the mouse moves in the same direction as the vector from the cat to the mouse
+          mouseX += dirX * mouseSpeed;
+          mouseY += dirY * mouseSpeed;
           // Ensure the mouse stays within the container bounds
           mouseX = Math.max(0, Math.min(mouseX, containerRect.width - 80));
           mouseY = Math.max(0, Math.min(mouseY, containerRect.height - 80));
@@ -587,6 +588,7 @@
     createWanderingPhotos(3);      // Create 3 random wandering photos + cat & mouse
   });
 </script>
+
 
 
 
