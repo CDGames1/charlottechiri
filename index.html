@@ -287,12 +287,16 @@
     will be ready xx Sorryyy babeeee i knowww.
   </p>
   <div id="countdown"></div>
-  <!-- Rain container for falling photos -->
+  <!-- Container for the falling photos (rain effect) -->
   <div class="rain"></div>
+  <!-- Container for wandering photos -->
+  <div class="wandering-container"></div>
 </div>
 
 <style>
-  /* Rain container covers the entire countdown area */
+  /* --------------------------- */
+  /* Rain Effect Styles         */
+  /* --------------------------- */
   .rain {
     position: absolute;
     top: 0;
@@ -302,8 +306,6 @@
     pointer-events: none;
     overflow: hidden;
   }
-
-  /* Each falling drop (photo) */
   .rain-drop {
     position: absolute;
     background-size: cover;
@@ -311,7 +313,6 @@
     opacity: 0.8;
     animation: fall linear infinite;
   }
-
   @keyframes fall {
     0% {
       transform: translateY(-100px);
@@ -322,13 +323,57 @@
       opacity: 0;
     }
   }
+
+  /* --------------------------- */
+  /* Wandering Photos Styles    */
+  /* --------------------------- */
+  .wandering-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .wander-photo {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+    animation: wander 12s ease-in-out infinite;
+  }
+  @keyframes wander {
+    0% { transform: translate(0, 0); opacity: 1; }
+    25% { transform: translate(80px, -50px); opacity: 0.8; }
+    50% { transform: translate(-100px, 100px); opacity: 0.6; }
+    75% { transform: translate(50px, 150px); opacity: 0.8; }
+    100% { transform: translate(0, 0); opacity: 1; }
+  }
+  .speech-bubble {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    padding: 5px 10px;
+    border: 1px solid #ff69b4;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    animation: fadeInOut 6s ease-in-out infinite;
+  }
+  @keyframes fadeInOut {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
 </style>
 
 <script>
-  // Create a set number of rain drops using your photos
+  // Create falling photo rain drops
   function createRainDrops(numDrops) {
     const rainContainer = document.querySelector('.rain');
-    // Array of photo file names (adjust as needed)
     const imageArray = ["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
     
     for (let i = 0; i < numDrops; i++) {
@@ -338,8 +383,8 @@
       // Random horizontal position (0% to 100%)
       drop.style.left = Math.random() * 100 + '%';
       
-      // Random size for variety
-      const size = 30 + Math.random() * 20; // between 30px and 50px
+      // Random size for variety (30px to 50px)
+      const size = 30 + Math.random() * 20;
       drop.style.width = size + 'px';
       drop.style.height = size + 'px';
       
@@ -347,22 +392,52 @@
       const randomIndex = Math.floor(Math.random() * imageArray.length);
       drop.style.backgroundImage = 'url(' + imageArray[randomIndex] + ')';
       
-      // Random animation delay (to stagger the drops)
-      const delay = Math.random() * 5; // up to 5 seconds delay
-      drop.style.animationDelay = delay + 's';
-      
-      // Random animation duration (falling speed)
-      const duration = 3 + Math.random() * 2; // between 3 and 5 seconds
-      drop.style.animationDuration = duration + 's';
+      // Random animation delay and duration
+      drop.style.animationDelay = Math.random() * 5 + 's';
+      drop.style.animationDuration = (3 + Math.random() * 2) + 's';
       
       rainContainer.appendChild(drop);
     }
   }
 
+  // Create wandering photos with dialogue
+  function createWanderingPhotos(numPhotos) {
+    const container = document.querySelector('.wandering-container');
+    const images = ["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
+    
+    for (let i = 0; i < numPhotos; i++) {
+      const photo = document.createElement('div');
+      photo.classList.add('wander-photo');
+      
+      // Randomly select an image for the wandering photo
+      const img = images[Math.floor(Math.random() * images.length)];
+      photo.style.backgroundImage = 'url(' + img + ')';
+      
+      // Random starting position
+      photo.style.top = Math.random() * 80 + '%';
+      photo.style.left = Math.random() * 80 + '%';
+      
+      // Random animation duration for a varied effect
+      photo.style.animationDuration = (10 + Math.random() * 5) + 's';
+      
+      // Add a speech bubble to one of the photos
+      if (i === 0) {
+        const bubble = document.createElement('div');
+        bubble.classList.add('speech-bubble');
+        bubble.innerText = "shell be right";
+        photo.appendChild(bubble);
+      }
+      
+      container.appendChild(photo);
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', function(){
-    createRainDrops(30); // Create 30 rain drops
+    createRainDrops(30);      // Create 30 rain drops
+    createWanderingPhotos(3);  // Create 3 wandering photos
   });
 </script>
+
 
 
   <!-- Website Container (hidden until countdown expires) -->
