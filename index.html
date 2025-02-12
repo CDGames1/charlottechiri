@@ -260,32 +260,7 @@
   </style>
 </head>
 
-<body>
-         <section id="collage" class="page-section">
-          <h1>Photo Collage Creator</h1>
-          <p>Select from our photos or upload your own to create a collage!</p>
-          <div id="predefined-photos">
-            <h3>Choose from our photos:</h3>
-            <div class="predefined-photos-grid">
-              <label><input type="checkbox" value="image1.png"> <img src="image1.png" alt="Image 1" width="80"></label>
-              <label><input type="checkbox" value="image2.png"> <img src="image2.png" alt="Image 2" width="80"></label>
-              <label><input type="checkbox" value="image3.png"> <img src="image3.png" alt="Image 3" width="80"></label>
-              <label><input type="checkbox" value="image4.png"> <img src="image4.png" alt="Image 4" width="80"></label>
-              <label><input type="checkbox" value="image5.png"> <img src="image5.png" alt="Image 5" width="80"></label>
-              <label><input type="checkbox" value="image6.png"> <img src="image6.png" alt="Image 6" width="80"></label>
-              <label><input type="checkbox" value="image7.png"> <img src="image7.png" alt="Image 7" width="80"></label>
-            </div>
-          </div>
-          <div id="upload-photos">
-            <h3>Or upload your own photos:</h3>
-            <input type="file" id="collageUpload" multiple accept="image/*">
-          </div>
-          <br>
-          <button id="createCollageBtn">Create Collage</button>
-          <br><br>
-          <canvas id="collageCanvas"></canvas>
-        </section>
-        
+<body>  
         <!-- Love Letter Section -->
         <section id="love-letter" class="page-section">
           <div class="love-letter">
@@ -304,15 +279,91 @@
         </section>
       </main>
   <!-- Countdown Container (shown until Valentine's Day) -->
-  <div id="countdownContainer">
-    <img id="" src="banner4.png" alt="Chiri & Charlotte" />
-    <h1>Your Surprise is almost here xx</h1>
-    <p>
-      Valentine's Day is almost here, once the timer finishes the surprise
-      will be ready xx Sorryyy babeeee i knowww.
-    </p>
-    <div id="countdown"></div>
-  </div>
+<div id="countdownContainer" style="position: relative; overflow: hidden;">
+  <img src="banner4.png" alt="Chiri & Charlotte" />
+  <h1>Your Surprise is almost here xx</h1>
+  <p>
+    Valentine's Day is almost here, once the timer finishes the surprise
+    will be ready xx Sorryyy babeeee i knowww.
+  </p>
+  <div id="countdown"></div>
+  <!-- Rain container for falling photos -->
+  <div class="rain"></div>
+</div>
+
+<style>
+  /* Rain container covers the entire countdown area */
+  .rain {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* Each falling drop (photo) */
+  .rain-drop {
+    position: absolute;
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 0.8;
+    animation: fall linear infinite;
+  }
+
+  @keyframes fall {
+    0% {
+      transform: translateY(-100px);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh);
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  // Create a set number of rain drops using your photos
+  function createRainDrops(numDrops) {
+    const rainContainer = document.querySelector('.rain');
+    // Array of photo file names (adjust as needed)
+    const imageArray = ["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
+    
+    for (let i = 0; i < numDrops; i++) {
+      const drop = document.createElement('div');
+      drop.classList.add('rain-drop');
+      
+      // Random horizontal position (0% to 100%)
+      drop.style.left = Math.random() * 100 + '%';
+      
+      // Random size for variety
+      const size = 30 + Math.random() * 20; // between 30px and 50px
+      drop.style.width = size + 'px';
+      drop.style.height = size + 'px';
+      
+      // Randomly choose an image
+      const randomIndex = Math.floor(Math.random() * imageArray.length);
+      drop.style.backgroundImage = 'url(' + imageArray[randomIndex] + ')';
+      
+      // Random animation delay (to stagger the drops)
+      const delay = Math.random() * 5; // up to 5 seconds delay
+      drop.style.animationDelay = delay + 's';
+      
+      // Random animation duration (falling speed)
+      const duration = 3 + Math.random() * 2; // between 3 and 5 seconds
+      drop.style.animationDuration = duration + 's';
+      
+      rainContainer.appendChild(drop);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    createRainDrops(30); // Create 30 rain drops
+  });
+</script>
+
 
   <!-- Website Container (hidden until countdown expires) -->
   <div id="websiteContainer">
@@ -328,7 +379,6 @@
           <li><a data-section="love-letter">Love Letter</a></li>
           <li><a data-section="game">Memory Game</a></li>
           <li><a data-section="cards">UNO</a></li>
-          <li><a data-section="collage">Collage</a></li>
         </ul>
       </nav>
     </header>
