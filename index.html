@@ -342,9 +342,10 @@
     background-size: cover;
     background-position: center;
     border-radius: 50%;
-    /* We won’t use preset animations for the cat & mouse since
-       their movement is controlled via JavaScript */
+    /* For extra photos we add the wander animation */
   }
+  /* All extra photos will use this animation.
+     (The cat and mouse have animation turned off for JS control.) */
   @keyframes wander {
     0% { transform: translate(0, 0); opacity: 1; }
     25% { transform: translate(80px, -50px); opacity: 0.8; }
@@ -377,29 +378,20 @@
   /* --------------------------- */
   function createRainDrops(numDrops) {
     const rainContainer = document.querySelector('.rain');
-    // Use your photos image1.png to image7.png for rain drops
+    // Use images image1.png to image7.png for rain drops
     const imageArray = ["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
     
     for (let i = 0; i < numDrops; i++) {
       const drop = document.createElement('div');
       drop.classList.add('rain-drop');
-      
-      // Random horizontal position (0% to 100%)
       drop.style.left = Math.random() * 100 + '%';
-      
-      // Random size for variety (20px to 30px)
       const size = 20 + Math.random() * 10;
       drop.style.width = size + 'px';
       drop.style.height = size + 'px';
-      
-      // Randomly choose an image
       const randomIndex = Math.floor(Math.random() * imageArray.length);
       drop.style.backgroundImage = 'url(' + imageArray[randomIndex] + ')';
-      
-      // Random animation delay and duration
       drop.style.animationDelay = Math.random() * 3 + 's';
       drop.style.animationDuration = (2 + Math.random() * 2) + 's';
-      
       rainContainer.appendChild(drop);
     }
   }
@@ -409,49 +401,59 @@
   /* --------------------------- */
   function createWanderingPhotos(numPhotos) {
     const container = document.querySelector('.wandering-container');
-    const dialogues = [
-      "I wonder what the Valentine's gift will be...",
-      "Chiri loves Charlotte much more xx",
-      "You're my sunshine!",
-      "Our love is endless!",
-      "Can't wait for the big day!"
+    
+    // Extended dialogues for extra photos
+    const extraDialogues = [
+      "Hello!",
+      "What a lovely day!",
+      "Have you seen my friend?",
+      "I'm just wandering around...",
+      "Stay cool!",
+      "Chase me if you can!",
+      "I love to chat!",
+      "What's happening here?"
     ];
     
-    // Create random wandering photos (choose from image1.png to image7.png)
+    // Array to store the extra (non-cat/non-mouse) photos
+    const extraPhotos = [];
+    
+    // Create extra wandering photos using images image1.png to image7.png
     for (let i = 0; i < numPhotos; i++) {
       const photo = document.createElement('div');
       photo.classList.add('wander-photo');
+      // Randomly choose an image
       const images = ["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
       const randomImg = images[Math.floor(Math.random() * images.length)];
       photo.style.backgroundImage = 'url(' + randomImg + ')';
+      // Position in percentage then later CSS animation moves it
       photo.style.top = Math.random() * 80 + '%';
       photo.style.left = Math.random() * 80 + '%';
-      photo.style.animationDuration = (10 + Math.random() * 5) + 's';
+      // Set a wander animation for extra photos
+      const duration = 10 + Math.random() * 5;
+      photo.style.animation = `wander ${duration}s ease-in-out infinite`;
       
-      // Create a speech bubble with random dialogue
+      // Create a speech bubble with initial dialogue
       const bubble = document.createElement('div');
       bubble.classList.add('speech-bubble');
-      bubble.innerText = dialogues[Math.floor(Math.random() * dialogues.length)];
+      bubble.innerText = extraDialogues[Math.floor(Math.random() * extraDialogues.length)];
       photo.appendChild(bubble);
       
       container.appendChild(photo);
+      extraPhotos.push(photo);
     }
-    
-    // For controlled movement we want pixel positions.
-    // Get container dimensions:
-    const containerRect = container.getBoundingClientRect();
     
     // ---------------------- //
     // Create the Cat Element //
     // ---------------------- //
+    // (Cat’s movement will be controlled manually via JS.)
+    const containerRect = container.getBoundingClientRect();
     const cat = document.createElement('div');
     cat.classList.add('wander-photo');
     cat.style.backgroundImage = 'url(image8.png)';
-    // Place cat at a random position within the container (in px)
+    // Place cat at a random pixel position within the container
     cat.style.left = Math.random() * (containerRect.width - 80) + 'px';
     cat.style.top = Math.random() * (containerRect.height - 80) + 'px';
-    // Remove any CSS animation for manual control
-    cat.style.animation = 'none';
+    cat.style.animation = 'none'; // no CSS animation for the cat
     const catBubble = document.createElement('div');
     catBubble.classList.add('speech-bubble');
     catBubble.innerText = "Meow, i love eating and scratching carpet.";
@@ -461,6 +463,7 @@
     // ----------------------- //
     // Create the Mouse Element //
     // ----------------------- //
+    // (Mouse’s movement will also be controlled manually.)
     const mouse = document.createElement('div');
     mouse.classList.add('wander-photo');
     mouse.style.backgroundImage = 'url(image9.png)';
@@ -480,6 +483,10 @@
     let mouseRespawnDelay = 5000; // start with a 5-second delay
     let catEnergy = 100;
     let catResting = false;
+    let userKillCount = 0;     // count of times user "kills" the mouse
+    let catAttackMode = false; // becomes true after 3 user kills
+    let userCursorX = containerRect.width / 2;
+    let userCursorY = containerRect.height / 2;
     
     // -------------------------- //
     // Collision & Respawn Logic  //
@@ -511,13 +518,54 @@
       isMouseAlive = true;
     }
     
+    // When the user clicks the mouse element, consider it "killed by the user"
+    function killMouseByUser() {
+      if (!isMouseAlive) return;
+      isMouseAlive = false;
+      mouse.style.display = 'none';
+      userKillCount++;
+      catBubble.innerText = "You killed my mouse!";
+      // If the user has killed the mouse 3 times, switch cat to attack mode.
+      if (userKillCount >= 3) {
+        catAttackMode = true;
+        catBubble.innerText = "GRRR! I'm coming for you!";
+      }
+      setTimeout(respawnMouse, mouseRespawnDelay);
+      mouseRespawnDelay = Math.max(1000, mouseRespawnDelay - 500);
+    }
+    
+    // Add event listener for user click on the mouse element.
+    mouse.addEventListener("click", killMouseByUser);
+    
+    // Listen for user's mouse movement to update cursor position (for attack mode)
+    document.addEventListener("mousemove", function(e) {
+      userCursorX = e.clientX;
+      userCursorY = e.clientY;
+    });
+    
     // -------------------- //
     // Main Game Loop       //
     // -------------------- //
     setInterval(() => {
-      // Only update positions if the mouse is alive and the cat is not resting.
-      if (isMouseAlive && !catResting) {
-        // Get current positions (in pixels)
+      // If the cat is in attack mode, have it chase the user's cursor.
+      if (catAttackMode) {
+        let catX = parseFloat(cat.style.left);
+        let catY = parseFloat(cat.style.top);
+        const dx = userCursorX - catX;
+        const dy = userCursorY - catY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance > 0) {
+          const dirX = dx / distance;
+          const dirY = dy / distance;
+          const catAttackSpeed = 15; // even faster in attack mode
+          catX += dirX * catAttackSpeed;
+          catY += dirY * catAttackSpeed;
+          cat.style.left = catX + 'px';
+          cat.style.top = catY + 'px';
+        }
+      }
+      // Otherwise, if the mouse is alive and the cat is not resting, chase the mouse.
+      else if (isMouseAlive && !catResting) {
         let catX = parseFloat(cat.style.left);
         let catY = parseFloat(cat.style.top);
         let mouseX = parseFloat(mouse.style.left);
@@ -529,40 +577,37 @@
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance > 0) {
-          // Normalize direction vector
           const dirX = dx / distance;
           const dirY = dy / distance;
-          // Set speeds: cat is really fast and mouse runs away
-          const catSpeed = 10;    // Cat speed increased significantly
-          const mouseSpeed = 4;   // Mouse speed (still slower than the cat)
+          const catSpeed = 10;    // cat is really fast
+          const mouseSpeed = 4;   // mouse runs away
           
-          // Update cat's position (chasing the mouse)
+          // Update cat position (chasing the mouse)
           catX += dirX * catSpeed;
           catY += dirY * catSpeed;
           cat.style.left = catX + 'px';
           cat.style.top = catY + 'px';
           
-          // Update mouse's position (running away from the cat)
-          // Now the mouse moves in the same direction as the vector from the cat to the mouse
+          // Update mouse position (running away from the cat)
+          // (Now the mouse moves away from the cat by moving in the same direction as (dx,dy))
           mouseX += dirX * mouseSpeed;
           mouseY += dirY * mouseSpeed;
-          // Ensure the mouse stays within the container bounds
+          // Keep mouse within container bounds
           mouseX = Math.max(0, Math.min(mouseX, containerRect.width - 80));
           mouseY = Math.max(0, Math.min(mouseY, containerRect.height - 80));
           mouse.style.left = mouseX + 'px';
           mouse.style.top = mouseY + 'px';
           
-          // If the cat gets very close, trigger a "catch"
+          // If the cat gets very close, trigger a catch.
           if (distance < 30) {
             killMouse();
           }
         }
       }
-      // If the cat is resting, allow the mouse to move with slight random jitter.
+      // If the cat is resting, allow the mouse to jitter around slightly.
       else if (isMouseAlive && catResting) {
         let mouseX = parseFloat(mouse.style.left);
         let mouseY = parseFloat(mouse.style.top);
-        // Apply small random movements
         const randomOffsetX = (Math.random() - 0.5) * 4;
         const randomOffsetY = (Math.random() - 0.5) * 4;
         mouseX = Math.max(0, Math.min(mouseX + randomOffsetX, containerRect.width - 80));
@@ -581,18 +626,26 @@
         }
       }
     }, 50); // update every 50 milliseconds (~20 FPS)
+    
+    // -------------------- //
+    // Extra Photos Dialogue //
+    // -------------------- //
+    // Every 5 seconds, update the speech bubble text of each extra photo.
+    setInterval(() => {
+      extraPhotos.forEach(photo => {
+        const bubble = photo.querySelector('.speech-bubble');
+        if (bubble) {
+          bubble.innerText = extraDialogues[Math.floor(Math.random() * extraDialogues.length)];
+        }
+      });
+    }, 5000);
   }
   
   document.addEventListener('DOMContentLoaded', function(){
     createRainDrops(50);         // Create 50 rain drops (smaller photos)
-    createWanderingPhotos(3);      // Create 3 random wandering photos + cat & mouse
+    createWanderingPhotos(3);      // Create 3 extra wandering photos plus cat & mouse
   });
 </script>
-
-
-
-
-
 
 
 
