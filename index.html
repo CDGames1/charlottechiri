@@ -379,7 +379,7 @@
   function createRainDrops(numDrops) {
     const rainContainer = document.querySelector('.rain');
     // Use images image1.png to image7.png for rain drops
-    const imageArray = ["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
+    const imageArray = ["image.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
     
     for (let i = 0; i < numDrops; i++) {
       const drop = document.createElement('div');
@@ -484,7 +484,7 @@
     let catEnergy = 100;
     let catResting = false;
     let userKillCount = 0;     // count of times user "kills" the mouse
-    let catAttackMode = true; // becomes true after 3 user kills
+    let catAttackMode = false; // becomes true after 3 user kills
     let userCursorX = containerRect.width / 2;
     let userCursorY = containerRect.height / 2;
     
