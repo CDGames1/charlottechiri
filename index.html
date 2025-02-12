@@ -286,7 +286,6 @@
           <li><a data-section="love-letter">Love Letter</a></li>
           <li><a data-section="game">Memory Game</a></li>
           <li><a data-section="cards">UNO</a></li>
-          <li><a data-section="love-quiz">Love Quiz</a></li>
         </ul>
       </nav>
     </header>
@@ -377,113 +376,6 @@
           </div>
         </div>
       </section>
-<section id="love-quiz" class="page-section">
-  <h1>How Well Do You Know Us? 💕</h1>
-  <div id="quiz-container">
-    <p id="question">Loading question...</p>
-    <div id="answers"></div>
-    <button id="next-question" disabled>Next</button>
-  </div>
-  <p id="quiz-result" style="display: none;"></p>
-</section>
-
-<script>
-  const quizQuestions = [
-    {
-      question: "Where did we have our first date?",
-      answers: ["Movies", "Beach", "Restaurant", "Amusement Park"],
-      correct: 0
-    },
-    {
-      question: "What is Charlotte’s favorite color?",
-      answers: ["Blue", "Pink", "Green", "Red"],
-      correct: 1
-    },
-    {
-      question: "Which song reminds us of each other?",
-      answers: ["Our Song", "Love Story", "Those Eyes", "Perfect"],
-      correct: 2
-    },
-    {
-      question: "What’s our anniversary month?",
-      answers: ["January", "March", "June", "December"],
-      correct: 3
-    },
-    {
-      question: "Where do we want to travel together?",
-      answers: ["Paris", "Japan", "Hawaii", "Italy"],
-      correct: 1
-    }
-  ];
-
-  let currentQuestion = 0;
-  let score = 0;
-
-  const questionEl = document.getElementById("question");
-  const answersEl = document.getElementById("answers");
-  const nextButton = document.getElementById("next-question");
-  const resultEl = document.getElementById("quiz-result");
-
-  function loadQuestion() {
-    if (currentQuestion >= quizQuestions.length) {
-      resultEl.style.display = "block";
-      resultEl.innerHTML = `You got ${score}/${quizQuestions.length}! You're the best partner ever! ❤️`;
-      nextButton.style.display = "none";
-      return;
-    }
-
-    questionEl.innerHTML = quizQuestions[currentQuestion].question;
-    answersEl.innerHTML = "";
-    quizQuestions[currentQuestion].answers.forEach((answer, index) => {
-      const button = document.createElement("button");
-      button.innerText = answer;
-      button.onclick = () => checkAnswer(index);
-      answersEl.appendChild(button);
-    });
-    nextButton.disabled = true;
-  }
-
-  function checkAnswer(selectedIndex) {
-    if (selectedIndex === quizQuestions[currentQuestion].correct) {
-      score++;
-    }
-    nextButton.disabled = false;
-  }
-
-  nextButton.addEventListener("click", () => {
-    currentQuestion++;
-    loadQuestion();
-  });
-
-  loadQuestion();
-</script>
-
-<style>
-  #quiz-container {
-    max-width: 500px;
-    margin: auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  button {
-    display: block;
-    width: 100%;
-    margin: 10px 0;
-    padding: 10px;
-    border: none;
-    background: #ff69b4;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-  button:hover {
-    background: #ff1493;
-  }
-</style>
-
       <section id="game" class="page-section">
         <h1>Memory Game</h1>
         <div class="game-container"></div>
