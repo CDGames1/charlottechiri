@@ -315,7 +315,7 @@
   }
   @keyframes fall {
     0% {
-      transform: translateY(-100px);
+      transform: translateY(-50px);
       opacity: 1;
     }
     100% {
@@ -371,9 +371,12 @@
 </style>
 
 <script>
-  // Create falling photo rain drops
+  /* --------------------------- */
+  /* Create Rain Drops Function  */
+  /* --------------------------- */
   function createRainDrops(numDrops) {
     const rainContainer = document.querySelector('.rain');
+    // Use your photos image1.png to image7.png for rain drops
     const imageArray = ["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
     
     for (let i = 0; i < numDrops; i++) {
@@ -383,8 +386,8 @@
       // Random horizontal position (0% to 100%)
       drop.style.left = Math.random() * 100 + '%';
       
-      // Random size for variety (30px to 50px)
-      const size = 30 + Math.random() * 20;
+      // Random size for variety (20px to 30px)
+      const size = 20 + Math.random() * 10;
       drop.style.width = size + 'px';
       drop.style.height = size + 'px';
       
@@ -393,50 +396,97 @@
       drop.style.backgroundImage = 'url(' + imageArray[randomIndex] + ')';
       
       // Random animation delay and duration
-      drop.style.animationDelay = Math.random() * 5 + 's';
-      drop.style.animationDuration = (3 + Math.random() * 2) + 's';
+      drop.style.animationDelay = Math.random() * 3 + 's';
+      drop.style.animationDuration = (2 + Math.random() * 2) + 's';
       
       rainContainer.appendChild(drop);
     }
   }
 
-  // Create wandering photos with dialogue
+  /* --------------------------- */
+  /* Create Wandering Photos     */
+  /* --------------------------- */
   function createWanderingPhotos(numPhotos) {
     const container = document.querySelector('.wandering-container');
-    const images = ["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
+    const dialogues = [
+      "I wonder what the Valentine's gift will be...",
+      "Chiri loves Charlotte much more xx",
+      "You're my sunshine!",
+      "Our love is endless!",
+      "Can't wait for the big day!"
+    ];
     
+    // Create random wandering photos (choose from image1.png to image7.png)
     for (let i = 0; i < numPhotos; i++) {
       const photo = document.createElement('div');
       photo.classList.add('wander-photo');
-      
-      // Randomly select an image for the wandering photo
-      const img = images[Math.floor(Math.random() * images.length)];
-      photo.style.backgroundImage = 'url(' + img + ')';
-      
-      // Random starting position
+      const images = ["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png"];
+      const randomImg = images[Math.floor(Math.random() * images.length)];
+      photo.style.backgroundImage = 'url(' + randomImg + ')';
       photo.style.top = Math.random() * 80 + '%';
       photo.style.left = Math.random() * 80 + '%';
-      
-      // Random animation duration for a varied effect
       photo.style.animationDuration = (10 + Math.random() * 5) + 's';
       
-      // Add a speech bubble to one of the photos
-      if (i === 0) {
-        const bubble = document.createElement('div');
-        bubble.classList.add('speech-bubble');
-        bubble.innerText = "shell be right";
-        photo.appendChild(bubble);
-      }
+      // Create a speech bubble with random dialogue
+      const bubble = document.createElement('div');
+      bubble.classList.add('speech-bubble');
+      bubble.innerText = dialogues[Math.floor(Math.random() * dialogues.length)];
+      photo.appendChild(bubble);
       
       container.appendChild(photo);
     }
+    
+    // Add a special wandering photo for Charlotte cat (image8)
+    const cat = document.createElement('div');
+    cat.classList.add('wander-photo');
+    cat.style.backgroundImage = 'url(image8.png)';
+    cat.style.top = Math.random() * 80 + '%';
+    cat.style.left = Math.random() * 80 + '%';
+    cat.style.animationDuration = '12s';
+    const catBubble = document.createElement('div');
+    catBubble.classList.add('speech-bubble');
+    catBubble.innerText = "Meow, i love eating and scratching carpet.";
+    cat.appendChild(catBubble);
+    container.appendChild(cat);
+    
+    // Add a wandering photo for the mouse (image9)
+    const mouse = document.createElement('div');
+    mouse.classList.add('wander-photo');
+    mouse.style.backgroundImage = 'url(image9.png)';
+    mouse.style.top = Math.random() * 80 + '%';
+    mouse.style.left = Math.random() * 80 + '%';
+    mouse.style.animationDuration = '10s';
+    const mouseBubble = document.createElement('div');
+    mouseBubble.classList.add('speech-bubble');
+    mouseBubble.innerText = "Squeak!";
+    mouse.appendChild(mouseBubble);
+    container.appendChild(mouse);
+    
+    // Special behavior: every 10 seconds, make the cat (image8) chase the mouse (image9)
+    setInterval(() => {
+      const catRect = cat.getBoundingClientRect();
+      const mouseRect = mouse.getBoundingClientRect();
+      const deltaX = mouseRect.left - catRect.left;
+      const deltaY = mouseRect.top - catRect.top;
+      // Move cat 50% closer to the mouse over 2 seconds
+      cat.style.transition = 'all 2s ease-in-out';
+      cat.style.left = (cat.offsetLeft + deltaX * 0.5) + 'px';
+      cat.style.top = (cat.offsetTop + deltaY * 0.5) + 'px';
+      // Change dialogue briefly
+      catBubble.innerText = "Gotcha!";
+      // After 2 seconds, revert dialogue
+      setTimeout(() => {
+        catBubble.innerText = "Meow, i love eating and scratching carpet.";
+      }, 2000);
+    }, 10000);
   }
 
   document.addEventListener('DOMContentLoaded', function(){
-    createRainDrops(30);      // Create 30 rain drops
-    createWanderingPhotos(3);  // Create 3 wandering photos
+    createRainDrops(50);         // Create 50 rain drops (smaller photos)
+    createWanderingPhotos(3);      // Create 3 random wandering photos + cat & mouse
   });
 </script>
+
 
 
 
