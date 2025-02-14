@@ -737,97 +737,104 @@
           </div>
         </div>
       </section>
-      <section id="game" class="page-section">
-        <h1>Memory Game</h1>
-        <div class="game-container"></div>
-        <script>
-          async function createMemoryGame() {
-            const imageUrls = [
-              'image.png', 'image2.png', 'image3.png', 'image4.png',
-              'image5.png', 'image6.png', 'image7.png'
-            ];
+<section id="game" class="page-section">
+  <h1>Memory Game</h1>
+  <div class="game-container"></div>
+  <script>
+    let isGameInitialized = false; // Flag to track initialization
 
-            // Preload images
-            const preloadImages = imageUrls.map(url => {
-              return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = () => resolve(url);
-                img.onerror = reject;
-                img.src = url;
-              });
-            });
+    async function createMemoryGame() {
+      if (isGameInitialized) return; // Exit if already initialized
 
-            // Wait for all images to load
-            await Promise.all(preloadImages);
+      const imageUrls = [
+        'image.png', 'image2.png', 'image3.png', 'image4.png',
+        'image5.png', 'image6.png', 'image7.png'
+      ];
 
-            const images = [...imageUrls, ...imageUrls]; // Duplicate for pairs
-            let flippedCards = [];
-            let matchedPairs = 0;
+      // Preload images
+      const preloadImages = imageUrls.map(url => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(url);
+          img.onerror = reject;
+          img.src = url;
+        });
+      });
 
-            const gameContainer = document.querySelector('.game-container');
+      // Wait for all images to load
+      await Promise.all(preloadImages);
 
-            // Shuffle images
-            const shuffledImages = images.sort(() => Math.random() - 0.5);
+      const images = [...imageUrls, ...imageUrls]; // Duplicate for pairs
+      let flippedCards = [];
+      let matchedPairs = 0;
 
-            // Create cards
-            shuffledImages.forEach((img, index) => {
-              const card = document.createElement('div');
-              card.classList.add('card', 'hidden');
-              card.dataset.index = index;
-              card.dataset.image = img;
+      const gameContainer = document.querySelector('.game-container');
+      gameContainer.innerHTML = ''; // Clear existing content
 
-              card.addEventListener('click', () => flipCard(card));
-              gameContainer.appendChild(card);
-            });
+      // Shuffle images
+      const shuffledImages = images.sort(() => Math.random() - 0.5);
 
-            function flipCard(card) {
-              if (flippedCards.length === 2 || flippedCards.includes(card) || !card.classList.contains('hidden')) {
-                return;
-              }
+      // Create cards
+      shuffledImages.forEach((img, index) => {
+        const card = document.createElement('div');
+        card.classList.add('card', 'hidden');
+        card.dataset.index = index;
+        card.dataset.image = img;
 
-              card.style.backgroundImage = `url(${card.dataset.image})`;
-              card.style.backgroundSize = 'cover';
-              card.classList.remove('hidden');
-              flippedCards.push(card);
+        card.addEventListener('click', () => flipCard(card));
+        gameContainer.appendChild(card);
+      });
 
-              if (flippedCards.length === 2) {
-                setTimeout(checkMatch, 1000);
-              }
-            }
+      function flipCard(card) {
+        if (flippedCards.length === 2 || flippedCards.includes(card) || !card.classList.contains('hidden')) {
+          return;
+        }
 
-            function checkMatch() {
-              const [card1, card2] = flippedCards;
-              if (card1.dataset.image === card2.dataset.image) {
-                matchedPairs++;
-                if (matchedPairs === images.length / 2) {
-                  alert('Congratulations! You won! ❤️');
-                }
-              } else {
-                card1.style.backgroundImage = '';
-                card2.style.backgroundImage = '';
-                card1.classList.add('hidden');
-                card2.classList.add('hidden');
-              }
-              flippedCards = [];
-            }
+        card.style.backgroundImage = `url(${card.dataset.image})`;
+        card.style.backgroundSize = 'cover';
+        card.classList.remove('hidden');
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) {
+          setTimeout(checkMatch, 1000);
+        }
+      }
+
+      function checkMatch() {
+        const [card1, card2] = flippedCards;
+        if (card1.dataset.image === card2.dataset.image) {
+          matchedPairs++;
+          if (matchedPairs === images.length / 2) {
+            alert('Congratulations! You won! ❤️');
           }
+        } else {
+          card1.style.backgroundImage = '';
+          card2.style.backgroundImage = '';
+          card1.classList.add('hidden');
+          card2.classList.add('hidden');
+        }
+        flippedCards = [];
+      }
 
-          // Initialize the game when the section becomes visible
-          const gameSection = document.getElementById('game');
-          const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-              if (mutation.target.style.display === 'block') {
-                createMemoryGame();
-              }
-            });
-          });
+      isGameInitialized = true; // Mark as initialized
+    }
 
-          observer.observe(gameSection, {
-            attributes: true,
-            attributeFilter: ['style']
-          });
-        </script>
-      </section>
+    // Initialize the game when the section becomes visible
+    const gameSection = document.getElementById('game');
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.target.style.display === 'block') {
+          createMemoryGame();
+        }
+      });
+    });
+
+    observer.observe(gameSection, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+  </script>
+</section>
 
       <!-- Card Game Section -->
       <section id="cards" class="page-section">
