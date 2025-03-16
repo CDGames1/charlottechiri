@@ -26,6 +26,11 @@
       padding-top: 20px;
       z-index: 1000;
       animation: slideIn 0.8s ease;
+      transition: transform 0.3s ease;
+    }
+    /* When collapsed, slide the sidebar out */
+    #sidebar.collapsed {
+      transform: translateX(-220px);
     }
     #sidebar ul {
       list-style: none;
@@ -329,9 +334,38 @@
       justify-content: center;
       z-index: 5000;
     }
+    /* Toggle button styling */
+    #toggle-sidebar {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
+      z-index: 1100;
+      cursor: pointer;
+      display: none; /* Hidden on larger screens */
+    }
+    /* Media query for mobile friendliness */
+    @media (max-width: 768px) {
+      #sidebar {
+        width: 200px;
+      }
+      #toggle-sidebar {
+        display: block;
+      }
+      /* Adjust main content margin when sidebar is visible */
+      #main-content {
+        margin-left: 0;
+      }
+    }
   </style>
 </head>
 <body>
+  <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+
   <!-- Splash Screen Countdown -->
   <section id="splash-screen">
     <h1>Page Reveal Tonight xx</h1>
@@ -548,6 +582,12 @@
   </div>
 
   <script>
+    // Toggle sidebar collapse
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("collapsed");
+    }
+
     // Page Countdown Timer to 10pm
     function updatePageCountdown() {
       const now = new Date();
@@ -644,49 +684,60 @@
     moveNPCsRandomly();
     setInterval(() => { if (!npcEventActive) moveNPCsRandomly(); }, 5000);
 
-    const npcActions = [
-      "*wandering around*", "*smiling softly*", "*thinking of you*", 
-      "*giggling quietly*", "*dreaming about us*",     "I love you more",
-    "i do xx",
-    "I love you more than all the blocks in minecraft",
-    "i wanna lick jellybean babeee im hungryyy xx",
-    "leftie, stay out of trouble hehe",
-    "rightie, i secretly love you more than leftie oops hehehe maybeee, but ill love charlotte the most",
-    "Babeeeee i love youuu",
-    "Babeee xx look someones awake",
-    "Babeee is it a bird, is it a plane no its just Moody xd",
-    "True love Forever xx",
-    "Jellybean will be dry when your here babeeeeeeeee",
-    "Dry in the inside and wet on the outside",
-    "Jellybean needs me so much, open those legs!!!!",
-    "i will wake up first to clean jellybean",
-    "why did you say moody",
-    "moody is always moody and will forever be moody",
-    "i am yours forever, and your mineeeeee xx",
-    "I love you moreeeee xx",
-    "i doooo xx mwahhhh",
-    "shell be right",
-    "Jellybean is soaked for you",
-    "Leftie and rightie should be both the same",
-    "Babeee your my sexy cute handsome man",
-    "Jonothan needs me right now!! its urgent",
-    "Jonothans Brothers are gonna be dry when im at yours",
-    "I love jonothans hat",
-    "i Love you so much babeee xx so muchhhhhh",
-    "No i do",
-    "NOOOO i dooooo",
-    "I will wake up before you to get to jonothan xx",
-    "moody",
-    "i love you more than moodyyy",
-    "your all mine foreverrrr xx"
+    // Replace the original npcActions array with two separate arrays:
+    const npcActionsPhoto1 = [
+      "*wandering around*",
+      "*smiling softly*",
+      "*thinking of you*",
+      "*giggling quietly*",
+      "*dreaming about us*",
+      "I love you more",
+      "i do xx",
+      "I love you more than all the blocks in minecraft",
+      "i wanna lick jellybean babeee im hungryyy xx",
+      "leftie, stay out of trouble hehe",
+      "rightie, i secretly love you more than leftie oops hehehe maybeee, but ill love charlotte the most",
+      "Babeeeee i love youuu",
+      "Babeee xx look someones awake",
+      "Babeee is it a bird, is it a plane no its just Moody xd",
+      "True love Forever xx",
+      "Jellybean will be dry when your here babeeeeeeeee",
+      "moody",
+      "Dry in the inside and wet on the outside",
+      "Jellybean needs me so much, open those legs!!!!",
+      "i will wake up first to clean jellybean"
     ];
+    
+    const npcActionsPhoto2 = [
+      "why did you say moody",
+      "moody is always moody and will forever be moody",
+      "i am yours forever, and your mineeeeee xx",
+      "I love you moreeeee xx",
+      "i doooo xx mwahhhh",
+      "shell be right",
+      "*wandering around*",
+      "*smiling softly*",
+      "*thinking of you*",
+      "*giggling quietly*",
+      "*dreaming about us*",
+      "Jellybean is soaked for you",
+      "Leftie and rightie should be both the same",
+      "Babeee your my sexy cute handsome man",
+      "Jonothan needs me right now!! its urgent",
+      "Jonothans Brothers are gonna be dry when im at yours",
+      "I love jonothans hat",
+      "i Love you so much babeee xx so muchhhhhh"
+    ];
+    
+    // Updated function to assign speech bubbles from the two arrays respectively:
     function updateNPCActions() {
       if (npcEventActive) return;
       document.getElementById("speech-chiri").innerText = 
-        npcActions[Math.floor(Math.random() * npcActions.length)];
+        npcActionsPhoto1[Math.floor(Math.random() * npcActionsPhoto1.length)];
       document.getElementById("speech-charlotte").innerText = 
-        npcActions[Math.floor(Math.random() * npcActions.length)];
+        npcActionsPhoto2[Math.floor(Math.random() * npcActionsPhoto2.length)];
     }
+
     setInterval(updateNPCActions, 10000);
 
     // NPC Click Interaction
