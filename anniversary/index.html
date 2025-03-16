@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>4th Month Anniversary Gift xx</title>
+  <style>
+    /* Global & Romantic Theme */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ffafbd, #ffc3a0);
+      color: #333;
+      overflow-x: hidden;
+    }
+    /* Sidebar Styles */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200px;
+      height: 100%;
+      background: rgba(255,255,255,0.8);
+      box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+      padding-top: 20px;
+      z-index: 1000;
+      animation: slideIn 0.8s ease;
+    }
+    #sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    #sidebar ul li {
+      margin: 15px 0;
+      text-align: center;
+    }
+    #sidebar ul li a {
+      text-decoration: none;
+      color: #ff6f61;
+      font-weight: bold;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(-220px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    /* Main Content */
+    #main-content {
+      margin-left: 220px;
+    }
+    /* Header & Hero Section */
+    header {
+      position: relative;
+      height: 100vh;
+      text-align: center;
+      overflow: hidden;
+    }
+    .welcome {
+      position: relative;
+      z-index: 2;
+      top: 40%;
+      transform: translateY(-50%);
+      color: white;
+      text-shadow: 1px 1px 5px #000;
+    }
+    .welcome h1, .welcome h2 { margin: 10px; }
+    .hero-image {
+      width: 300px;
+      max-width: 90%;
+      border-radius: 10px;
+      opacity: 0;
+      animation: fadeIn 3s forwards;
+      margin-top: 20px;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    /* Falling Hearts Animation */
+    #hearts-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .heart {
+      position: absolute;
+      color: red;
+      font-size: 2rem;
+      opacity: 0;
+      animation: fall 5s linear infinite;
+    }
+    @keyframes fall {
+      0% { top: -10%; opacity: 0; }
+      25% { opacity: 1; }
+      100% { top: 110%; opacity: 0; }
+    }
+    /* Countdown Timer */
+    #countdown-section {
+      background: rgba(0,0,0,0.3);
+      padding: 20px;
+      text-align: center;
+    }
+    #countdown {
+      font-size: 2rem;
+      color: white;
+    }
+    /* Memory Timeline */
+    #timeline-section {
+      padding: 20px;
+    }
+    #timeline-section h2 { text-align: center; }
+    #timeline {
+      background: rgba(255,255,255,0.8);
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: nowrap;
+      max-width: 95%;
+    }
+    .timeline-event {
+      display: inline-block;
+      vertical-align: top;
+      width: 200px;
+      margin: 10px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    /* Gallery Section */
+    #gallery-section {
+      padding: 20px;
+      text-align: center;
+    }
+    #gallery-section h2 { margin-bottom: 20px; }
+    .gallery-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .gallery-grid img {
+      width: 200px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      transition: transform 0.3s;
+    }
+    .gallery-grid img:hover { transform: scale(1.05); }
+    /* Quiz Section */
+    #quiz-section {
+      background: rgba(255,255,255,0.9);
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+    }
+    .quiz-mode {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ff6f61;
+      border-radius: 8px;
+    }
+    .quiz-question { margin-bottom: 10px; }
+    input[type="text"] {
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 80%;
+      max-width: 300px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #ff6f61;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover { background: #ff3b2e; }
+    a {
+      color: #ff6f61;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    /* Extra Games Section */
+    #extra-games-section {
+      background: rgba(255,255,255,0.9);
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+    }
+    /* Love Note Modal Popup */
+    #love-note-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.7);
+      animation: fadeInModal 0.8s;
+    }
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .modal-content {
+      background: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+      animation: popup 0.6s ease-out;
+    }
+    @keyframes popup {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    #close-modal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #ff6f61;
+    }
+    /* Bed Overlay for Make Love Event */
+    #love-event {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      text-align: center;
+      display: none;
+      z-index: 4000;
+      animation: shake 0.5s infinite;
+    }
+    @keyframes shake {
+      0% { transform: translate(0, 0); }
+      10% { transform: translate(-10px, 0); }
+      20% { transform: translate(10px, 0); }
+      30% { transform: translate(-10px, 0); }
+      40% { transform: translate(10px, 0); }
+      50% { transform: translate(-10px, 0); }
+      60% { transform: translate(10px, 0); }
+      70% { transform: translate(-10px, 0); }
+      80% { transform: translate(10px, 0); }
+      90% { transform: translate(-10px, 0); }
+      100% { transform: translate(0, 0); }
+    }
+    #love-event img { width: 100px; }
+    #love-event .love-emojis {
+      font-size: 2rem;
+      margin-top: 10px;
+    }
+    /* NPC Container & Styles */
+    #npc-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 3500;
+    }
+    .npc {
+      position: absolute;
+      width: 60px;
+      transition: left 2s ease, top 2s ease;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    .npc img {
+      width: 100%;
+      border-radius: 50%;
+      display: block;
+    }
+    .npc-speech {
+      position: absolute;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,111,97,0.9);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+      font-size: 0.7rem;
+    }
+    /* Love Meter */
+    #love-meter {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 20px;
+      background: #eee;
+      z-index: 1000;
+    }
+    #love-meter-bar {
+      height: 100%;
+      width: 0%;
+      background: #ff6f61;
+      transition: width 0.5s;
+    }
+    /* Splash screen styles for the countdown */
+    #splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffafbd;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 5000;
+    }
+  </style>
+</head>
+<body>
+  <!-- Splash Screen Countdown -->
+  <section id="splash-screen">
+    <h1>Page Reveal Tonight xx</h1>
+    <h2 id="page-countdown"></h2>
+  </section>
+
+  <!-- Love Meter -->
+  <div id="love-meter">
+    <div id="love-meter-bar"></div>
+  </div>
+
+  <!-- NPC Container -->
+  <div id="npc-container">
+    <div id="npc-chiri" class="npc">
+      <img src="photo1.jpg" alt="Chiri">
+      <div class="npc-speech" id="speech-chiri"></div>
+    </div>
+    <div id="npc-charlotte" class="npc">
+      <img src="photo2.jpg" alt="Charlotte">
+      <div class="npc-speech" id="speech-charlotte"></div>
+    </div>
+  </div>
+
+  <!-- Love Note Modal -->
+  <div id="love-note-modal">
+    <div class="modal-content">
+      <span id="close-modal">×</span>
+      <p class="love-note-text">
+        My dearest,<br>
+        Every moment with you fills my heart with joy.<br>
+        I love you more than words can say.
+      </p>
+    </div>
+  </div>
+
+  <!-- Bed Overlay for Make Love Event -->
+  <div id="love-event">
+    <img src="bed.png" alt="Bed" id="bed">
+    <div class="love-emojis">🍆🪼🫘👅</div>
+  </div>
+
+  <!-- Sidebar Navigation -->
+  <div id="sidebar">
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#gallery-section">Gallery</a></li>
+      <li><a href="#timeline-section">Memories</a></li>
+      <li><a href="#quiz-section">Quiz</a></li>
+    </ul>
+  </div>
+
+  <!-- Hide main content until countdown reaches zero -->
+  <div id="main-content" style="display: none;">
+    <header id="home">
+      <div id="hearts-container"></div>
+      <div class="welcome">
+        <img src="recent.jpg" alt="Recent photo" class="hero-image">
+<p>Latest Photo of us</P>
+<br></br>
+        <h1>Happy 4th Month Anniversary xx</h1>
+<h3>I love you so much babe, till the day i die and this is a message im gonna change every new update and every month. Babee when i first seen your beautifil eyes i knew you were the one for me, those eyes i could not resist and those eyes are the ones i felt for (thats why those eyes is our song on instagram hehe). I wanna say im so glad im in your life and your in mine so here is a little gift from me.</h3>      
+</div>
+    </header>
+
+    <section id="countdown-section">
+      <div id="countdown">Countdown: Loading...</div>
+    </section>
+
+   <section id="timeline-section">
+      <h2>Our Memories</h2>
+      <div id="timeline">
+        <div class="timeline-event">
+          <h3>First Message</h3>
+          <p>18/09/2024</p>
+        </div>
+        <div class="timeline-event">
+          <h3>First Date</h3>
+          <p>02/11/2024</p>
+        </div>
+        <div class="timeline-event">
+          <h3>First Kiss</h3>
+          <p>16/11/2024</p>
+        </div>
+        <div class="timeline-event">
+          <h3>Race to Countdown</h3>
+          <p>17/11/2024</p>
+        </div>
+        <div class="timeline-event">
+          <h3>Second Date (Moana 2)</h3>
+          <p>30/11/2024</p>
+        </div>
+        <div class="timeline-event">
+          <h3>Third Date (BBQ)</h3>
+          <p>01/12/2024</p>
+        </div>
+        <div class="timeline-event">
+          <h3>Fourth Date (Papamoa Beach)</h3>
+          <p>20/12/2024</p>
+        </div>
+        <div class="timeline-event">
+          <h3>Fifth Date (Movie at Chiri’s)</h3>
+          <p>23/12/2024</p>
+        </div>
+        <div class="timeline-event">
+          <h3>New Year's Eve Date</h3>
+          <p>31/12/2024 - 02/01/2025</p>
+        </div>
+        <div class="timeline-event">
+          <h3>Sixth Date (At my house)</h3>
+          <p>10/01/2025 - 15/01/2025</p>
+        </div>
+        <div class="timeline-event">
+          <h3>Valentine's Day</h3>
+          <p><a href="https://cdgames1.github.io/charlottechiri/" target="_blank">14/02/2025</a></p>
+        </div>
+        <div class="timeline-event">
+          <h3>Seventh Date (at narissas)</h3>
+          <p>01/03/2025 - 02/03/2025</p>
+        </div>
+        <div class="timeline-event">
+          <h3>Eighth Date (Future Planned)</h3>
+          <p>TBD</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery-section">
+      <h2>Our Photo Gallery</h2>
+      <div class="gallery-grid">
+        <img src="photos/photo1.jpg" alt="Photo 1">
+        <img src="photos/photo2.jpg" alt="Photo 2">
+        <img src="photos/photo3.jpg" alt="Photo 3">
+        <img src="photos/photo4.jpg" alt="Photo 4">
+        <img src="photos/photo5.jpg" alt="Photo 5">
+        <img src="photos/photo6.jpg" alt="Photo 6">
+        <img src="photos/photo7.jpg" alt="Photo 7">
+        <img src="photos/photo8.jpg" alt="Photo 8">
+        <img src="photos/photo9.jpg" alt="Photo 9">
+        <img src="photos/photo10.jpg" alt="Photo 10">
+        <img src="photos/photo11.jpg" alt="Photo 11">
+        <img src="photos/photo12.jpg" alt="Photo 12">
+        <img src="photos/photo13.jpg" alt="Photo 13">
+        <img src="photos/photo14.jpg" alt="Photo 14">
+        <img src="photos/photo15.jpg" alt="Photo 15">
+        <img src="photos/photo16.jpg" alt="Photo 16">
+        <img src="photos/photo17.jpg" alt="Photo 17">
+        <img src="photos/photo18.jpg" alt="Photo 18">
+        <img src="photos/photo19.jpg" alt="Photo 19">
+        <img src="photos/photo20.jpg" alt="Photo 20">
+        <img src="photos/photo21.jpg" alt="Photo 21">
+        <img src="photos/photo22.jpg" alt="Photo 22">
+        <img src="photos/photo23.jpg" alt="Photo 23">
+        <img src="photos/photo24.jpg" alt="Photo 24">
+        <img src="photos/photo25.jpg" alt="Photo 25">
+        <img src="photos/photo26.jpg" alt="Photo 26">
+        <img src="photos/photo27.jpg" alt="Photo 27">
+        <img src="photos/photo28.jpg" alt="Photo 28">
+      </div>
+    </section>
+
+<section id="quiz-section">
+  <h2>Games &amp; Quizzes</h2>
+  
+  <!-- Mode Selection -->
+  <div id="mode-selection">
+    <h3>Select Your Mode</h3>
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLScemjkC7j7YUWHly0qUSqe1qMeMJeWsL87D_Cr-4BxLQr1AeQ/viewform?embedded=true" width="640" height="452" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+  </div>  
+  <div id="quiz-status"></div>
+  
+  <script>
+    let quizResponses = "";
+
+    function selectMode(mode) {
+      // Hide mode selection and show the corresponding quiz
+      document.getElementById("mode-selection").style.display = "none";
+      if (mode === "Romantic") {
+        document.getElementById("romantic-quiz").style.display = "block";
+      } else if (mode === "Spicy") {
+        document.getElementById("spicy-quiz").style.display = "block";
+      }
+    }
+
+    function submitQuiz(mode) {
+      let response = "";
+      let form, prefix;
+      if (mode === "Romantic") {
+        form = document.getElementById("romantic-form");
+        prefix = "romantic";
+      } else if (mode === "Spicy") {
+        form = document.getElementById("spicy-form");
+        prefix = "spicy";
+      }
+      // Loop through 20 questions
+      for (let i = 1; i <= 20; i++) {
+        const radios = form.elements[prefix + "-q" + i];
+        let answer = "";
+        if (radios) {
+          for (let j = 0; j < radios.length; j++) {
+            if (radios[j].checked) {
+              answer = radios[j].value;
+              break;
+            }
+          }
+        }
+        response += `Q${i}: ${answer}\n`;
+      }
+      const timestamp = new Date().toLocaleString();
+      quizResponses += `${mode} Mode Responses:\n${response}Time: ${timestamp}\n\n`;
+      document.getElementById("quiz-status").innerText = "Responses saved!";
+    }
+  </script>
+</section>
+  </div>
+
+  <script>
+    // Page Countdown Timer to 10pm
+    function updatePageCountdown() {
+      const now = new Date();
+      let target = new Date();
+      target.setHours(22, 0, 0, 0); // Today at 10pm
+      // If current time is already past 10pm, show main content immediately
+      if (now >= target) {
+        document.getElementById('splash-screen').style.display = "none";
+        document.getElementById('main-content').style.display = "block";
+        clearInterval(pageCountdownInterval);
+      } else {
+        const diff = target - now;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        document.getElementById('page-countdown').innerText = `${hours}h ${minutes}m ${seconds}s`;
+      }
+    }
+    let pageCountdownInterval = setInterval(updatePageCountdown, 1000);
+    updatePageCountdown();
+
+    // Falling Hearts Animation
+    const heartsContainer = document.getElementById('hearts-container');
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.classList.add('heart');
+      heart.innerHTML = '❤';
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.fontSize = (20 + Math.random() * 30) + 'px';
+      heart.style.animationDuration = (3 + Math.random() * 2) + 's';
+      heartsContainer.appendChild(heart);
+      setTimeout(() => heart.remove(), 5000);
+    }
+    setInterval(createHeart, 500);
+
+    // Countdown Timer
+    let nextAnniversary = new Date("2024-12-16T00:00:00");
+    function updateCountdown() {
+      const now = new Date();
+      const diff = nextAnniversary - now;
+      const countdownElem = document.getElementById('countdown');
+      if (diff <= 0) {
+        countdownElem.innerText = "Happy Anniversary!";
+      } else {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        countdownElem.innerText = `Countdown: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+      }
+    }
+    setInterval(updateCountdown, 1000);
+
+    // Quiz Functionality & Love Meter
+    let loveMeter = 0;
+    function submitQuiz(mode) {
+      let response = mode === "Romantic" ? 
+        document.getElementById('romantic-q1').value :
+        document.getElementById('spicy-q1').value;
+      document.getElementById('quiz-status').innerText = "Response saved!";
+      if (response.toLowerCase() === "true") {
+        loveMeter += 10;
+        if (loveMeter > 100) loveMeter = 100;
+        document.getElementById('love-meter-bar').style.width = loveMeter + "%";
+      }
+    }
+
+    // Love Calculator
+    function calculateLove() {
+      let name1 = document.getElementById("your-name").value;
+      let name2 = document.getElementById("partner-name").value;
+      if (!name1 || !name2) {
+        document.getElementById("love-result").innerText = "Please enter both names!";
+        return;
+      }
+      let lovePercent = Math.floor(Math.random() * 51) + 50;
+      document.getElementById("love-result").innerText = `${name1} and ${name2} have ${lovePercent}% love!`;
+    }
+
+    // NPC Behavior
+    let npcEventActive = false;
+    let clickCount = { chiri: 0, charlotte: 0 };
+    function moveNPCsRandomly() {
+      if (npcEventActive) return;
+      const npcChiri = document.getElementById("npc-chiri");
+      const npcCharlotte = document.getElementById("npc-charlotte");
+      const maxX = document.documentElement.clientWidth - 60;
+      const maxY = document.documentElement.scrollHeight - 60;
+      npcChiri.style.left = Math.random() * maxX + "px";
+      npcChiri.style.top = Math.random() * maxY + "px";
+      npcCharlotte.style.left = Math.random() * maxX + "px";
+      npcCharlotte.style.top = Math.random() * maxY + "px";
+    }
+    moveNPCsRandomly();
+    setInterval(() => { if (!npcEventActive) moveNPCsRandomly(); }, 5000);
+
+    const npcActions = [
+      "*wandering around*", "*smiling softly*", "*thinking of you*", 
+      "*giggling quietly*", "*dreaming about us*",     "I love you more",
+    "i do xx",
+    "I love you more than all the blocks in minecraft",
+    "i wanna lick jellybean babeee im hungryyy xx",
+    "leftie, stay out of trouble hehe",
+    "rightie, i secretly love you more than leftie oops hehehe maybeee, but ill love charlotte the most",
+    "Babeeeee i love youuu",
+    "Babeee xx look someones awake",
+    "Babeee is it a bird, is it a plane no its just Moody xd",
+    "True love Forever xx",
+    "Jellybean will be dry when your here babeeeeeeeee",
+    "Dry in the inside and wet on the outside",
+    "Jellybean needs me so much, open those legs!!!!",
+    "i will wake up first to clean jellybean",
+    "why did you say moody",
+    "moody is always moody and will forever be moody",
+    "i am yours forever, and your mineeeeee xx",
+    "I love you moreeeee xx",
+    "i doooo xx mwahhhh",
+    "shell be right",
+    "Jellybean is soaked for you",
+    "Leftie and rightie should be both the same",
+    "Babeee your my sexy cute handsome man",
+    "Jonothan needs me right now!! its urgent",
+    "Jonothans Brothers are gonna be dry when im at yours",
+    "I love jonothans hat",
+    "i Love you so much babeee xx so muchhhhhh",
+    "No i do",
+    "NOOOO i dooooo",
+    "I will wake up before you to get to jonothan xx",
+    "moody",
+    "i love you more than moodyyy",
+    "your all mine foreverrrr xx"
+    ];
+    function updateNPCActions() {
+      if (npcEventActive) return;
+      document.getElementById("speech-chiri").innerText = 
+        npcActions[Math.floor(Math.random() * npcActions.length)];
+      document.getElementById("speech-charlotte").innerText = 
+        npcActions[Math.floor(Math.random() * npcActions.length)];
+    }
+    setInterval(updateNPCActions, 10000);
+
+    // NPC Click Interaction
+    document.getElementById("npc-chiri").addEventListener("click", () => {
+      clickCount.chiri++;
+      const speech = document.getElementById("speech-chiri");
+      speech.innerText = clickCount.chiri < 5 ? "Click meee ahh keep touchingggg" : "ahhhh making him hard babeeee xx";
+      if (clickCount.chiri >= 5 && clickCount.charlotte >= 5) conversationEvent();
+    });
+    document.getElementById("npc-charlotte").addEventListener("click", () => {
+      clickCount.charlotte++;
+      const speech = document.getElementById("speech-charlotte");
+      speech.innerText = clickCount.charlotte < 5 ? "ahhh jellybean is gonna get wet" : "ahhh jellybean is soaked time for you to clean babe xx";
+      if (clickCount.chiri >= 5 && clickCount.charlotte >= 5) conversationEvent();
+    });
+
+    // Conversation Event
+    const conversations = [
+      { chiri: "I love you more", charlotte: "No, I love you more!" },
+      { chiri: "You're my everything", charlotte: "You're my world!" }
+    ];
+    function conversationEvent() {
+      npcEventActive = true;
+      const npcChiri = document.getElementById("npc-chiri");
+      const npcCharlotte = document.getElementById("npc-charlotte");
+      const centerX = document.documentElement.clientWidth / 2;
+      const centerY = document.documentElement.clientHeight / 2;
+      npcChiri.style.left = (centerX - 150) + "px";
+      npcChiri.style.top = (centerY - 50) + "px";
+      npcCharlotte.style.left = (centerX + 50) + "px";
+      npcCharlotte.style.top = (centerY - 50) + "px";
+      const pair = conversations[Math.floor(Math.random() * conversations.length)];
+      document.getElementById("speech-chiri").innerText = pair.chiri;
+      document.getElementById("speech-charlotte").innerText = pair.charlotte;
+      setTimeout(() => {
+        npcEventActive = false;
+        updateNPCActions();
+        moveNPCsRandomly();
+      }, 5000);
+    }
+
+    // Make Love Event
+    let loveEventActive = false;
+    function makeLoveEvent() {
+      loveEventActive = true;
+      npcEventActive = true;
+      const loveEvent = document.getElementById("love-event");
+      loveEvent.style.display = "block";
+      const npcChiri = document.getElementById("npc-chiri");
+      const npcCharlotte = document.getElementById("npc-charlotte");
+      const maxX = document.documentElement.clientWidth;
+      npcChiri.style.left = (maxX - 140) + "px";
+      npcChiri.style.top = "20px";
+      npcCharlotte.style.left = (maxX - 80) + "px";
+      npcCharlotte.style.top = "20px";
+      setTimeout(() => {
+        loveEvent.style.display = "none";
+        loveEventActive = false;
+        npcEventActive = false;
+        updateNPCActions();
+        moveNPCsRandomly();
+      }, 3000);
+    }
+    setInterval(() => { if (!loveEventActive) makeLoveEvent(); }, 60000);
+    document.getElementById("bed").addEventListener("click", () => {
+      if (loveEventActive) window.location.href = "love.html";
+    });
+
+    // Modal Close
+    document.getElementById("close-modal").addEventListener("click", () => {
+      document.getElementById("love-note-modal").style.display = "none";
+    });
+  </script>
+</body>
+</html>

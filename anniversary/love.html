@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Love Scene</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #ff6f61, #ffafbd);
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    /* Container for bed image & speech bubbles */
+    #bed-container {
+      position: relative;
+      margin-top: 20px;
+    }
+    .bed-photo {
+      width: 60%;
+      height: auto;
+      animation: zoomIn 2s ease-out;
+      transition: transform 0.1s;
+    }
+    @keyframes zoomIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    /* Speech bubbles positioned on each pillow */
+    .speech-bubble {
+      position: absolute;
+      background: rgba(255, 111, 97, 0.9);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    /* Adjust these positions according to where the pillows are on bed.png */
+    #speech-bubble-left {
+      top: 1%;
+      left: 10%;
+    }
+    #speech-bubble-right {
+      top: 20%;
+      right: 15%;
+    }
+    /* Control Section */
+    .control-selection {
+      margin: 20px 0;
+    }
+    #progress-bar-container {
+      width: 300px;
+      height: 20px;
+      background: #eee;
+      border-radius: 10px;
+      margin: 20px auto;
+      overflow: hidden;
+    }
+    #progress-bar {
+      width: 0%;
+      height: 100%;
+      background: #ff6f61;
+      transition: width 0.2s;
+    }
+    #love-button {
+      padding: 15px 30px;
+      font-size: 1.5rem;
+      background: #fff;
+      border: 2px solid #ff6f61;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    #love-button:active {
+      transform: scale(0.95);
+    }
+    #splatter {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      display: none;
+      z-index: 1000;
+      animation: splatterFade 7s forwards;
+    }
+    @keyframes splatterFade {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="bed-container">
+    <img src="bed.png" alt="In Bed" class="bed-photo" id="bedImage">
+    <div id="speech-bubble-left" class="speech-bubble"></div>
+    <div id="speech-bubble-right" class="speech-bubble"></div>
+  </div>
+  <div class="control-selection">
+    <button id="love-button">Click Me!</button>
+  </div>
+  <div id="progress-bar-container">
+    <div id="progress-bar"></div>
+  </div>
+  <div id="splatter"></div>
+
+  <script>
+    const loveButton = document.getElementById("love-button");
+    const progressBar = document.getElementById("progress-bar");
+    const splatter = document.getElementById("splatter");
+    const bedImage = document.getElementById("bedImage");
+    const speechBubbleLeft = document.getElementById("speech-bubble-left");
+    const speechBubbleRight = document.getElementById("speech-bubble-right");
+
+    let progress = 0, round = 1, clicksNeeded = 50, progressCount = 0;
+    let lastClickTime = Date.now();
+    let resetShakeTimeout;
+    let speechTimeout;  // to control hide timeout
+
+    // Normal and sad speech arrays
+    const leftSpeeches = [
+      "Chiri: ahh keep sucking that lolipop fasterrr", 
+      "Chiri: *nibbles on jellybean*", 
+      "Chiri: keep going babee dont stop", 
+      "Chiri: *i swallow all of jellybeans fluids*", 
+      "Chiri: Babeee jonothans about to blow"
+    ];
+    const rightSpeeches = [
+      "Charlotte: *i gulp faster*", 
+      "Charlotte: *moans* ahhhh", 
+      "Charlotte: ahh i wont stop ", 
+      "Charlotte: ahh jellybeans close to releasingggg", 
+      "Charlotte: give me all of ittttt"
+    ];
+    const sadSpeechLeft = "Chiri: aahhh keep clickinggg, keep getting jono boy";
+    const sadSpeechRight = "Charlotte: the more clicks the faster";
+
+    loveButton.addEventListener("click", () => {
+      progress += 100 / clicksNeeded;
+      if(progress > 100) progress = 100;
+      progressBar.style.width = progress + "%";
+      progressCount++;
+      updateShake();
+      lastClickTime = Date.now();
+      
+      if(progress >= 100) {
+        splatter.style.display = "block";
+        setTimeout(() => { splatter.style.display = "none"; }, 1000);
+        
+        if(round === 1) {
+          showSpeech("ahh keep licking jellybean ahhh ill keep sucking jonothan xx, ahhhh such a big mess everywhereeee ahhh round two it is xx", 3000);
+          round = 2;
+          progress = 0;
+          clicksNeeded = 100;
+          progressBar.style.width = "0%";
+          loveButton.innerText = "Round 2 - Go!";
+        } else {
+          showSpeech("Ahhhh i cant believe i release again for a second time xx", 3000);
+          loveButton.disabled = true;
+          loveButton.innerText = "Finished!";
+          setTimeout(() => { window.location.href = "index.html"; }, 3000);
+        }
+      }
+    });
+    
+    function updateShake() {
+      const now = Date.now();
+      const delta = now - lastClickTime;
+      const intensity = Math.min(20, 1000 / (delta || 1));
+      const shakeX = (Math.random() - 0.5) * intensity;
+      const shakeY = (Math.random() - 0.5) * intensity;
+      bedImage.style.transform = `scale(1) translate(${shakeX}px, ${shakeY}px)`;
+      
+      clearTimeout(resetShakeTimeout);
+      resetShakeTimeout = setTimeout(() => {
+        bedImage.style.transform = "scale(1) translate(0, 0)";
+      }, 500);
+    }
+    
+    // Update speech bubbles every 2 seconds continuously
+    setInterval(() => {
+      // Check if there has been user activity (pressing the button) in the last 5 seconds
+      const inactivity = Date.now() - lastClickTime;
+      if(inactivity > 5000) {
+        // Show sad speech continually if inactive
+        speechBubbleLeft.innerText = sadSpeechLeft;
+        speechBubbleRight.innerText = sadSpeechRight;
+      } else {
+        // Show normal random speech
+        speechBubbleLeft.innerText = leftSpeeches[Math.floor(Math.random() * leftSpeeches.length)];
+        speechBubbleRight.innerText = rightSpeeches[Math.floor(Math.random() * rightSpeeches.length)];
+      }
+      speechBubbleLeft.style.display = "block";
+      speechBubbleRight.style.display = "block";
+      
+      // Clear any previous timeout before scheduling a new hide
+      clearTimeout(speechTimeout);
+      speechTimeout = setTimeout(() => {
+        speechBubbleLeft.style.display = "none";
+        speechBubbleRight.style.display = "none";
+      }, 2000);
+    }, 2000);
+
+    function showSpeech(text, duration) {
+      speechBubbleLeft.innerText = text;
+      speechBubbleRight.innerText = text;
+      speechBubbleLeft.style.display = "block";
+      speechBubbleRight.style.display = "block";
+      clearTimeout(speechTimeout);
+      speechTimeout = setTimeout(() => {
+        speechBubbleLeft.style.display = "none";
+        speechBubbleRight.style.display = "none";
+      }, duration);
+    }
+  </script>
+</body>
+</html>
