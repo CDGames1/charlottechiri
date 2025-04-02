@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For My Wifey xx</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Overlay with greeting and instructions -->
+  <div id="overlay">
+    <div class="overlay-content">
+      <h1>To my wifey xx</h1>
+      <p>
+        This gift is from me to help you calm down and unwind from life’s challenges and toughness xx.<br /><br />
+        On this website, you can interact with objects hehehe xx<br />
+        • The stereo starts a guided meditation x<br />
+        • The couch lets you relax with my voice xx<br />
+        • The fireplace toggles on/off for warmth xx<br />
+        • The candle toggles for a cozy glow xx<br /><br />
+        You can also select a scenery – choose between Forest or Beach </p>
+      <button id="enterBtn">Enter</button>
+    </div>
+  </div>
+
+  <!-- Volume Control (top left) -->
+  <div id="volumeControl">
+    <label for="volumeSlider">Volume:</label>
+    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" />
+  </div>
+
+  <!-- Scene Fade Overlay for scene switching -->
+  <div id="sceneFadeOverlay">
+    <div id="sceneFadeText"></div>
+  </div>
+
+  <!-- Main Interactive Section -->
+  <div id="interactiveSection">
+    <!-- Scene changer trigger area at top center -->
+    <div id="sceneChangerTrigger"></div>
+    
+    <!-- Scenery Selector Popup -->
+    <div id="sceneryPopup">
+      <p>Choose your scenery:</p>
+      <button class="sceneryBtn" data-scenery="forest">🌲 Forest</button>
+      <button class="sceneryBtn" data-scenery="beach">🌊 Beach</button>
+      <button id="closePopup">✖️</button>
+    </div>
+
+    <!-- Black box at bottom for interactive objects -->
+    <div id="objectBar">
+      <div class="objectContainer" id="couchContainer">
+        <img id="couch" class="object" src="assets/couch.png" alt="Couch" title="Relax on the couch" />
+        <div class="objectDesc">Relax on the couch xx</div>
+      </div>
+      <div class="objectContainer" id="fireplaceContainer">
+        <img id="fireplace" class="object" src="assets/fireplace.png" alt="Fireplace" title="Toggle the fireplace" />
+        <div class="objectDesc">Toggle the fireplace xx</div>
+      </div>
+      <div class="objectContainer" id="candleContainer">
+        <img id="candle" class="object" src="assets/candle.png" alt="Candle" title="Toggle the candle" />
+        <div class="objectDesc">Light the candle xx</div>
+      </div>
+      <div class="objectContainer" id="stereoContainer">
+        <img id="stereo" class="object" src="assets/stereo.png" alt="Stereo" title="Start meditation" />
+        <div class="objectDesc">Start meditation by Chiri xx</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meditation Overlay (hidden by default) -->
+  <div id="meditationOverlay">
+    <img id="meditationImage" src="" alt="" />
+    <div id="meditationText"></div>
+  </div>
+
+  <!-- Relaxation Overlay for Couch Interaction -->
+  <div id="relaxOverlay">
+    <img id="relaxImage" src="assets/relaxing.png" alt="Relax" />
+    <div id="relaxText">Have a lay down and relax and listen to my voice.</div>
+  </div>
+
+  <!-- Background and Other Audio Elements -->
+  <audio id="backgroundAudio" loop></audio>
+  <audio id="deepBreathAudio" src="assets/Deepbreaths.mp3"></audio>
+  <audio id="candleLitAudio" src="assets/candlelit.mp3"></audio>
+  <audio id="candleOutAudio" src="assets/candleout.mp3"></audio>
+  <audio id="fireplaceOnAudio" src="assets/fireplaceon.mp3"></audio>
+  <audio id="fireplaceOffAudio" src="assets/fireplaceoff.mp3"></audio>
+  <audio id="chiriAudio" src="assets/chiri.mp3"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
