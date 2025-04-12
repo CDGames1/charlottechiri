@@ -588,7 +588,7 @@
     function updatePageCountdown() {
       const now = new Date();
       let target = new Date();
-      target.setHours(22, 0, 0, 0); // Today at 10pm
+      target.setHours(20, 0, 0, 0); // Today at 10pm
       // If current time is already past 10pm, show main content immediately
       if (now >= target) {
         document.getElementById('splash-screen').style.display = "none";
