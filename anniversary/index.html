@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>4th Month Anniversary Gift xx</title>
+  <title>5th Month Anniversary Gift xx</title>
   <style>
     /* Global & Romantic Theme */
     body {
@@ -412,6 +412,9 @@
       <li><a href="#quiz-section">Quiz</a></li>
     </ul>
   </div>
+<div id="splash-screen">
+  <h1 id="page-countdown">Loading countdown...</h1>
+</div>
 
   <!-- Hide main content until countdown reaches zero -->
   <div id="main-content" style="display: none;">
@@ -421,8 +424,8 @@
         <img src="recent.JPG" alt="Recent photo" class="hero-image">
 <p>Latest Photo of us</P>
 <br></br>
-        <h1>Happy 4th Month Anniversary xx</h1>
-<h3>I love you so much babe, till the day i die and this is a message im gonna change every new update and every month. Babee when i first seen your beautifil eyes i knew you were the one for me, those eyes i could not resist and those eyes are the ones i felt for (thats why those eyes is our song on instagram hehe). I wanna say im so glad im in your life and your in mine so here is a little gift from me.</h3>      
+        <h1>Happy 5th Month Anniversary xx</h1>
+<h3>Hey babe its our 5th month anniversaryyy xx i love you so much, i always will and no matter what we go through everything together and 5 months ago i become yours forever and i say it everytime but those eyes of your are so pretty and your personality is the key part of you that made you mineeee xx and im yoursss xx hehe jonothans yours tooooo xoxooooo mwahhh and ive added some new things to the site let me know what you finddd xx. i also updated the recent photo of us xx</h3>      
 </div>
     </header>
 
@@ -482,7 +485,11 @@
           <p>01/03/2025 - 02/03/2025</p>
         </div>
         <div class="timeline-event">
-          <h3>Eighth Date (Exploring Date)</h3>
+          <h3>Eighth Date (Amber's Party)</h3>
+          <p>5/04/2025 - 6/04/2025</p>
+        </div>
+        <div class="timeline-event">
+          <h3>Ninth Date (Exploring Welcome Bay)</h3>
           <p>TBD</p>
         </div>
       </div>
@@ -584,22 +591,21 @@
       sidebar.classList.toggle("collapsed");
     }
 
-    // Page Countdown Timer to 10pm
+    // Page Countdown Timer to 16th April 2025
     function updatePageCountdown() {
       const now = new Date();
-      let target = new Date();
-      target.setHours(20, 0, 0, 0); // Today at 10pm
-      // If current time is already past 10pm, show main content immediately
+      const target = new Date("2025-04-16T00:00:00"); // Set your target date & time
       if (now >= target) {
         document.getElementById('splash-screen').style.display = "none";
         document.getElementById('main-content').style.display = "block";
         clearInterval(pageCountdownInterval);
       } else {
         const diff = target - now;
-        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((diff / (1000 * 60)) % 60);
         const seconds = Math.floor((diff / 1000) % 60);
-        document.getElementById('page-countdown').innerText = `${hours}h ${minutes}m ${seconds}s`;
+        document.getElementById('page-countdown').innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
       }
     }
     let pageCountdownInterval = setInterval(updatePageCountdown, 1000);
