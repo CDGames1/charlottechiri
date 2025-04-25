@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Charlotte’s Surprise Gift</title>
+  <style>
+    body { margin: 0; height: 100vh; overflow: hidden; background: #e0f7fa; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+    #gift { margin-top: 40px; font-size: 5rem; cursor: grab; user-select: none; position: relative; }
+    #progressContainer { width: 300px; height: 20px; background: #ddd; border-radius: 10px; margin-top: 20px; display: none; overflow: hidden; }
+    #progressBar { height: 100%; width: 0%; background: #ffb347; transition: width 0.1s; }
+    #tray { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #ffb347; opacity: 1; animation: particle 800ms ease-out forwards; }
+    @keyframes particle { to { transform: translate(var(--dx), var(--dy)) scale(0.5); opacity: 0; } }
+    .item { position: absolute; font-size: 3rem; cursor: grab; pointer-events: auto; user-select: none; }
+    .item.dragging { cursor: grabbing; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; }
+    .modal { background: white; padding: 1.5em; border-radius: 8px; max-width: 90%; max-height: 90%; overflow: auto; text-align: center; position: relative; }
+    .modal-close { position: absolute; top: 0.5em; right: 0.5em; cursor: pointer; font-size: 1.2rem; }
+    #gameCanvas { background: #fff; border: 2px solid #000; width: 100%; height: 300px; }
+    #scoreBoard { margin: 10px; font-size: 1.2rem; }
+    #gameOverOverlay .modal { background: #ffe0b2; }
+  </style>
+</head>
+<body>
+  <audio id="bgMusic" src="music.mp3" loop></audio>
+  <audio id="boomSound" src="boom.mp3"></audio>
+  <audio id="tingSound" src="ting.mp3"></audio>
+  <audio id="wrongSound" src="wrong.mp3"></audio>
+
+  <h1>Shake the 📦 to open your presenttt hehehe xx</h1>
+  <div id="gift">📦</div>
+  <p id="hint">(Click and drag to shake it open xx)</p>
+  <div id="progressContainer"><div id="progressBar"></div></div>
+  <div id="tray"></div>
+  <div class="success-message" id="successMessage" style="display:none; background:#c8f7c5; margin:20px; padding:10px; border-radius:5px;">Yay! Click icons to open your gift!</div>
+
+  <!-- Note Modal -->
+  <div id="noteOverlay" class="modal-overlay"><div class="modal"><div class="modal-close" onclick="closeModal('noteOverlay')">✖️</div><h2>📝 A Special Note 📝</h2><p>Dear Wifeyyyy xx,<br>I am so proud of you that you finished all your packing, your almost done with cleaning, all the hard work all came to this babee and also a new houseee xoxo. so i made this website for you babeee xoxo all the hardwork you have been doing i love you so much babee and i helped you throughout the way of your packing and making sure your on the right schedule hehehe xx, Moving is a big job babee but onces its done you get to relax and enjoy the new house xoxo ill always be there for you babeee xoxo i love you so much and my babiesss my peaches, my jellybean xoxoxoxoxo. My Good Girl is my hard working girl tooo xoxoxo mwahhhhhh I love you forever and always my sexy cute and loving wifeyyy xoxo</p></div></div>
+
+  <!-- Video Modal -->
+  <div id="videoOverlay" class="modal-overlay"><div class="modal"><div class="modal-close" onclick="closeModal('videoOverlay')">✖️</div><h2>A Surprise Video</h2><video id="giftVideo" controls style="width:100%;"><source src="video.mp4" type="video/mp4"></video></div></div>
+
+  <!-- Music Modal -->
+  <div id="musicOverlay" class="modal-overlay"><div class="modal"><div class="modal-close" onclick="closeModal('musicOverlay')">✖️</div><h2>Play any of our songs babeee xoxo</h2><input id="ytSearch" type="text" placeholder="Enter YouTube URL or search terms" style="width:80%;padding:8px;margin-top:10px;"><button onclick="doSearch()" style="padding:8px;">Load</button><div id="ytResults" style="margin-top:10px;width:100%;height:300px;"><iframe id="ytFrame" width="100%" height="100%" frameborder="0" allowfullscreen></iframe></div></div></div>
+
+  <!-- Game Modal -->
+  <div id="gameOverlay" class="modal-overlay"><div class="modal"><div class="modal-close" onclick="closeGame()">✖️</div><h2>Keyboard Game <button onclick="openModal('instructionsOverlay')" style="margin-left:10px;cursor:pointer;border:none;background:none;font-size:1.2rem;">❓</button></h2><div id="scoreBoard">Score: 0 Misses: 0 Highscore: 0</div><canvas id="gameCanvas"></canvas><div id="gameMessage"></div></div></div>
+
+  <!-- Instructions Modal -->
+  <div id="instructionsOverlay" class="modal-overlay"><div class="modal"><div class="modal-close" onclick="closeModal('instructionsOverlay')">✖️</div><h2>How to Play</h2><p>Press the matching key on your keyboard when the falling letter is on and with the line xx Click the Chiri bombs to defuse them. You have 3 misses before game over xoxox Good luck heheheh</p></div></div>
+
+  <!-- Game Over Modal -->
+  <div id="gameOverOverlay" class="modal-overlay"><div class="modal"><h2>Game Over</h2><p id="finalScore">Score: 0</p><p id="bestScore" style="font-weight:bold;"></p><button onclick="restartGame()">Restart Game</button><button onclick="closeGame()" style="margin-left:10px;">✖️ Close</button></div></div>
+
+  <script>
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    const bombImg = new Image(); bombImg.src='bomb.png';
+    const bgMusic = document.getElementById('bgMusic');
+    const boomSound = document.getElementById('boomSound'); boomSound.volume=0.3;
+    const tingSound = document.getElementById('tingSound');
+    const wrongSound = document.getElementById('wrongSound');
+
+    // Shake logic (unchanged)
+    const gift = document.getElementById('gift');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const hint = document.getElementById('hint');
+    const successMessage = document.getElementById('successMessage');
+    let shakeCount = 0, isOpened = false, dragging = false;
+    let lastPos = {x: 0, y: 0};
+    gift.addEventListener('pointerdown', e => { if (isOpened) return; dragging = true; hint.style.display='none'; progressContainer.style.display='block'; lastPos = {x: e.clientX, y: e.clientY}; });
+    document.addEventListener('pointermove', e => { if (!dragging || isOpened) return; const dx = e.clientX - lastPos.x, dy = e.clientY - lastPos.y; if (Math.hypot(dx,dy) > 5) { shakeCount++; progressBar.style.width = Math.min(shakeCount/80*100,100)+'%'; gift.style.transform = `rotate(${(Math.random()-0.5)*20}deg)`; lastPos={x:e.clientX,y:e.clientY}; if (shakeCount>=80) openGift(); }});
+    document.addEventListener('pointerup', () => { if (!isOpened) { dragging=false; gift.style.transform='rotate(0deg)'; }});
+    function openGift(){ isOpened=true; progressContainer.style.display='none'; gift.style.display='none'; successMessage.style.display='block'; emitParticles(); spawn('📝','noteOverlay'); spawn('🎥','videoOverlay'); spawn('🎵','musicOverlay'); if(!isMobile) spawn('🎮','gameOverlay'); startPhysics(); }
+    function emitParticles(){ const tray=document.getElementById('tray'); for(let i=0;i<30;i++){ const p=document.createElement('div'); p.className='particle'; const x=window.innerWidth/2, y=gift.getBoundingClientRect().top+30; p.style.left=x+'px'; p.style.top=y+'px'; const a=Math.random()*2*Math.PI, s=100+Math.random()*100; p.style.setProperty('--dx',Math.cos(a)*s+'px'); p.style.setProperty('--dy',Math.sin(a)*s+'px'); tray.appendChild(p); setTimeout(()=>p.remove(),800);} }
+    let items=[], grav=500;
+    function spawn(e,i){ const tray=document.getElementById('tray'); const el=document.createElement('div'); el.textContent=e; el.className='item'; tray.appendChild(el); const r=gift.getBoundingClientRect(); items.push({el,x:window.innerWidth/2,y:r.top+30,vx:(Math.random()-0.5)*200,vy:(Math.random()-1)*300,drag:false,off:{},id:i}); el.title=i; el.addEventListener('pointerdown',ev=>{ const it=items.find(x=>x.el===el); it.drag=true; el.classList.add('dragging'); it.off.x=ev.clientX-it.x; it.off.y=ev.clientY-it.y; it.vx=it.vy=0;}); window.addEventListener('pointermove',ev=>{ const it=items.find(x=>x.el===el); if(it.drag){ it.x=ev.clientX-it.off.x; it.y=ev.clientY-it.off.y; }}); window.addEventListener('pointerup',()=>{ const it=items.find(x=>x.el===el); if(it.drag){ it.drag=false; el.classList.remove('dragging'); }}); el.addEventListener('click',()=>{ const it=items.find(x=>x.el===el); if(!it.drag){ openModal(it.id); if(it.id==='gameOverlay') startGame(); }}); }
+    function startPhysics(){ let last=performance.now(); function loop(n){ const dt=(n-last)/1000; last=n; items.forEach(it=>{ if(!it.drag){ it.vy+=grav*dt; it.x+=it.vx*dt; it.y+=it.vy*dt; const fl=window.innerHeight-40; if(it.y>fl){ it.y=fl; it.vy*=-0.5;} if(it.x<0||it.x>window.innerWidth-30){ it.vx*=-0.5; it.x=Math.max(0,Math.min(it.x,window.innerWidth-30)); }} it.el.style.transform=`translate(${it.x}px,${it.y}px)`; }); requestAnimationFrame(loop);} requestAnimationFrame(loop); }
+    function openModal(id){ document.getElementById(id).style.display='flex'; }
+    function doSearch() { const q=document.getElementById('ytSearch').value.trim(); let src=''; if(/^https?:\/\//.test(q)){ try{ const url=new URL(q); let v=''; if(url.hostname.includes('youtu.be')) v=url.pathname.slice(1); else if(url.searchParams.has('v')) v=url.searchParams.get('v'); src=v?'https://www.youtube.com/embed/'+v:q; }catch(e){ src=q; } } else { src='https://www.youtube.com/embed/?listType=search&list='+encodeURIComponent(q); } document.getElementById('ytFrame').src=src; }
+    function closeModal(id){ document.getElementById(id).style.display='none'; if(id==='videoOverlay') document.getElementById('giftVideo').pause(); if(id==='gameOverlay') closeGame(); }
+
+    // Game logic
+    let gameRunning=false;
+    function startGame(){ if(isMobile) return; gameRunning=true; document.getElementById('gameMessage').textContent=''; document.getElementById('gameOverlay').style.display='flex'; bgMusic.play(); const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d'); canvas.width=document.querySelector('#gameOverlay .modal').clientWidth-40; canvas.height=300;
+      let letters=[],bombs=[],expl=[]; let score=0,miss=0,speed=100; let li=2000,bi=5000; let ll=0,lb=0,lt=performance.now(); const ly=canvas.height-50; const sb=document.getElementById('scoreBoard'); let hs=localStorage.getItem('highscore')||0; sb.textContent=`Score: ${score} Misses: ${miss} Highscore: ${hs}`;
+      function spawnL(){ letters.push({c:String.fromCharCode(65+Math.floor(Math.random()*26)),x:20+Math.random()*(canvas.width-40),y:0}); }
+      function spawnB(){ if(bombImg.complete) bombs.push({x:Math.random()*(canvas.width-30),y:0,s:30}); }
+      function explod(x,y){ for(let i=0;i<20;i++) expl.push({x,y,r:0,l:0.5}); }
+      function update(n){ if(!gameRunning) return; const dt=(n-lt)/1000; lt=n; ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#000'; ctx.fillRect(0,ly,canvas.width,2);
+        letters.forEach((l,i)=>{ l.y+=speed*dt; ctx.fillStyle='white'; ctx.fillRect(l.x-20,l.y-40,40,50); ctx.strokeStyle='#000'; ctx.strokeRect(l.x-20,l.y-40,40,50); ctx.fillStyle='#000'; ctx.font='40px sans-serif'; ctx.textAlign='center'; ctx.fillText(l.c,l.x,l.y); if(l.y>canvas.height){ letters.splice(i,1); miss++; wrongSound.play(); sb.textContent=`Score: ${score} Misses: ${miss} Highscore: ${hs}`; }});
+        bombs.forEach((b,i)=>{ b.y+=speed*dt*0.8; ctx.drawImage(bombImg,b.x,b.y,b.s,b.s); if(b.y>ly){ explod(b.x+b.s/2,b.y+b.s/2); boomSound.play(); endGame(score); return;} });
+        expl.forEach((e,i)=>{ e.r+=200*dt; ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,2*Math.PI); ctx.fillStyle=`rgba(255,165,0,${1-e.l})`; ctx.fill(); e.l-=dt; if(e.l<=0) expl.splice(i,1); });
+        if(n-ll>li){ spawnL(); ll=n; } if(n-lb>bi){ spawnB(); lb=n; }
+        if(miss<3) requestAnimationFrame(update); else endGame(score);
+      }
+      canvas.addEventListener('click',e=>{ const r=canvas.getBoundingClientRect(); const mx=e.clientX-r.left, my=e.clientY-r.top; bombs.forEach((b,i)=>{ if(mx>b.x&&mx<b.x+b.s&&my>b.y&&my<b.y+b.s){ explod(b.x+b.s/2,b.y+b.s/2); boomSound.play(); bombs.splice(i,1); }}); });
+      document.onkeydown=e=>{ for(let i=0;i<letters.length;i++){ const l=letters[i]; if(e.key.toUpperCase()===l.c&&l.y>ly-20&&l.y<ly+20){ letters.splice(i,1); score++; tingSound.play(); speed+=10; li=Math.max(300,li-50); if(score>hs){ hs=score; localStorage.setItem('highscore',hs);} sb.textContent=`Score: ${score} Misses: ${miss} Highscore: ${hs}`; return; }} };
+      requestAnimationFrame(update);
+    }
+    function endGame(s){ gameRunning=false; document.getElementById('gameOverlay').style.display='none'; bgMusic.pause(); let hs=localStorage.getItem('highscore')||0; document.getElementById('finalScore').textContent=`Score: ${s}`; document.getElementById('bestScore').textContent=`Highscore: ${hs}`; document.getElementById('gameOverOverlay').style.display='flex'; boomSound.play(); }
+    function restartGame(){ document.getElementById('gameOverOverlay').style.display='none'; startGame(); }
+    function closeGame(){ gameRunning=false; document.getElementById('gameOverlay').style.display='none'; document.getElementById('gameOverOverlay').style.display='none'; bgMusic.pause(); bgMusic.currentTime=0; boomSound.pause(); boomSound.currentTime=0; }
+  </script>
+</body>
+</html>
