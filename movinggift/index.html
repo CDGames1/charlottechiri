@@ -54,7 +54,6 @@
 
   <script>
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    const bombImg = new Image(); bombImg.src='bomb.png';
     const bgMusic = document.getElementById('bgMusic');
     const boomSound = document.getElementById('boomSound'); boomSound.volume=0.3;
     const tingSound = document.getElementById('tingSound');
@@ -80,27 +79,137 @@
     function doSearch() { const q=document.getElementById('ytSearch').value.trim(); let src=''; if(/^https?:\/\//.test(q)){ try{ const url=new URL(q); let v=''; if(url.hostname.includes('youtu.be')) v=url.pathname.slice(1); else if(url.searchParams.has('v')) v=url.searchParams.get('v'); src=v?'https://www.youtube.com/embed/'+v:q; }catch(e){ src=q; } } else { src='https://www.youtube.com/embed/?listType=search&list='+encodeURIComponent(q); } document.getElementById('ytFrame').src=src; }
     function closeModal(id){ document.getElementById(id).style.display='none'; if(id==='videoOverlay') document.getElementById('giftVideo').pause(); if(id==='gameOverlay') closeGame(); }
 
-    // Game logic
-    let gameRunning=false;
-    function startGame(){ if(isMobile) return; gameRunning=true; document.getElementById('gameMessage').textContent=''; document.getElementById('gameOverlay').style.display='flex'; bgMusic.play(); const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d'); canvas.width=document.querySelector('#gameOverlay .modal').clientWidth-40; canvas.height=300;
-      let letters=[],bombs=[],expl=[]; let score=0,miss=0,speed=100; let li=2000,bi=5000; let ll=0,lb=0,lt=performance.now(); const ly=canvas.height-50; const sb=document.getElementById('scoreBoard'); let hs=localStorage.getItem('highscore')||0; sb.textContent=`Score: ${score} Misses: ${miss} Highscore: ${hs}`;
-      function spawnL(){ letters.push({c:String.fromCharCode(65+Math.floor(Math.random()*26)),x:20+Math.random()*(canvas.width-40),y:0}); }
-      function spawnB(){ if(bombImg.complete) bombs.push({x:Math.random()*(canvas.width-30),y:0,s:30}); }
-      function explod(x,y){ for(let i=0;i<20;i++) expl.push({x,y,r:0,l:0.5}); }
-      function update(n){ if(!gameRunning) return; const dt=(n-lt)/1000; lt=n; ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#000'; ctx.fillRect(0,ly,canvas.width,2);
-        letters.forEach((l,i)=>{ l.y+=speed*dt; ctx.fillStyle='white'; ctx.fillRect(l.x-20,l.y-40,40,50); ctx.strokeStyle='#000'; ctx.strokeRect(l.x-20,l.y-40,40,50); ctx.fillStyle='#000'; ctx.font='40px sans-serif'; ctx.textAlign='center'; ctx.fillText(l.c,l.x,l.y); if(l.y>canvas.height){ letters.splice(i,1); miss++; wrongSound.play(); sb.textContent=`Score: ${score} Misses: ${miss} Highscore: ${hs}`; }});
-        bombs.forEach((b,i)=>{ b.y+=speed*dt*0.8; ctx.drawImage(bombImg,b.x,b.y,b.s,b.s); if(b.y>ly){ explod(b.x+b.s/2,b.y+b.s/2); boomSound.play(); endGame(score); return;} });
-        expl.forEach((e,i)=>{ e.r+=200*dt; ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,2*Math.PI); ctx.fillStyle=`rgba(255,165,0,${1-e.l})`; ctx.fill(); e.l-=dt; if(e.l<=0) expl.splice(i,1); });
-        if(n-ll>li){ spawnL(); ll=n; } if(n-lb>bi){ spawnB(); lb=n; }
-        if(miss<3) requestAnimationFrame(update); else endGame(score);
+    // Game logic without bombs
+    let gameRunning = false;
+    function startGame() {
+      if (isMobile) return;
+      gameRunning = true;
+      document.getElementById('gameMessage').textContent = '';
+      document.getElementById('gameOverlay').style.display = 'flex';
+      bgMusic.play();
+      const canvas = document.getElementById('gameCanvas'),
+            ctx = canvas.getContext('2d');
+      canvas.width = document.querySelector('#gameOverlay .modal').clientWidth - 40;
+      canvas.height = 300;
+      let letters = [], expl = [];
+      let score = 0, miss = 0, speed = 100;
+      let li = 2000, ll = 0, lt = performance.now();
+      const ly = canvas.height - 50;
+      const sb = document.getElementById('scoreBoard');
+      let hs = localStorage.getItem('highscore') || 0;
+      sb.textContent = `Score: ${score} Misses: ${miss} Highscore: ${hs}`;
+      
+      // Function to spawn a falling letter
+      function spawnL() {
+        letters.push({
+          c: String.fromCharCode(65 + Math.floor(Math.random() * 26)),
+          x: 20 + Math.random() * (canvas.width - 40),
+          y: 0
+        });
       }
-      canvas.addEventListener('click',e=>{ const r=canvas.getBoundingClientRect(); const mx=e.clientX-r.left, my=e.clientY-r.top; bombs.forEach((b,i)=>{ if(mx>b.x&&mx<b.x+b.s&&my>b.y&&my<b.y+b.s){ explod(b.x+b.s/2,b.y+b.s/2); boomSound.play(); bombs.splice(i,1); }}); });
-      document.onkeydown=e=>{ for(let i=0;i<letters.length;i++){ const l=letters[i]; if(e.key.toUpperCase()===l.c&&l.y>ly-20&&l.y<ly+20){ letters.splice(i,1); score++; tingSound.play(); speed+=10; li=Math.max(300,li-50); if(score>hs){ hs=score; localStorage.setItem('highscore',hs);} sb.textContent=`Score: ${score} Misses: ${miss} Highscore: ${hs}`; return; }} };
+      
+      // Explosion for visual effect
+      function explod(x, y) {
+        for (let i = 0; i < 20; i++) {
+          expl.push({ x: x, y: y, r: 0, l: 0.5 });
+        }
+      }
+      
+      // Update loop: letters fall and explosions animate
+      function update(n) {
+        if (!gameRunning) return;
+        const dt = (n - lt) / 1000;
+        lt = n;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, ly, canvas.width, 2);
+        
+        letters.forEach((l, i) => {
+          l.y += speed * dt;
+          ctx.fillStyle = 'white';
+          ctx.fillRect(l.x - 20, l.y - 40, 40, 50);
+          ctx.strokeStyle = '#000';
+          ctx.strokeRect(l.x - 20, l.y - 40, 40, 50);
+          ctx.fillStyle = '#000';
+          ctx.font = '40px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(l.c, l.x, l.y);
+          if (l.y > canvas.height) {
+            letters.splice(i, 1);
+            miss++;
+            wrongSound.play();
+            sb.textContent = `Score: ${score} Misses: ${miss} Highscore: ${hs}`;
+          }
+        });
+        
+        expl.forEach((e, i) => {
+          e.r += 200 * dt;
+          ctx.beginPath();
+          ctx.arc(e.x, e.y, e.r, 0, 2 * Math.PI);
+          ctx.fillStyle = `rgba(255,165,0,${1 - e.l})`;
+          ctx.fill();
+          e.l -= dt;
+          if (e.l <= 0) {
+            expl.splice(i, 1);
+          }
+        });
+        
+        if (n - ll > li) {
+          spawnL();
+          ll = n;
+        }
+        if (miss < 3) requestAnimationFrame(update);
+        else endGame(score);
+      }
+      
+      // Remove the bomb click handling since bombs are removed.
+      canvas.addEventListener('click', e => {
+        // No bomb removal logic.
+      });
+      
+      document.onkeydown = e => {
+        for (let i = 0; i < letters.length; i++) {
+          const l = letters[i];
+          if (e.key.toUpperCase() === l.c && l.y > ly - 20 && l.y < ly + 20) {
+            letters.splice(i, 1);
+            score++;
+            tingSound.play();
+            speed += 10;
+            li = Math.max(300, li - 50);
+            if (score > hs) { hs = score; localStorage.setItem('highscore', hs); }
+            sb.textContent = `Score: ${score} Misses: ${miss} Highscore: ${hs}`;
+            return;
+          }
+        }
+      };
       requestAnimationFrame(update);
     }
-    function endGame(s){ gameRunning=false; document.getElementById('gameOverlay').style.display='none'; bgMusic.pause(); let hs=localStorage.getItem('highscore')||0; document.getElementById('finalScore').textContent=`Score: ${s}`; document.getElementById('bestScore').textContent=`Highscore: ${hs}`; document.getElementById('gameOverOverlay').style.display='flex'; boomSound.play(); }
-    function restartGame(){ document.getElementById('gameOverOverlay').style.display='none'; startGame(); }
-    function closeGame(){ gameRunning=false; document.getElementById('gameOverlay').style.display='none'; document.getElementById('gameOverOverlay').style.display='none'; bgMusic.pause(); bgMusic.currentTime=0; boomSound.pause(); boomSound.currentTime=0; }
+    
+    function endGame(s) {
+      gameRunning = false;
+      document.getElementById('gameOverlay').style.display = 'none';
+      bgMusic.pause();
+      let hs = localStorage.getItem('highscore') || 0;
+      document.getElementById('finalScore').textContent = `Score: ${s}`;
+      document.getElementById('bestScore').textContent = `Highscore: ${hs}`;
+      document.getElementById('gameOverOverlay').style.display = 'flex';
+      boomSound.play();
+    }
+    
+    function restartGame() {
+      document.getElementById('gameOverOverlay').style.display = 'none';
+      startGame();
+    }
+    
+    function closeGame() {
+      gameRunning = false;
+      document.getElementById('gameOverlay').style.display = 'none';
+      document.getElementById('gameOverOverlay').style.display = 'none';
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+      boomSound.pause();
+      boomSound.currentTime = 0;
+    }
   </script>
 </body>
 </html>
