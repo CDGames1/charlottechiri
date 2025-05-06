@@ -73,7 +73,63 @@
     function openGift(){ isOpened=true; progressContainer.style.display='none'; gift.style.display='none'; successMessage.style.display='block'; emitParticles(); spawn('📝','noteOverlay'); spawn('🎥','videoOverlay'); spawn('🎵','musicOverlay'); if(!isMobile) spawn('🎮','gameOverlay'); startPhysics(); }
     function emitParticles(){ const tray=document.getElementById('tray'); for(let i=0;i<30;i++){ const p=document.createElement('div'); p.className='particle'; const x=window.innerWidth/2, y=gift.getBoundingClientRect().top+30; p.style.left=x+'px'; p.style.top=y+'px'; const a=Math.random()*2*Math.PI, s=100+Math.random()*100; p.style.setProperty('--dx',Math.cos(a)*s+'px'); p.style.setProperty('--dy',Math.sin(a)*s+'px'); tray.appendChild(p); setTimeout(()=>p.remove(),800);} }
     let items=[], grav=500;
-    function spawn(e,i){ const tray=document.getElementById('tray'); const el=document.createElement('div'); el.textContent=e; el.className='item'; tray.appendChild(el); const r=gift.getBoundingClientRect(); items.push({el,x:window.innerWidth/2,y:r.top+30,vx:(Math.random()-0.5)*200,vy:(Math.random()-1)*300,drag:false,off:{},id:i}); el.title=i; el.addEventListener('pointerdown',ev=>{ const it=items.find(x=>x.el===el); it.drag=true; el.classList.add('dragging'); it.off.x=ev.clientX-it.x; it.off.y=ev.clientY-it.y; it.vx=it.vy=0;}); window.addEventListener('pointermove',ev=>{ const it=items.find(x=>x.el===el); if(it.drag){ it.x=ev.clientX-it.off.x; it.y=ev.clientY-it.off.y; }}); window.addEventListener('pointerup',()=>{ const it=items.find(x=>x.el===el); if(it.drag){ it.drag=false; el.classList.remove('dragging'); }}); el.addEventListener('click',()=>{ const it=items.find(x=>x.el===el); if(!it.drag){ openModal(it.id); if(it.id==='gameOverlay') startGame(); }}); }
+    
+    // Revised spawn function – attach element-specific events only.
+    function spawn(e, i) {
+        const tray = document.getElementById('tray');
+        const el = document.createElement('div');
+        el.textContent = e;
+        el.className = 'item';
+        tray.appendChild(el);
+        const r = gift.getBoundingClientRect();
+        const item = {
+            el: el,
+            x: window.innerWidth / 2,
+            y: r.top + 30,
+            vx: (Math.random() - 0.5) * 200,
+            vy: (Math.random() - 1) * 300,
+            drag: false,
+            off: {},
+            id: i
+        };
+        items.push(item);
+        el.title = i;
+        
+        // Add element-specific pointerdown and click events.
+        el.addEventListener('pointerdown', ev => {
+            item.drag = true;
+            el.classList.add('dragging');
+            item.off.x = ev.clientX - item.x;
+            item.off.y = ev.clientY - item.y;
+            item.vx = item.vy = 0;
+        });
+        
+        el.addEventListener('click', () => {
+            if (!item.drag) {
+                openModal(item.id);
+                if (item.id === 'gameOverlay') startGame();
+            }
+        });
+    }
+    
+    // Attach these window-level events only once (outside spawn)
+    window.addEventListener('pointermove', ev => {
+        items.forEach(item => {
+            if (item.drag) {
+                item.x = ev.clientX - item.off.x;
+                item.y = ev.clientY - item.off.y;
+            }
+        });
+    });
+    window.addEventListener('pointerup', () => {
+        items.forEach(item => {
+            if (item.drag) {
+                item.drag = false;
+                item.el.classList.remove('dragging');
+            }
+        });
+    });
+    
     function startPhysics(){ let last=performance.now(); function loop(n){ const dt=(n-last)/1000; last=n; items.forEach(it=>{ if(!it.drag){ it.vy+=grav*dt; it.x+=it.vx*dt; it.y+=it.vy*dt; const fl=window.innerHeight-40; if(it.y>fl){ it.y=fl; it.vy*=-0.5;} if(it.x<0||it.x>window.innerWidth-30){ it.vx*=-0.5; it.x=Math.max(0,Math.min(it.x,window.innerWidth-30)); }} it.el.style.transform=`translate(${it.x}px,${it.y}px)`; }); requestAnimationFrame(loop);} requestAnimationFrame(loop); }
     function openModal(id){ document.getElementById(id).style.display='flex'; }
     function doSearch() { const q=document.getElementById('ytSearch').value.trim(); let src=''; if(/^https?:\/\//.test(q)){ try{ const url=new URL(q); let v=''; if(url.hostname.includes('youtu.be')) v=url.pathname.slice(1); else if(url.searchParams.has('v')) v=url.searchParams.get('v'); src=v?'https://www.youtube.com/embed/'+v:q; }catch(e){ src=q; } } else { src='https://www.youtube.com/embed/?listType=search&list='+encodeURIComponent(q); } document.getElementById('ytFrame').src=src; }
@@ -94,12 +150,11 @@
       let letters = [], expl = [];
       let score = 0, miss = 0, speed = 100;
       let li = 2000, ll = 0, lt = performance.now();
-      const ly = canvas.height - 50;
       const sb = document.getElementById('scoreBoard');
       let hs = localStorage.getItem('highscore') || 0;
       sb.textContent = `Score: ${score} Misses: ${miss} Highscore: ${hs}`;
       
-      // Function to spawn a falling letter
+      // Spawn a falling letter.
       function spawnL() {
         letters.push({
           c: String.fromCharCode(65 + Math.floor(Math.random() * 26)),
@@ -108,22 +163,21 @@
         });
       }
       
-      // Explosion for visual effect
+      // Optional explosion effect.
       function explod(x, y) {
         for (let i = 0; i < 20; i++) {
           expl.push({ x: x, y: y, r: 0, l: 0.5 });
         }
       }
       
-      // Update loop: letters fall and explosions animate
+      // Update loop: letters fall and any explosion animates. (Line is removed)
       function update(n) {
         if (!gameRunning) return;
         const dt = (n - lt) / 1000;
         lt = n;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, ly, canvas.width, 2);
         
+        // Update each falling letter.
         letters.forEach((l, i) => {
           l.y += speed * dt;
           ctx.fillStyle = 'white';
@@ -142,6 +196,7 @@
           }
         });
         
+        // Update explosion animations.
         expl.forEach((e, i) => {
           e.r += 200 * dt;
           ctx.beginPath();
@@ -162,26 +217,34 @@
         else endGame(score);
       }
       
-      // Remove the bomb click handling since bombs are removed.
-      canvas.addEventListener('click', e => {
-        // No bomb removal logic.
-      });
-      
+      // On keydown: if the pressed key matches any letter on screen, remove that letter and award a point.
+      // If no letter matches, register a miss and play the wrong sound.
       document.onkeydown = e => {
+        let letterFound = false;
         for (let i = 0; i < letters.length; i++) {
           const l = letters[i];
-          if (e.key.toUpperCase() === l.c && l.y > ly - 20 && l.y < ly + 20) {
+          if (e.key.toUpperCase() === l.c) {
             letters.splice(i, 1);
             score++;
             tingSound.play();
             speed += 10;
             li = Math.max(300, li - 50);
-            if (score > hs) { hs = score; localStorage.setItem('highscore', hs); }
+            if (score > hs) {
+              hs = score;
+              localStorage.setItem('highscore', hs);
+            }
             sb.textContent = `Score: ${score} Misses: ${miss} Highscore: ${hs}`;
-            return;
+            letterFound = true;
+            break;
           }
         }
+        if (!letterFound) {
+          miss++;
+          wrongSound.play();
+          sb.textContent = `Score: ${score} Misses: ${miss} Highscore: ${hs}`;
+        }
       };
+      
       requestAnimationFrame(update);
     }
     
