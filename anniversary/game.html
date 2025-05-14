@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>6th Anniversary Game - Tower Defense</title>
+  <style>
+    /* Basic Styles */
+    body {
+      margin: 0;
+      padding: 0;
+      background: #222;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+    /* Intro Overlay */
+    #intro-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      display: flex;
+      align-items: center; justify-content: center;
+      flex-direction: column;
+      z-index: 1000;
+    }
+    #intro-overlay img {
+      width: 80%; max-height: 80vh;
+      object-fit: contain;
+    }
+    /* Updated Intro Text: Red with White Outline */
+    #intro-text {
+      position: absolute;
+      font-size: 3rem;
+      color: red;
+      text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+      opacity: 0;
+      transition: opacity 2s ease;
+    }
+    /* Game Container */
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(45deg, #ff3e78, #ffafbd);
+      overflow: hidden;
+    }
+    #scoreboard {
+      position: absolute;
+      top: 20px; left: 20px;
+      font-size: 2rem; font-weight: bold;
+      background: rgba(0,0,0,0.5);
+      padding: 10px 20px;
+      border-radius: 10px;
+      z-index: 10;
+    }
+    /* Build Menu & Placeholder */
+    #build-menu {
+      position: absolute;
+      bottom: 20px; left: 20px;
+      background: rgba(0,0,0,0.8);
+      padding: 10px; border-radius: 8px;
+      z-index: 50;
+    }
+    #build-menu button {
+      font-size: 1rem;
+      margin: 5px; padding: 5px 10px;
+      background: #ff6f61; color: #fff;
+      border: none; border-radius: 5px;
+      cursor: pointer;
+    }
+    #build-placeholder {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0.7;
+      border: 2px dashed blue;
+      z-index: 40;
+      display: none;
+    }
+    /* (Removed allowed barrier element) */
+    /* Optional: Display grid lines for visual reference */
+    #grid {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    /* Shop (if needed) */
+    #shop {
+      position: absolute;
+      bottom: 80px; left: 20px;
+      background: rgba(0,0,0,0.7);
+      padding: 10px; border-radius: 8px;
+      z-index: 20;
+    }
+    #shop button {
+      font-size: 1rem;
+      padding: 5px 10px;
+      background: #ff6f61; color: #fff;
+      border: none; border-radius: 5px;
+      cursor: pointer;
+      margin: 2px;
+    }
+    /* Player Health Bar */
+    #health-bar-container {
+      position: absolute;
+      top: calc(100% - 30px); left: 20px;
+      width: 200px; height: 20px;
+      background: #555; border-radius: 10px;
+      overflow: hidden; z-index: 11;
+    }
+    #health-bar {
+      height: 100%; width: 100%; background: green;
+    }
+    /* Enemy Styles */
+    .enemy {
+      position: absolute;
+      border: 2px solid #fff; z-index: 15;
+      overflow: hidden;
+    }
+    
+    .enemy.soldier {
+      width: 40px; height: 40px;
+      border-radius: 50%; background: purple;
+      position: relative;
+    }
+    .enemy.tank {
+      width: 60px; height: 40px;
+      background: gray; border-radius: 5px;
+      position: relative;
+    }
+    /* Add eyes to enemy soldiers */
+    .enemy.soldier .eyes {
+      position: absolute;
+      top: 10px; left: 8px;
+      width: 24px; height: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .enemy.soldier .eyes div {
+      width: 8px; height: 8px;
+      background: white; border-radius: 50%;
+    }
+    /* Add nozzle to enemy tanks */
+    .enemy.tank .nozzle {
+      position: absolute;
+      right: -6px; top: 14px;
+      width: 6px; height: 4px;
+      background: black;
+      border-radius: 2px;
+    }
+    .health-bar-enemy {
+      position: absolute;
+      width: 100%; height: 5px;
+      background: red; top: -7px; left: 0;
+    }
+    /* Player Troops (Mobile Soldiers) */
+    .troop {
+      position: absolute;
+      width: 40px; height: 40px;
+      background: darkgreen;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      z-index: 20;
+    }
+    .health-bar-troop {
+      position: absolute;
+      width: 100%; height: 4px;
+      background: red; top: -6px; left: 0;
+    }
+    /* Projectile */
+    .projectile {
+      position: absolute;
+      width: 8px; height: 8px;
+      background: yellow; border-radius: 50%;
+      z-index: 30;
+    }
+    /* Main Base at End of Path */
+    #main-base {
+      position: absolute;
+      width: 100px; height: 100px;
+      background: darkblue; border: 3px solid gold;
+      z-index: 10;
+      text-align: center;
+      line-height: 100px;
+      font-size: 1.2rem;
+      color: gold;
+    }
+    /* Money Drop */
+    .money {
+      position: absolute;
+      width: 30px; height: 30px;
+      background: limegreen;
+      border-radius: 50%;
+      border: 2px solid gold;
+      text-align: center;
+      line-height: 30px;
+      cursor: pointer;
+      z-index: 25;
+    }
+    /* (Optional) Path Visual Aid */
+    #path {
+      position: absolute;
+      z-index: 5; pointer-events: none;
+    }
+    #round-counter {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1.8rem;
+      padding: 5px 10px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 5px;
+      z-index: 10;
+      color: #fff;
+    }
+
+#ad {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+#ad img {
+  width: 250px;  /* Increased size for portrait ad */
+  height: auto;
+  cursor: pointer;
+  border: 3px solid #fff;
+  border-radius: 5px;
+}
+  </style>
+</head>
+<body>
+  <!-- Intro Overlay -->
+  <div id="intro-overlay">
+    <img id="intro-photo" src="" alt="Intro Photo">
+    <div id="intro-text">6th Anniversary Game</div>
+  </div>
+  <!-- Game Container -->
+  <div id="game-container">
+    <div id="scoreboard">Score: 200</div>
+    <!-- Round Counter -->
+    <div id="round-counter">Round: 0</div>
+    <!-- Advertisement -->
+    <div id="ad">
+      <a href="game/index.html" target="_blank">
+        <img src="ad.png" alt="Advertisement">
+      </a>
+    </div>
+    <!-- Build Menu (only Soldier and Machine Gun options) -->
+    <div id="build-menu">
+      <button data-build="machinegun">Place Turret Gun thing xx (Cost: 30 points xx)</button>
+      <button id="ready-button" style="display:none;">Ready for Next Round</button>
+    </div>
+    <!-- Build Placeholder -->
+    <div id="build-placeholder"></div>
+    <!-- (Optional) Grid overlay for visual reference -->
+    <div id="grid"></div>
+    <!-- Health Bar for Player -->
+    <div id="health-bar-container">
+      <div id="health-bar"></div>
+    </div>
+    <!-- Main Base (fixed, at end of path) -->
+    <div id="main-base">BASE</div>
+    <!-- (Optional) Visual path for testing -->
+    <canvas id="path" width="1000" height="600"></canvas>
+  </div>
+
+  <script>
+    // ---------------- Global Variables & Score ----------------
+    let score = 200; // Start with 200 points
+    const scoreboard = document.getElementById("scoreboard");
+    const gameContainer = document.getElementById("game-container");
+    function updateScore() {
+      scoreboard.innerText = "Score: " + score;
+      localStorage.setItem("anniversaryScore", score);
+    }
+    updateScore();
+
+    // ---------------- Intro Effect ----------------
+    const totalPhotos = 28;
+    const introOverlay = document.getElementById("intro-overlay");
+    const introPhoto = document.getElementById("intro-photo");
+    const introText = document.getElementById("intro-text");
+    let flashIndex = 1;
+    const flashInterval = setInterval(() => {
+      introPhoto.src = "photos/photo" + flashIndex + ".jpg";
+      flashIndex = flashIndex < totalPhotos ? flashIndex + 1 : 1;
+    }, 100);
+    setTimeout(() => {
+      clearInterval(flashInterval);
+      introText.style.opacity = 1;
+      setTimeout(() => {
+        introOverlay.style.transition = "opacity 2s ease";
+        introOverlay.style.opacity = 0;
+        setTimeout(() => {
+          introOverlay.style.display = "none";
+          enterBuildMode();
+        }, 2000);
+      }, 2000);
+    }, 3000);
+
+    // ---------------- Fixed Path for Enemies, Troops & Base ----------------
+    const pathWaypoints = [
+      { x: 0, y: 300 },
+      { x: 200, y: 300 },
+      { x: 200, y: 500 },
+      { x: 400, y: 500 },
+      { x: 400, y: 200 },
+      { x: 800, y: 200 },
+      { x: 1000, y: 200 }
+    ];
+    // Place main base at last waypoint (offset)
+    const mainBase = document.getElementById("main-base");
+    mainBase.style.left = (pathWaypoints[pathWaypoints.length - 1].x - 50) + "px";
+    mainBase.style.top = (pathWaypoints[pathWaypoints.length - 1].y - 50) + "px";
+
+    // (Optional) Draw path on canvas for visual reference
+    const pathCanvas = document.getElementById("path");
+    if(pathCanvas){
+      const ctx = pathCanvas.getContext("2d");
+      ctx.strokeStyle = "rgba(255,255,255,0.3)";
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(pathWaypoints[0].x, pathWaypoints[0].y);
+      for(let i = 1; i < pathWaypoints.length; i++){
+        ctx.lineTo(pathWaypoints[i].x, pathWaypoints[i].y);
+      }
+      ctx.stroke();
+    }
+    // ---------------- Grid-Snapping System ----------------
+    // Define grid cell size (for example, 50px)
+    const gridSize = 50;
+    // To help with occupied cells, we maintain an array of placed grid positions (as strings "col,row")
+    const occupiedCells = new Set();
+    // Helper function: calculate grid cell indices based on a coordinate
+    function getGridCell(x, y) {
+      const col = Math.floor(x / gridSize);
+      const row = Math.floor(y / gridSize);
+      return { col, row };
+    }
+    // Helper: check if a cell is occupied
+    function isCellOccupied(col, row) {
+      return occupiedCells.has(col + "," + row);
+    }
+    // Helper: mark a cell as occupied
+    function occupyCell(col, row) {
+      occupiedCells.add(col + "," + row);
+    }
+    
+    // ---------------- Level & Difficulty ----------------
+    let level = 1;
+    let enemySpeedMultiplier = 1;
+    function increaseLevel(){
+      level++;
+      enemySpeedMultiplier += 0.1;
+    }
+
+    // ---------------- Building & Troop Placement ----------------
+    let inBuildMode = true;
+    let currentBuildType = null;
+    const buildPlaceholder = document.getElementById("build-placeholder");
+    const buildMenu = document.getElementById("build-menu");
+    // Only two options now: soldier and machinegun
+    const buildCosts = {
+      soldier: 15,
+      machinegun: 30
+    };
+    const buildings = []; // For stationary buildings (machine guns)
+    const playerTroops = []; // For mobile soldier troops
+    buildMenu.querySelectorAll("button[data-build]").forEach(button => {
+      button.addEventListener("click", () => {
+        currentBuildType = button.getAttribute("data-build");
+        if(score < buildCosts[currentBuildType]) {
+          alert("Not enough score to place " + currentBuildType);
+          return;
+        }
+        buildPlaceholder.style.display = "block";
+        // Adjust placeholder style based on type
+        if(currentBuildType === "soldier"){
+          buildPlaceholder.style.width = "40px";
+          buildPlaceholder.style.height = "40px";
+          buildPlaceholder.style.borderRadius = "50%";
+        } else if(currentBuildType === "machinegun"){
+          buildPlaceholder.style.width = "40px";
+          buildPlaceholder.style.height = "40px";
+          buildPlaceholder.style.borderRadius = "5px";
+        }
+        buildPlaceholder.style.background = "blue";
+      });
+    });
+    // Update placeholder position on mousemove (snap to grid)
+    gameContainer.addEventListener("mousemove", (e) => {
+      if(inBuildMode && currentBuildType) {
+        const rect = gameContainer.getBoundingClientRect();
+        // Get raw mouse coordinate relative to container
+        let rawX = e.clientX - rect.left;
+        let rawY = e.clientY - rect.top;
+        // Snap to grid: compute top-left of cell
+        let gridX = Math.floor(rawX / gridSize) * gridSize;
+        let gridY = Math.floor(rawY / gridSize) * gridSize;
+        // Check for occupancy: if the grid cell is taken, change border to red
+        const { col, row } = getGridCell(gridX, gridY);
+        if(isCellOccupied(col, row)) {
+          buildPlaceholder.style.borderColor = "red";
+        } else {
+          buildPlaceholder.style.borderColor = "blue";
+        }
+        buildPlaceholder.style.left = gridX + "px";
+        buildPlaceholder.style.top = gridY + "px";
+      }
+    });
+    // Place building (or troop) on click in build mode
+    gameContainer.addEventListener("click", (e) => {
+      if(inBuildMode && currentBuildType) {
+        if(e.target.id === "build-menu" || e.target.closest("#build-menu")) return;
+        const rect = gameContainer.getBoundingClientRect();
+        // Snap click to grid cell
+        let rawX = e.clientX - rect.left;
+        let rawY = e.clientY - rect.top;
+        let gridX = Math.floor(rawX / gridSize) * gridSize;
+        let gridY = Math.floor(rawY / gridSize) * gridSize;
+        const cell = getGridCell(gridX, gridY);
+        if(isCellOccupied(cell.col, cell.row)) {
+          alert("Cell already occupied!");
+          return;
+        }
+        if(score >= buildCosts[currentBuildType]) {
+          score -= buildCosts[currentBuildType];
+          updateScore();
+          const building = document.createElement("div");
+          building.classList.add("building", currentBuildType);
+          building.style.position = "absolute";
+          building.style.left = gridX + "px";
+          building.style.top = gridY + "px";
+          building.style.width = buildPlaceholder.style.width;
+          building.style.height = buildPlaceholder.style.height;
+          // Mark cell as occupied
+          occupyCell(cell.col, cell.row);
+          if(currentBuildType === "soldier"){
+            building.style.background = "darkgreen";
+            building.style.borderRadius = "50%";
+            building.setAttribute("data-type", "soldier");
+            building.health = 100;
+            const troopHealthBar = document.createElement("div");
+            troopHealthBar.classList.add("health-bar-troop");
+            troopHealthBar.style.width = "100%";
+            building.appendChild(troopHealthBar);
+            building.currentWaypoint = 0;
+            playerTroops.push(building);
+          } else if(currentBuildType === "machinegun"){
+            building.style.background = "orange";
+            building.setAttribute("data-type", "machinegun");
+            buildings.push(building);
+          }
+          gameContainer.appendChild(building);
+          buildPlaceholder.style.display = "none";
+          currentBuildType = null;
+        }
+      }
+    });
+    // Ready button (initially hidden) starts the round
+    const readyButton = document.getElementById("ready-button");
+    readyButton.addEventListener("click", () => {
+      readyButton.style.display = "none";
+      startWave();
+    });
+    function enterBuildMode() {
+      inBuildMode = true;
+      buildMenu.style.display = "block";
+      readyButton.style.display = "block";
+    }
+
+    // ---------------- Player Health Setup ----------------
+    let mouseHealth = 100;
+    let maxMouseHealth = 100;
+    const healthBar = document.getElementById("health-bar");
+    function updateHealthBar(){
+      healthBar.style.width = ((mouseHealth / maxMouseHealth) * 100) + "%";
+    }
+    updateHealthBar();
+
+    // ---------------- Enemy Wave System & Round Control ----------------
+    let waveNumber = parseInt(localStorage.getItem("roundNumber")) || 0;
+    updateRoundCounter();
+    let enemies = [];
+    let roundActive = false;
+    function spawnEnemyTD() {
+      const type = Math.random() < 0.7 ? "soldier" : "tank";
+      const enemy = document.createElement("div");
+      enemy.classList.add("enemy", type);
+      enemy.health = type === "soldier" ? 50 : 100;
+      const enemyHealthBar = document.createElement("div");
+      enemyHealthBar.classList.add("health-bar-enemy");
+      enemyHealthBar.style.width = "100%";
+      enemy.appendChild(enemyHealthBar);
+      // For non-overlap add a slight random offset at spawn
+      let startX = pathWaypoints[0].x + Math.random()*10;
+      let startY = pathWaypoints[0].y + Math.random()*10;
+      enemy.style.left = startX + "px";
+      enemy.style.top = startY + "px";
+      enemy.currentWaypoint = 1;
+      enemy.speed = (type === "soldier" ? 1.5 : 0.8) * enemySpeedMultiplier;
+      enemy.path = pathWaypoints;
+      // Add visual details: eyes for soldier, nozzle for tank
+      if(type === "soldier"){
+        const eyes = document.createElement("div");
+        eyes.classList.add("eyes");
+        eyes.innerHTML = "<div></div><div></div>";
+        enemy.appendChild(eyes);
+      } else if(type === "tank"){
+        const nozzle = document.createElement("div");
+        nozzle.classList.add("nozzle");
+        enemy.appendChild(nozzle);
+      }
+      gameContainer.appendChild(enemy);
+      enemies.push(enemy);
+    }
+    function startWave(){
+      roundActive = true;
+      waveNumber++; // Increase the round number
+      updateRoundCounter();
+      if(waveNumber % 3 === 0) increaseLevel();
+      let enemyCount = waveNumber * 5;
+      for(let i = 0; i < enemyCount; i++){
+        setTimeout(spawnEnemyTD, i * 300);
+      }
+    }
+    // Check if round is over: when enemies array is empty and round was active
+    function checkRoundOver(){
+      if(roundActive && enemies.length === 0){
+        roundActive = false;
+        readyButton.style.display = "block";
+      }
+    }
+    setInterval(checkRoundOver, 1000);
+
+    // ---------------- Enemy Movement Along Path & Avoidance ----------------
+    function updateEnemies(){
+      enemies = enemies.filter(enemy => document.body.contains(enemy));
+      enemies.forEach((enemy, idx) => {
+        enemies.forEach((other, jdx) => {
+          if(idx === jdx) return;
+          if(isColliding(enemy.getBoundingClientRect(), other.getBoundingClientRect())){
+            let curX = parseFloat(enemy.style.left);
+            enemy.style.left = (curX + 1) + "px";
+          }
+        });
+        let target = enemy.path[enemy.currentWaypoint];
+        if(!target) return;
+        let currentX = parseFloat(enemy.style.left);
+        let currentY = parseFloat(enemy.style.top);
+        let dx = target.x - currentX;
+        let dy = target.y - currentY;
+        let dist = Math.hypot(dx,dy);
+        if(dist < 5){
+          enemy.currentWaypoint++;
+          if(enemy.currentWaypoint >= enemy.path.length){
+            // Enemy reached base: penalize score and remove enemy
+            score = Math.max(0, score - 5);
+            updateScore();
+            enemy.remove();
+          }
+        } else {
+          let vx = (dx/dist)*enemy.speed;
+          let vy = (dy/dist)*enemy.speed;
+          enemy.style.left = currentX + vx + "px";
+          enemy.style.top = currentY + vy + "px";
+        }
+      });
+    }
+    setInterval(updateEnemies, 50);
+
+    // ---------------- Update Player Troops Movement & Attack ----------------
+    function updatePlayerTroops(){
+      playerTroops = playerTroops.filter(troop => document.body.contains(troop));
+      playerTroops.forEach(troop => {
+        let target = pathWaypoints[troop.currentWaypoint];
+        if(!target) return;
+        let currentX = parseFloat(troop.style.left);
+        let currentY = parseFloat(troop.style.top);
+        let dx = target.x - currentX;
+        let dy = target.y - currentY;
+        let dist = Math.hypot(dx,dy);
+        if(dist < 5){
+          troop.currentWaypoint++;
+          if(troop.currentWaypoint >= pathWaypoints.length){
+            score += 10;
+            updateScore();
+            troop.remove();
+          }
+        } else {
+          let speed = 1;
+          let vx = (dx/dist)*speed;
+          let vy = (dy/dist)*speed;
+          troop.style.left = currentX + vx + "px";
+          troop.style.top = currentY + vy + "px";
+        }
+        // Troops attack nearby enemies
+        let tRect = troop.getBoundingClientRect();
+        let tCenterX = tRect.left + tRect.width/2;
+        let tCenterY = tRect.top + tRect.height/2;
+        let nearest = null;
+        let minDist = Infinity;
+        enemies.forEach(enemy => {
+          if(!document.body.contains(enemy)) return;
+          let eRect = enemy.getBoundingClientRect();
+          let eCenterX = eRect.left + eRect.width/2;
+          let eCenterY = eRect.top + eRect.height/2;
+          let distance = Math.hypot(tCenterX - eCenterX, tCenterY - eCenterY);
+          if(distance < 150 && distance < minDist){
+            minDist = distance;
+            nearest = enemy;
+          }
+        });
+        if(nearest){
+          fireProjectile(troop, nearest);
+        }
+      });
+    }
+    setInterval(updatePlayerTroops, 1000);
+
+    // ---------------- Tower (Building) Attack Logic for Stationary Buildings ----------------
+    let towers = [];
+    function towerAttack(){
+      towers = buildings.filter(b => b.getAttribute("data-type") === "machinegun");
+      towers.forEach(tower => {
+        let tRect = tower.getBoundingClientRect();
+        let tCenterX = tRect.left + tRect.width/2;
+        let tCenterY = tRect.top + tRect.height/2;
+        let nearest = null;
+        let minDist = Infinity;
+        enemies.forEach(enemy => {
+          if(!document.body.contains(enemy)) return;
+          let eRect = enemy.getBoundingClientRect();
+          let eCenterX = eRect.left + eRect.width/2;
+          let eCenterY = eRect.top + eRect.height/2;
+          let dist = Math.hypot(tCenterX - eCenterX, tCenterY - eCenterY);
+          if(dist < 200 && dist < minDist){
+            minDist = dist;
+            nearest = enemy;
+          }
+        });
+        if(nearest){
+          fireProjectile(tower, nearest);
+        }
+      });
+    }
+    setInterval(towerAttack, 1000);
+
+    // ---------------- Projectile Firing (Used by Both Troops & Towers) ----------------
+    function fireProjectile(shooter, target){
+      const projectile = document.createElement("div");
+      projectile.classList.add("projectile");
+      let sRect = shooter.getBoundingClientRect();
+      let gRect = gameContainer.getBoundingClientRect();
+      let startX = sRect.left + sRect.width/2 - gRect.left;
+      let startY = sRect.top + sRect.height/2 - gRect.top;
+      projectile.style.left = startX + "px";
+      projectile.style.top = startY + "px";
+      gameContainer.appendChild(projectile);
+      let tRect = target.getBoundingClientRect();
+      let targetX = tRect.left + tRect.width/2 - gRect.left;
+      let targetY = tRect.top + tRect.height/2 - gRect.top;
+      let dx = targetX - startX, dy = targetY - startY;
+      let distance = Math.hypot(dx,dy);
+      let speed = 5;
+      let vx = (dx/distance)*speed;
+      let vy = (dy/distance)*speed;
+      let interval = setInterval(() => {
+        let curX = parseFloat(projectile.style.left);
+        let curY = parseFloat(projectile.style.top);
+        projectile.style.left = curX + vx + "px";
+        projectile.style.top = curY + vy + "px";
+        let pRect = projectile.getBoundingClientRect();
+        let tRectNew = target.getBoundingClientRect();
+        if(isColliding(pRect, tRectNew)){
+          createParticles(tRectNew.left + tRectNew.width/2, tRectNew.top + tRectNew.height/2, "orange");
+          target.health -= 25;
+          if(target.health <= 0){
+            // When target dies, drop money at its location
+            dropMoney(tRectNew.left, tRectNew.top);
+            target.remove();
+            score += 5;
+            updateScore();
+          } else {
+            if(target.querySelector(".health-bar-enemy")){
+              let baseHealth = target.classList.contains("soldier") ? 50 : 100;
+              target.querySelector(".health-bar-enemy").style.width = (target.health/baseHealth * 100) + "%";
+            }
+            if(target.querySelector(".health-bar-troop")){
+              target.querySelector(".health-bar-troop").style.width = (target.health/100 * 100) + "%";
+            }
+          }
+          projectile.remove();
+          clearInterval(interval);
+        }
+      }, 20);
+      setTimeout(() => { projectile.remove(); clearInterval(interval); }, 3000);
+    }
+    function isColliding(rect1, rect2){
+      return !(rect1.right < rect2.left ||
+               rect1.left > rect2.right ||
+               rect1.bottom < rect2.top ||
+               rect1.top > rect2.bottom);
+    }
+
+    // ---------------- Money Drop ----------------
+    function dropMoney(x, y){
+      const money = document.createElement("div");
+      money.classList.add("money");
+      money.innerText = "$";
+      money.style.left = x + "px";
+      money.style.top = y + "px";
+      gameContainer.appendChild(money);
+      money.addEventListener("click", () => {
+        score += 10;
+        updateScore();
+        money.remove();
+      });
+      setTimeout(() => { if(money.parentElement) money.remove(); }, 5000);
+    }
+
+    // ---------------- Particle Effects ----------------
+    function createParticles(x, y, color = "yellow"){
+      for(let i = 0; i < 10; i++){
+        let particle = document.createElement("div");
+        particle.style.position = "absolute";
+        particle.style.left = x + "px";
+        particle.style.top = y + "px";
+        particle.style.width = "5px";
+        particle.style.height = "5px";
+        particle.style.background = color;
+        particle.style.borderRadius = "50%";
+        particle.style.opacity = "1";
+        particle.style.pointerEvents = "none";
+        gameContainer.appendChild(particle);
+        let dx = (Math.random() - 0.5) * 200;
+        let dy = (Math.random() - 0.5) * 200;
+        particle.animate([
+          { transform: "translate(0, 0)", opacity: 1 },
+          { transform: `translate(${dx}px, ${dy}px)`, opacity: 0 }
+        ], { duration: 800, easing: "ease-out" });
+        setTimeout(() => particle.remove(), 800);
+      }
+    }
+
+    // ---------------- Check Player Health ----------------
+    function checkMouseHealth(){
+      if(mouseHealth <= 0){
+        score = Math.max(0, score - 10);
+        updateScore();
+        mouseHealth = maxMouseHealth;
+        updateHealthBar();
+      }
+    }
+    setInterval(checkMouseHealth, 1000);
+
+    // Call this function whenever you update the round (for example, in startWave())
+    function updateRoundCounter() {
+      const roundCounter = document.getElementById("round-counter");
+      roundCounter.innerText = "Round: " + waveNumber;
+      localStorage.setItem("roundNumber", waveNumber);
+    }
+  </script>
+</body>
+</html>
