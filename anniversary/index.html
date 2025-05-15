@@ -479,11 +479,12 @@ header {
 <body>
   <!-- Page Overlay for Countdown/Video Loading -->
 <!-- Page Overlay for Countdown/Video Loading -->
+<!-- Page Overlay for Countdown/Video Loading -->
 <div id="page-overlay">
-  <button id="skip-button" style="position: absolute; top: 20px; right: 20px; z-index: 10001; padding: 10px 20px; font-size: 1rem; background: #d6336c; border: none; border-radius: 5px; cursor: pointer;">Skip Intro</button>
+  <button id="skip-button" style="display:none; position: absolute; top: 20px; right: 20px; z-index: 10001; padding: 10px 20px; font-size: 1rem; background: #d6336c; border: none; border-radius: 5px; cursor: pointer;">Skip Intro</button>
   <p id="page-countdown-message"></p>
   <p id="loading-message" style="display:none;">Loading a Special Video xx</p>
-<iframe width="1307" height="735" src="https://www.youtube.com/embed/5PItP6LY0HI" title="Happy 6th Anniversary (Charlotte ♡ Chiri)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  <iframe id="special-video" width="1307" height="735" src="https://www.youtube.com/embed/5PItP6LY0HI?autoplay=1&mute=1&controls=0&disablekb=1&modestbranding=1&playsinline=1" title="" frameborder="0" allow="autoplay" referrerpolicy="strict-origin-when-cross-origin" style="display:none; border:0;"></iframe>
 </div>
 
   <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
@@ -729,28 +730,24 @@ header {
       overlay.style.background = "#FFC0CB";
       const loadingMsg = document.getElementById("loading-message");
       loadingMsg.style.display = "block";
+      // After a delay, hide the loading message and show the video and skip button
       setTimeout(() => {
         loadingMsg.style.display = "none";
         const video = document.getElementById("special-video");
         video.style.display = "block";
-        video.muted = false;
-        video.volume = 1;
-        video.play();
-        video.onended = function() {
-          overlay.classList.add("fade-out");
-          setTimeout(() => {
-            overlay.style.display = "none";
-            document.getElementById("splash-screen").style.display = "none";
-            document.getElementById("main-content").style.display = "block";
-          }, 2000);
-        };
+        // Now show the skip button
+        document.getElementById("skip-button").style.display = "block";
+        // For YouTube, the autoplay parameter in the URL should handle the start.
+        // You may also remove mute if desired.
+        // Optionally, if you want to listen for the video end with the YouTube API,
+        // you'll need to load it, but for now we'll leave it as is.
       }, 2000);
     }
 
     // Page Countdown Timer (splash screen countdown) 
     function updateSplashCountdown() {
       const now = new Date();
-      const target = new Date("2025-04-16T00:00:00");
+      const target = new Date("2025-04-16T20:00:00");
       if(now >= target) {
         document.getElementById('splash-screen').style.display = "none";
         clearInterval(splashCountdownInterval);
