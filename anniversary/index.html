@@ -478,13 +478,13 @@ header {
 </head>
 <body>
   <!-- Page Overlay for Countdown/Video Loading -->
-  <div id="page-overlay">
-    <p id="page-countdown-message"></p>
-    <p id="loading-message" style="display:none;">Loading a Special Video xx</p>
-    <video id="special-video" style="display:none; max-width:100%;" autoplay playsinline muted>
-      <source src="6thlove.mp4" type="video/mp4">
-    </video>
-  </div>
+<!-- Page Overlay for Countdown/Video Loading -->
+<div id="page-overlay">
+  <button id="skip-button" style="position: absolute; top: 20px; right: 20px; z-index: 10001; padding: 10px 20px; font-size: 1rem; background: #d6336c; border: none; border-radius: 5px; cursor: pointer;">Skip Intro</button>
+  <p id="page-countdown-message"></p>
+  <p id="loading-message" style="display:none;">Loading a Special Video xx</p>
+<iframe width="1307" height="735" src="https://www.youtube.com/embed/5PItP6LY0HI" title="Happy 6th Anniversary (Charlotte ♡ Chiri)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
 
   <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
 
@@ -686,7 +686,7 @@ header {
       <img src="gamebanner.png" alt="Game Banner" style="max-width:100%; height:auto;">
     </a>
     <div id="ad">
-      <a href="index.html" target="_blank">
+      <a href="game/index.html" target="_blank">
         <img src="ad.png" alt="Advertisement">
       </a>
     </div>
@@ -954,6 +954,19 @@ header {
     });
   </script>
   <script>
+    document.getElementById('skip-button').addEventListener('click', () => {
+  const overlay = document.getElementById("page-overlay");
+  // Pause the video if it's playing
+  const video = document.getElementById('special-video');
+  if(video) video.pause();
+  // Fade out the overlay
+  overlay.classList.add("fade-out");
+  setTimeout(() => {
+    overlay.style.display = "none";
+    document.getElementById("splash-screen").style.display = "none";
+    document.getElementById("main-content").style.display = "block";
+  }, 2000);
+});
     document.addEventListener('DOMContentLoaded', () => {
       const video = document.getElementById('special-video');
       video.play().catch(() => {
