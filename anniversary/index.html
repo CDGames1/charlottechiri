@@ -725,24 +725,36 @@ header {
     updatePageCountdown();
 
     // Video loading sequence
-    function startVideoSequence() {
-      const overlay = document.getElementById("page-overlay");
-      overlay.style.background = "#FFC0CB";
-      const loadingMsg = document.getElementById("loading-message");
-      loadingMsg.style.display = "block";
-      // After a delay, hide the loading message and show the video and skip button
-      setTimeout(() => {
-        loadingMsg.style.display = "none";
-        const video = document.getElementById("special-video");
-        video.style.display = "block";
-        // Now show the skip button
-        document.getElementById("skip-button").style.display = "block";
-        // For YouTube, the autoplay parameter in the URL should handle the start.
-        // You may also remove mute if desired.
-        // Optionally, if you want to listen for the video end with the YouTube API,
-        // you'll need to load it, but for now we'll leave it as is.
-      }, 2000);
+function startVideoSequence() {
+  const overlay = document.getElementById("page-overlay");
+  overlay.style.background = "#FFC0CB";
+  const loadingMsg = document.getElementById("loading-message");
+  loadingMsg.style.display = "block";
+  // After a delay, hide the loading message, show the video and the skip button
+  setTimeout(() => {
+    loadingMsg.style.display = "none";
+    const video = document.getElementById("special-video");
+    video.style.display = "block";
+    const skipBtn = document.getElementById("skip-button");
+    skipBtn.style.display = "block"; // Show the skip button
+
+    // Only attach the event listener once
+    if (!skipBtn.dataset.listenerAdded) {
+      skipBtn.addEventListener("click", () => {
+        // Stop the YouTube video by clearing its src
+        video.src = "";
+        // Fade out the overlay
+        overlay.classList.add("fade-out");
+        setTimeout(() => {
+          overlay.style.display = "none";
+          document.getElementById("splash-screen").style.display = "none";
+          document.getElementById("main-content").style.display = "block";
+        }, 2000);
+      });
+      skipBtn.dataset.listenerAdded = "true";
     }
+  }, 2000);
+}
 
     // Page Countdown Timer (splash screen countdown) 
     function updateSplashCountdown() {
