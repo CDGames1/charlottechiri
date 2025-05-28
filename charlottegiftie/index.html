@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Love Jar with Physics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom, #ffd1dc, #ffffff);
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      position: relative;
+      user-select: none;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: url('https://cdn.pixabay.com/photo/2016/04/24/13/24/hearts-1348861_960_720.png') repeat;
+      opacity: 0.2;
+      z-index: 0;
+      animation: pulseBackground 5s infinite;
+      pointer-events: none;
+    }
+    @keyframes pulseBackground {
+      0%, 100% {opacity: 0.2;}
+      50% {opacity: 0.4;}
+    }
+
+    #jar-wrapper {
+      position: fixed;
+      width: 300px;
+      height: 457px;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 20px;
+      z-index: 1;
+      user-select: none;
+      filter: drop-shadow(0 6px 8px rgba(0,0,0,0.3));
+      /* Jar drop animation on load */
+      animation: jarDrop 1.2s ease forwards;
+    }
+    @keyframes jarDrop {
+      0% {transform: translateX(-50%) translateY(-120vh);}
+      100% {transform: translateX(-50%) translateY(0);}
+    }
+
+    #jar-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: url('jar.png') no-repeat center/contain;
+      overflow: visible;
+      user-select: none;
+    }
+
+    #lid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 130px;
+      background: url('lid.png') no-repeat center/contain;
+      cursor: grab;
+      z-index: 20;
+      user-select: none;
+      transition: box-shadow 0.3s ease;
+      will-change: transform;
+    }
+    #lid.grabbing {
+      cursor: grabbing;
+      box-shadow: 0 10px 30px rgba(255, 105, 180, 0.7);
+    }
+    #lid.lid-removed {
+      pointer-events: none;
+      animation: lidPopOff 0.6s forwards;
+    }
+    @keyframes lidPopOff {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-350px) rotate(-35deg);
+        opacity: 0;
+      }
+    }
+
+    .note {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: #fbb1bd;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      user-select: none;
+      font-size: 18px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: box-shadow 0.2s ease;
+      z-index: 15;
+    }
+    .note:active {
+      cursor: grabbing;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+    }
+
+    #stickyNote {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 250px;
+      height: 250px;
+      background: url('stickynote.png') no-repeat center/contain;
+      transform: translate(-50%, -50%) scale(0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 35px 20px 20px 20px;
+      box-sizing: border-box;
+      font-family: 'Emilys Candy', cursive;
+      font-size: 1.4em;
+      color: #444;
+      user-select: text;
+      overflow-wrap: break-word;
+      text-align: center;
+      line-height: 1.3;
+      z-index: 100;
+      transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      pointer-events: none;
+    }
+    #stickyNote.open {
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    #stickyNoteClose {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      background: #e75480;
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2em;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      line-height: 24px;
+      padding: 0;
+      user-select: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      z-index: 110;
+    }
+    #stickyNoteClose:hover {
+      background: #c33a64;
+    }
+
+    header {
+      width: 100%;
+      text-align: center;
+      margin-top: 20px;
+    }
+    h1 {
+      font-family: 'Emilys Candy', cursive;
+      font-size: 2em;
+      color: #e75480;
+    }
+
+    .falling-heart {
+      position: fixed;
+      top: -50px;
+      font-size: 24px;
+      color: #e75480;
+      user-select: none;
+      pointer-events: none;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .falling-envelope {
+      position: fixed;
+      top: -50px;
+      font-size: 40px; /* default size */
+      z-index: 105;
+      user-select: none;
+      pointer-events: auto;
+      cursor: pointer;
+      animation: fallEnvelope 5s linear forwards;
+    }
+
+    @keyframes fallEnvelope {
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110vh);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header style="width:100%; text-align:center; margin-top:20px;">
+      <img src="header.png" alt="Header Image" style="max-width:200px; display:block; margin:0 auto;">
+
+    <h1 style="font-family: 'Emilys Candy', cursive; font-size:2em; color:#e75480;">
+
+      To my Charlotte xx
+    </h1>
+  </header>
+  
+  <div id="jar-wrapper">
+    <div id="lid"></div>
+    <div id="jar-container"></div>
+  </div>
+
+  <div id="stickyNote">
+    <button id="stickyNoteClose" title="Close">×</button>
+    <div id="stickyNoteText"></div>
+  </div>
+
+  <audio id="popSound" src="paper.mp3"></audio>
+  <audio id="lidPopSound" src="lidpop.mp3"></audio>
+
+  <script>
+    const messages = [
+      "Hey babeee xx guess what i love you so much moreee xx",
+      "I love you to the moon and back. xxx",
+      "You are my love of my life babeee xx",
+      "I love you more than all the blocks in Minecraft.",
+      "Hehe does jellybean miss me babee i know she doesss xx",
+      "Jonothan misses you so muchhhh babeee xx hehehe so does his brothers xx",
+      "I love you more than all the stars in the sky.",
+      "Jellybean is mineeeeeee xx",
+      "Guess what babeee xx? can i see my babiessss pleassee and i love you moreee",
+      "are you french because Eiffel for you hehehe xx",
+      "I hope you like this giftttt this jar of notess from meee xx",
+      "What behind those ears..."
+    ];
+
+    const jarWrapper = document.getElementById('jar-wrapper');
+    const jar = document.getElementById('jar-container');
+    const lid = document.getElementById('lid');
+    const popSound = document.getElementById('popSound');
+    const lidPopSound = document.getElementById('lidPopSound');
+    const stickyNote = document.getElementById('stickyNote');
+    const stickyNoteText = document.getElementById('stickyNoteText');
+    const stickyNoteClose = document.getElementById('stickyNoteClose');
+
+    // ----------- LID DRAGGING ----------- 
+    let isDraggingLid = false;
+    let startLidY = 0;
+    let currentLidY = 0;
+    let maxPullDistance = 140; // max pixels lid can be pulled up
+
+    lid.addEventListener('mousedown', e => {
+      if(lid.classList.contains('lid-removed')) return;
+      isDraggingLid = true;
+      startLidY = e.clientY;
+      lid.classList.add('grabbing');
+      e.preventDefault();
+    });
+    window.addEventListener('mouseup', e => {
+      if(!isDraggingLid) return;
+      isDraggingLid = false;
+      lid.classList.remove('grabbing');
+      if (-currentLidY >= maxPullDistance * 0.85) {
+        // Consider lid removed
+        lid.classList.add('lid-removed');
+        lid.style.transform = `translateY(${-maxPullDistance}px) rotate(-35deg)`;
+        lidPopSound.currentTime = 0;
+        lidPopSound.play();
+        jarOpen = true;  // NEW: Now the jar is open so notes become clickable
+        createNotes();
+      } else {
+        // Reset lid position smoothly
+        lid.style.transition = 'transform 0.3s ease';
+        lid.style.transform = 'translateY(0)';
+        currentLidY = 0;
+        setTimeout(() => lid.style.transition = '', 300);
+      }
+    });
+    window.addEventListener('mousemove', e => {
+      if(!isDraggingLid) return;
+      let deltaY = e.clientY - startLidY;
+      // We only allow dragging UP (negative Y)
+      if(deltaY > 0) deltaY = 0;
+      if(deltaY < -maxPullDistance) deltaY = -maxPullDistance;
+      currentLidY = deltaY;
+      lid.style.transform = `translateY(${deltaY}px)`;
+    });
+
+    // ----------- NOTES CREATION & PHYSICS ----------- 
+    let notes = [];
+    let jarOpen = false; // NEW: jar is closed initially
+    const jarRect = {left: 20, top: 130, width: 260, height: 320}; // area for note placement
+    const gravity = 0.4;
+    const bounceFactor = 0.6;
+
+    function createNotes() {
+      if(notes.length) return; // Only once
+
+      for(let i = 0; i < messages.length; i++){
+        let note = document.createElement('div');
+        note.classList.add('note');
+        note.textContent = '♥';
+        // Set random horizontal and vertical positions within jarRect boundaries
+        let randomX = jarRect.left + Math.random() * (jarRect.width - 50);
+        let randomY = jarRect.top + Math.random() * (jarRect.height - 50);
+        note.style.left = randomX + 'px';
+        note.style.top = randomY + 'px';
+        note.style.zIndex = 10 + i;
+        note.dataset.index = i;
+        jarWrapper.appendChild(note);
+        notes.push({
+          elem: note,
+          x: randomX,
+          y: randomY,
+          // Use initial random position for oscillation
+          initialY: randomY,
+          // Amplitude between 20 and 30 pixels for vertical oscillation
+          amplitude: 20 + Math.random() * 10,
+          // Random phase so they don't oscillate in unison
+          phase: Math.random() * 2 * Math.PI,
+          grabbed: false,
+          lastClick: 0
+        });
+
+        // Dragging events on notes
+        note.addEventListener('mousedown', noteMouseDown);
+        note.addEventListener('dblclick', noteDoubleClick);
+      }
+      requestAnimationFrame(physicsLoop);
+    }
+
+    function physicsLoop() {
+      let t = performance.now() / 1000;  // time in seconds
+      notes.forEach(n => {
+        if(!n.grabbed){
+          // Make the note oscillate vertically (floating up and down)
+          n.y = n.initialY + n.amplitude * Math.sin(t + n.phase);
+        }
+        n.elem.style.left = n.x + 'px';
+        n.elem.style.top = n.y + 'px';
+      });
+      requestAnimationFrame(physicsLoop);
+    }
+
+    // Dragging notes remain mostly unchanged
+    function noteMouseDown(e) {
+      // NEW: Only allow interaction if the jar is open
+      if(!jarOpen) return;
+      e.preventDefault();
+      const index = e.target.dataset.index;
+      dragNote = notes[index];
+      dragNote.grabbed = true;
+      offsetX = e.clientX - dragNote.x;
+      offsetY = e.clientY - dragNote.y;
+      window.addEventListener('mousemove', noteMouseMove);
+      window.addEventListener('mouseup', noteMouseUp);
+    }
+    function noteMouseMove(e) {
+      if(!dragNote) return;
+      dragNote.x = e.clientX - offsetX;
+      dragNote.y = e.clientY - offsetY;
+
+      // Constrain roughly inside viewport, but allow outside jar
+      if(dragNote.x < 0) dragNote.x = 0;
+      if(dragNote.x > window.innerWidth - 50) dragNote.x = window.innerWidth - 50;
+      if(dragNote.y < 0) dragNote.y = 0;
+      if(dragNote.y > window.innerHeight - 50) dragNote.y = window.innerHeight - 50;
+
+      dragNote.elem.style.left = dragNote.x + 'px';
+      dragNote.elem.style.top = dragNote.y + 'px';
+    }
+    function noteMouseUp(e) {
+      if(!dragNote) return;
+      dragNote.grabbed = false;
+      // Update the note's initialY so it starts oscillating from its new position
+      dragNote.initialY = dragNote.y;
+      dragNote = null;
+      window.removeEventListener('mousemove', noteMouseMove);
+      window.removeEventListener('mouseup', noteMouseUp);
+    }
+
+    // Double click to open note plays popSound (paper.mp3) 
+    function noteDoubleClick(e) {
+      const idx = e.target.dataset.index;
+      popSound.currentTime = 0;
+      popSound.play();
+      openNote(idx);
+    }
+    function openNote(idx) {
+      const message = messages[idx];
+      stickyNoteText.textContent = message;
+      stickyNote.classList.add('open');
+    }
+    stickyNoteClose.addEventListener('click', () => {
+      stickyNote.classList.remove('open');
+    });
+
+    function createFallingHearts(){
+      setInterval(() => {
+        let heart = document.createElement('div');
+        heart.classList.add('falling-heart');
+        heart.innerHTML = '♥';
+        // Randomize size between 20px and 40px
+        let randomSize = Math.random() * 20 + 20;
+        heart.style.fontSize = randomSize + 'px';
+        // Random horizontal position
+        heart.style.left = Math.random() * 100 + 'vw';
+        // Random animation duration between 3s and 8s
+        let duration = Math.random() * 5 + 3;
+        heart.style.animationDuration = duration + 's';
+        document.body.appendChild(heart);
+        // Remove heart after its animation is complete
+        setTimeout(() => {
+          heart.remove();
+        }, duration * 1000);
+      }, 700);
+    }
+
+    createFallingHearts();
+  </script>
+</body>
+</html>
