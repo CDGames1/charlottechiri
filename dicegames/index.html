@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Romantic Four Dice Spinner</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Dancing+Script&family=Poppins:wght@600&display=swap');
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background: linear-gradient(135deg, #fce1e4, #f8c5d3);
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 20px;
+    color: #6a3749;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    user-select: none;
+  }
+  h1 {
+    font-family: 'Dancing Script', cursive;
+    font-size: 3rem;
+    margin-bottom: 5px;
+    color: #b24a64;
+    text-shadow: 0 0 10px #f48ca2;
+  }
+  .dice-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+  .dice-card {
+    background: #fff0f6;
+    border-radius: 20px;
+    width: 140px;
+    height: 140px;
+    box-shadow:
+      0 0 8px rgba(178, 74, 100, 0.6),
+      0 10px 20px rgba(178, 74, 100, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.5s ease;
+    overflow: hidden;
+  }
+  /* Make dice4 bigger */
+  #dice4 {
+    width: 500px;
+    height: 210px;
+  }
+  /* Increase font size and padding inside dice4 */
+  #dice4 .dice-face {
+    font-size: clamp(0.9rem, 3vw, 1.2rem);
+    padding: 15px 12px;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+  .dice-card:hover {
+    transform: scale(1.08);
+    box-shadow:
+      0 0 20px #f48ca2,
+      0 15px 25px rgba(244, 140, 162, 0.5);
+  }
+  .dice-title {
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: #9e3a57;
+    text-shadow: 0 0 5px #f8b2c2;
+  }
+  .dice-face {
+    font-weight: 600;
+    font-size: clamp(1rem, 4vw, 1.4rem);
+    color: #b24a64;
+    text-align: center;
+    padding: 0 10px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+    user-select: none;
+    word-wrap: break-word;
+  }
+  .spin-animation {
+    animation: spin-dice 0.7s ease forwards;
+  }
+  @keyframes spin-dice {
+    0% {
+      transform: rotateY(0deg);
+      opacity: 1;
+    }
+    50% {
+      transform: rotateY(360deg);
+      opacity: 0.5;
+    }
+    100% {
+      transform: rotateY(720deg);
+      opacity: 1;
+    }
+  }
+  #spinAllBtn {
+    font-family: 'Dancing Script', cursive;
+    font-weight: 600;
+    font-size: 1.6rem;
+    background: #f48ca2;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(244,140,162,0.6);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+  }
+  #spinAllBtn:hover {
+    background-color: #c75377;
+    box-shadow: 0 8px 20px rgba(199, 83, 119, 0.8);
+  }
+  /* Heart decoration */
+  .dice-card::before {
+    content: "❤️";
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 1.3rem;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>Spicy and Romantic Dinner Night Choice Char+Chi xxr</h1>
+
+<div class="dice-container">
+  <div class="dice-card" id="dice1" tabindex="0" aria-label="Food Dice xx">
+    <div class="dice-title">Food</div>
+    <div class="dice-face">Loading...</div>
+  </div>
+  <div class="dice-card" id="dice2" tabindex="0" aria-label="Drinks Dice xxx">
+    <div class="dice-title">Drinks</div>
+    <div class="dice-face">Loading...</div>
+  </div>
+  <div class="dice-card" id="dice3" tabindex="0" aria-label="Actions Dice xx">
+    <div class="dice-title">Actions</div>
+    <div class="dice-face">Loading...</div>
+  </div>
+  <div class="dice-card" id="dice4" tabindex="0" aria-label="Spicy Dice xx (116 options)">
+    <div class="dice-title">Spicy</div>
+    <div class="dice-face">Loading...</div>
+  </div>
+</div>
+
+<button id="spinAllBtn" aria-label="Spin all dice">Spin All</button>
+
+<script>
+  // Options arrays for each dice - edit here!
+const diceOptions = {
+  dice1: ["Ice Cube", "Feijoa", "McDonalds", "Sugar", "KFC", "Cheesecake"],
+  dice2: ["Water", "Coca Cola", "Sprite", "Milk", "Pepsi", "Each others kiss fluids"],
+  dice3: [
+    "Kiss on Lips",
+    "Kiss on Neck",
+    "Dance",
+    "Kiss on Each Leftie and Rightie",
+    "Kiss On Peaches",
+    "Neck Licks"
+  ],
+  dice4: [
+    "Jellybean Lick, swirl tongue and tease the lips in bed and whisper how good it taste",
+    "Jonothan Devour by licking food off jonothan from the base to tip under the blanket until 2nd burst",
+    "Jellybean Slurp by slurping a ice cube from jellybean while lying on top and with hungry licks for 2 rounds",
+    "Jonothan Nibble, nibble food off jonothans base and against the wall as well as on the tip",
+    "Jellybean Suck, Suck the pure fluids from jellybean while under the blanket while nibbles on thighs",
+    "Jonothan Moist, slurp jonothan whole and deep while under the shower, the water all over both of us.",
+    "Jonothan Bursts between leftie and rightie and jonothan picks it up and puts in your mouth",
+    "Jellybean rides on Face until bursts while Playing with Jonothan",
+    "Legs on Shoulders as lick jellybean, and finger after",
+    "Legs on Shoulder as Lick Jonothan and tease jonothan until on the edge then bursts",
+    
+    // New spicy additions
+    "Jellybean Ice Flood, slip an ice cube in jellybean while sucking Jonothan deep, tongue swirling both ends until they burst together in 69",
+    "Jonothan Gush, mouth full of Jonothan under warm water, swallowing each throb while fingers play in jellybean behind",
+    "Jellybean Freeze, freeze tongue with ice then trace jellybean lips slow, finger sliding inside with every moan and melt",
+    "Jonothan Mouth Grip, grip Jonothan in both hands, mouth dripping wet, sucking harder with every gasp while eyes locked on his",
+    "Jellybean Soak, jellybean soaked in warm water then sucked on like fruit, two fingers twisting inside while tongue circles the cube inside",
+    "69 Ice Clash, lay jellybean over your face, ice melting in her as Jonothan gets sucked below, both bursting into each other",
+    "Jonothan Guzzle, Jonothan in deep, water dripping from your lips, tongue teasing slit until it bursts inside your mouth",
+    "Jellybean Ice Scream, ice cube pushed in jellybean then licked out slowly, moaning into Jonothan’s tip as he twitches in your mouth",
+    "Jonothan Shower Grip, one hand stroking him under the shower, mouth full, while the other hand presses deep into jellybean from behind",
+    "Jellybean 69 Melt, water in mouth dripping onto jellybean while you’re on top, tongue thrusting as you suck Jonothan until he bursts hard",
+"Jonothan Under Table, slip under the table mid-dinner and suck Jonothan slow, take him all in and swallow right as conversation flows above",
+"Jellybean Hidden Ice, under the table, slide an ice cube into jellybean and let it melt slowly while fingers work under the dress, silent moans only",
+"Jonothan Burst on Face, Jonothan bursts across your face, dripping down your lips and neck while you moan and scoop it with your tongue",
+"Jellybean Ice Drip, ice in mouth while kissing jellybean, cold water dripping inside as tongue flicks until her legs shake hard",
+"Jonothan Chest Spill, spit out Jonothan’s load onto his chest then smear it with both hands and kiss him deep after",
+"Jellybean Sit and Grind, Jellybean sits on face with ice inside her, grind until she bursts while you suck and press her hips down harder",
+"Jonothan Throat Slide, suck Jonothan in until he bursts down your throat, no hands, just eyes up and slow swallow",
+"Jellybean Spit Play, lick jellybean clean then spit her juices onto her stomach, rub it slow with flat tongue until she begs for more",
+"Jonothan Lap Swallow, pull Jonothan out while on his lap, suck until he releases in your mouth, then either swallow or spit it on his abs with a grin",
+"Jellybean Warm Pour, pour warm water down jellybean as you lick her slowly, one finger circling and the other deep until she screams",
+"Suck on jonothan while using cold hands on his brothers and suck on jonothans brothers while rapid stroking jonothan and catch all the release",
+"Jellybean Throat Moan, bury tongue in jellybean with water in your mouth, moan against her until she shakes, thighs locking around your head",
+
+"Jellybean Ice Push, push two ice cubes in jellybean and suck them out one by one, tongue chasing every drip as she writhes underneath you",
+
+"Jellybean Face Flood, she rides your face until she bursts, juices flooding your tongue and chin while you grip her thighs tighter",
+
+"Jellybean Lap Melt, place jellybean on your lap and slide fingers inside while licking slow circles, ice cube melting where tongue meets heat",
+
+"Jellybean Neck Arch, fingers deep, tongue flicking on clit while whispering how she tastes, her back arched and hands tangled in your hair",
+
+"Jellybean Lick & Blow, lick jellybean open wide and then blow cold air across her lips, make her twitch with your fingers teasing deep",
+
+"Jellybean Spit Trace, suck jellybean and then spit softly on her clit, trace it in with your tongue until she begs and bursts",
+
+"Jellybean Ice Lickdown, drip cold water from your mouth directly onto jellybean and lick every path it takes down, until she's soaked and shaking",
+
+"Jellybean Suck and Shiver, tongue pressed deep inside jellybean, suck until she clenches, ice cube resting on her inner thigh, melting slow",
+
+"Jellybean Slide and Ride, slide a cube across her clit while you lick and finger together, then let her ride your face until she collapses in bliss",
+"Leftie & Rightie Lickdown, ice cube in mouth as you trace circles around Leftie and Rightie, then suck hard enough to leave them sensitive for hours",
+
+"Jonothan Brothers Shower Worship, both brothers licked slowly in the shower, tongue moving between them while warm water rushes over your face",
+
+"Jellybean & Peaches Squeeze, spread Jellybean and Peaches with both hands, tongue flicking between while she moans uncontrollably into the pillow",
+
+"Jonothan Burst on Neck, take Jonothan in deep, let him burst on your neck and collarbone, sliding warm down your chest as you moan back at him",
+
+"Peaches Slap & Lick, slap Peaches gently, then lick slow, each stroke making her twitch, fingers sneaking under to tease Jellybean at the same time",
+
+"Leftie Ice Trace, hold Leftie in hand, ice cube dripping over the nipple while you suck the cold trail off with your warm tongue",
+
+"Jonothan Neck Flood, slide Jonothan against your neck, kissing and stroking until he bursts across your throat and chin — then lick it all clean slowly",
+
+"Jellybean 3-Finger Melt, slide 3 fingers inside Jellybean while tongue teases Peaches from below, the pressure building until she can’t stop shaking",
+
+"Jonothan Brothers Tongue Toss, suck one while stroking the other, then switch, spit dripping from your lips onto their tips as they throb in your hands",
+
+"Peaches Ice Trap, wedge an ice cube between Peaches, lick it while fingers explore Jellybean, her hips grinding hard into your face with every gasp",
+
+"Neck Grip Burst, grip the neck with both hands gently while licking Jonothan deep, let him throb and burst onto your tongue as your lips never break contact",
+
+"Jellybean Ride & Drip, Jellybean rides your face with water in her mouth dripping onto your chest, thighs shaking as your tongue works her relentlessly",
+
+"Leftie & Rightie Spit Paint, spit slowly between Leftie and Rightie, then use your tongue to trace a wet line connecting them, followed by deep sucks",
+
+"Jonothan Brothers Chest Melt, both Jonothans stroking against your chest while your mouth takes turns teasing, until they both burst onto your stomach",
+
+"Peaches Lick Trap, tongue flicking between Peaches while two fingers slide into Jellybean, the room echoing with her wet moans and deep whimpers",
+
+"Jellybean Ice Kiss, place ice on Jellybean and kiss her through the chill, tongue swirling around her clit as water runs down your chin",
+
+"Jonothan Burst in Mouth, Jonothan bursts fully in your mouth, you hold it, swirl it with your tongue, then slowly swallow while looking him dead in the eyes",
+
+"Peaches and Neck Bite, bite Peaches gently, then lick up her spine and onto the neck, whispering how good she tastes before sucking her lips again",
+
+"Leftie & Rightie Worship, hands massaging Leftie and Rightie, mouth taking turns sucking each nipple, ice water dripped over them mid-lick",
+
+"Jonothan Ice Stroke, stroke Jonothan with an ice cube in one hand, mouth locked around the tip, sucking slowly until he loses control all over your chest",
+"Jonothan Egg Stroke, slide Jonothan into a Tenga Egg while staring him down, hand twisting slowly, tongue licking the tip until he bursts inside it",
+
+"Jellybean Cold Hand Tease, slide cold hands under her, fingers pressing inside Jellybean while she gasps, the shock of cold sending her hips upward",
+
+"Controller Moan Match, make her play a game with a vibrating toy synced to every moan — each time she loses control, your mouth punishes Jellybean harder",
+
+"Peaches Protector Grip, strap the Protector on and pin her against the wall, licking Peaches from behind while fingers sneak into Jellybean with every thrust",
+
+"Leftie & Rightie Cold Lick, cold hands holding Leftie and Rightie still while mouth sucks one nipple with heat and drips cold water on the other",
+
+"Jonothan Egg Twist, lube the Tenga Egg and twist it slowly while sucking Jonothan's tip, one hand teasing the slit until his legs tense and burst floods out",
+
+"Jellybean Thumb Control, use one cold thumb to rub Jellybean while your mouth and tongue overwhelm her clit — she screams with every icy pass",
+
+"Controller Bursts, give Jonothan the controller and let him choose the rhythm as you suck him deep — each vibration is another stroke down your throat",
+
+"Peaches Ice Clench, place cold hands on her hips and lick Peaches slow, her entire body arching as you slide one finger into Jellybean without warning",
+
+"Jonothan Protector Stroke, kneel with the Protector’s leash in your mouth, stroking Jonothan with both cold hands until he bursts across your cheek",
+
+"Jellybean Game Over, tie her wrists with the controller cord, cold fingers pressing deep while mouth sucks her until she collapses mid-game",
+
+"Jonothan Egg and Throat, press Jonothan into the Tenga Egg while you suck the tip in tandem, spit mixing with lube until he bursts down both sides",
+
+"Cold Hands Under Peaches, cold hands spreading Peaches from behind, tongue pressed against Jellybean from below, her thighs twitching with every pass",
+
+"Rightie Protector Bite, clamp Rightie gently in the Protector grip, then bite softly before licking all the way around the nipple, her moans echoing off the walls",
+
+"Controller Vibe Trap, make her sit on the controller while you lick Jellybean, each button press vibrating through her as she tries not to scream",
+
+"Jonothan Burst in Egg, stroke him with the Tenga Egg until he bursts inside, then slide the tip into your mouth and suck the last drops out with a moan",
+
+"Peaches Cold Surprise, cold hands gripping Peaches while licking slowly from tailbone to clit, the contrast making her legs shake uncontrollably",
+
+"Jellybean Ice Controller Dare, ice cube placed on the controller while Jellybean gets licked, the chill transferring through as she rides your mouth",
+"Full Body Trap, lie on top of each other naked, hands roaming everywhere, lips kissing necks and thighs, grinding hips slow — but stopping just before either of you burst",
+
+"Jellybean Pulse Tease, grind gently on Jellybean while kissing Leftie and Rightie, fingers inside but never deep enough — she begs but you only smirk and keep it slow",
+
+"Jonothan Heat Stroke, Jonothan lies under you, your hands stroking him slow with cold fingertips, lips kissing down his chest — every time he twitches, you pause and whisper 'not yet'",
+
+"Peaches Rock & Deny, on top of Peaches, tongue flicking the edges, hands sliding up the thighs, clit getting just enough — but never all — until her legs start trembling",
+
+"Full-Body Slide, rub wet bodies together under warm water, hands gripping, mouths kissing hard, Jonothan pressed against your stomach — but not inside, and not allowed to finish",
+
+"Leftie & Rightie Mouth Play, lie chest to chest, suck and kiss Leftie and Rightie while hips grind slowly below — both of you gasping but keeping just shy of letting go",
+
+"Jellybean Ice Rub, ice cube melts between Jellybean and your stomach as you slide over her, teasing with slow kisses and fingertips that never go deep enough",
+
+"Neck Moan Control, lie with lips on each other's neck, whispering filthy things, grinding just enough to drive the other mad — but hands stay still every time it gets too close",
+
+"Peaches Pressure Hold, grind against Peaches with one thigh, hands sliding over her breasts and stomach while licking Jellybean slow — edge her for minutes without a single release",
+
+"Jonothan Between, lie on Jonothan face to face, your body on his, hands stroking him up and down while lips tease his neck — hold him at the edge with every stroke and say 'no yet… not yet…'",
+
+"Jellybean Mutual Drip, bodies slippery from water, one ice cube sliding between both of you, hips rocking, mouths gasping, but no one finishes until both give in together",
+
+"Protector Pin, tie wrists, lie on top, tease Jellybean with mouth while Jonothan twitches below you — no one allowed to finish until you're both begging out loud",
+
+"Thigh-on-Thigh Tease, ride each other’s thighs, wet lips rubbing but never giving enough pressure, while hands slide everywhere but where it counts",
+
+"Face-to-Face Edge, lie chest to chest, grinding slow, eyes locked, one hand on Jonothan, one in Jellybean, but stopping every time it builds — just to keep the pleasure simmering",
+
+"Jellybean & Neck Lock, lie on her with your mouth on Jellybean and hand wrapped around her neck gently, tongue giving fast flicks then suddenly stopping as she moans loud into the air",
+"Lie back with cold water swirling in your mouth as you take Jonothan deep, stroking slow and steady until he bursts, the chill making every pulse sharper",
+
+"Warm water coats your tongue while you suck Jonothan gently, one hand circling the base as you stroke, holding him close until he floods your mouth",
+
+"Ice cube melting in your mouth as you tease Jonothan’s tip with soft, wet lips, stroking his shaft with steady hands until he bursts with a shiver",
+
+"Hold Jonothan deep in your mouth while warm water pools inside, your hand stroking the length slowly, drawing out every gasp before he finally releases",
+
+"Cold water dripping from your lips as you suck Jonothan tenderly, fingers brushing the sensitive underside while he tenses, then bursts hot and fast",
+
+"Ice cube crushed between your tongue and roof of mouth while you lick Jonothan’s length, stroking with your free hand until he gasps and spills warm inside your mouth",
+
+"Warm water swirling with your saliva as you take Jonothan fully, stroking slow and deep, watching his hips twitch as he bursts, filling your mouth",
+
+"Lie back, tongue teasing Jonothan with cold water flowing over him, stroking gently with one hand while the other traces your own body, riding the wave until he bursts",
+
+"With ice cold water in your mouth, suck Jonothan deep while stroking slow, the temperature contrast making every touch electric until he bursts hard",
+
+"Warm water coating your lips as you suck Jonothan’s tip, one hand kneading his balls while stroking his shaft in rhythm until he releases, spilling warmth into your mouth",
+
+"Crush an ice cube on your tongue as you bob slowly on Jonothan, stroking him with steady fingers until he shudders and bursts, mixing heat and chill",
+
+"Water dripping from your lips as you suck Jonothan’s length, stroking slow with both hands, the sensation building until he explodes with a moan into your mouth",
+
+"Cold water pooling in your mouth while you suck Jonothan deep, hand wrapping the base as you stroke, the icy wetness making his release even sweeter",
+
+"Warm water trickling down your chin as you take Jonothan fully, fingers stroking slow and sure, teasing every inch until he bursts, filling your mouth with warmth",
+
+"Lie back and let ice melt in your mouth while you tease Jonothan with soft wet lips, stroking slow and steady until he bursts with a shudder of pleasure"
+
+
+
+
+
+
+  ]
+};
+
+
+  // Grab dice elements
+  const diceElements = {
+    dice1: document.getElementById("dice1"),
+    dice2: document.getElementById("dice2"),
+    dice3: document.getElementById("dice3"),
+    dice4: document.getElementById("dice4")
+  };
+
+  // Initialize dice with random values
+  Object.keys(diceElements).forEach(diceId => {
+    updateDiceFace(diceId, getRandomOption(diceId));
+  });
+
+  // Helper: Get random option text for diceId
+  function getRandomOption(diceId) {
+    const options = diceOptions[diceId];
+    return options[Math.floor(Math.random() * options.length)];
+  }
+
+  // Update dice face text
+  function updateDiceFace(diceId, text) {
+    const diceFace = diceElements[diceId].querySelector(".dice-face");
+    diceFace.textContent = text;
+  }
+
+  // Spin animation logic for one dice
+  function spinDice(diceId) {
+    const dice = diceElements[diceId];
+    const diceFace = dice.querySelector(".dice-face");
+
+    if (dice.classList.contains("spinning")) return; // prevent re-spin while spinning
+    dice.classList.add("spinning");
+    diceFace.classList.add("spin-animation");
+
+    // Duration of spin animation in ms (match CSS animation duration)
+    const spinDuration = 700;
+
+    // While spinning, rapidly change text to simulate rolling
+    let interval = setInterval(() => {
+      updateDiceFace(diceId, getRandomOption(diceId));
+    }, 100);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      // Final new value
+      const finalText = getRandomOption(diceId);
+      updateDiceFace(diceId, finalText);
+      diceFace.classList.remove("spin-animation");
+      dice.classList.remove("spinning");
+    }, spinDuration);
+  }
+
+  // Add click and keyboard support to dice
+  Object.keys(diceElements).forEach(diceId => {
+    const dice = diceElements[diceId];
+    dice.addEventListener("click", () => spinDice(diceId));
+    dice.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        spinDice(diceId);
+      }
+    });
+  });
+
+  // Spin all button
+  const spinAllBtn = document.getElementById("spinAllBtn");
+  spinAllBtn.addEventListener("click", () => {
+    Object.keys(diceElements).forEach(diceId => spinDice(diceId));
+  });
+</script>
+
+</body>
+</html>
