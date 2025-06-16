@@ -237,6 +237,24 @@
   border: 3px solid #fff;
   border-radius: 5px;
 }
+
+#base-health {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 1.5rem;
+    color: white;
+    text-shadow: 2px 2px 2px black;
+}
+
+.health-bar-turret {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background: green;
+    top: -6px;
+    left: 0;
+}
   </style>
 </head>
 <body>
@@ -273,10 +291,55 @@
     <div id="main-base">BASE</div>
     <!-- (Optional) Visual path for testing -->
     <canvas id="path" width="1000" height="600"></canvas>
+    <!-- Base Health Display -->
+    <div id="base-health">Base Health: 100</div>
   </div>
 
   <script>
-    // ---------------- Global Variables & Score ----------------
+    // Add these constants near the top of your script (if not already defined)
+const TURRET_FIRE_RATE = 2000; // Turret fires every 2 seconds
+const TURRET_DAMAGE = 25;      // Damage dealt per shot
+const TURRET_RANGE = 200;      // Range (in pixels) for turret targeting
+
+// ---------------- Tower (Building) Attack Logic for Stationary Buildings ----------------
+function towerAttack(){
+  // Filter machinegun towers from your buildings array
+  towers = buildings.filter(b => b.getAttribute("data-type") === "machinegun");
+  const now = Date.now();
+  
+  towers.forEach(tower => {
+    // Get tower center coordinates
+    let tRect = tower.getBoundingClientRect();
+    let tCenterX = tRect.left + tRect.width / 2;
+    let tCenterY = tRect.top + tRect.height / 2;
+    let nearest = null;
+    let minDist = Infinity;
+    
+    enemies.forEach(enemy => {
+      if (!document.body.contains(enemy)) return;
+      let eRect = enemy.getBoundingClientRect();
+      let eCenterX = eRect.left + eRect.width / 2;
+      let eCenterY = eRect.top + eRect.height / 2;
+      let dist = Math.hypot(tCenterX - eCenterX, tCenterY - eCenterY);
+      
+      if (dist < TURRET_RANGE && dist < minDist) {
+        minDist = dist;
+        nearest = enemy;
+      }
+    });
+    
+    // If an enemy is within range and the turret's cooldown has elapsed, fire a projectile.
+    if (nearest && (!tower.lastFireTime || now - tower.lastFireTime >= TURRET_FIRE_RATE)) {
+      fireProjectile(tower, nearest, TURRET_DAMAGE);
+      tower.lastFireTime = now;
+    }
+  });
+}
+
+// Ensure towerAttack is called repeatedly
+setInterval(towerAttack, 1000);
+
+// ---------------- Global Variables & Score ----------------
     let score = 200; // Start with 200 points
     const scoreboard = document.getElementById("scoreboard");
     const gameContainer = document.getElementById("game-container");
@@ -461,6 +524,11 @@
             building.style.background = "orange";
             building.setAttribute("data-type", "machinegun");
             buildings.push(building);
+            // Add health bar for turret
+            const turretHealthBar = document.createElement("div");
+            turretHealthBar.classList.add("health-bar-turret");
+            turretHealthBar.style.width = "100%";
+            building.appendChild(turretHealthBar);
           }
           gameContainer.appendChild(building);
           buildPlaceholder.style.display = "none";
@@ -498,7 +566,11 @@
       const type = Math.random() < 0.7 ? "soldier" : "tank";
       const enemy = document.createElement("div");
       enemy.classList.add("enemy", type);
-      enemy.health = type === "soldier" ? 50 : 100;
+      // Set different health for tanks
+      enemy.health = type === "soldier" ? 50 : TANK_HEALTH;
+      enemy.damage = type === "soldier" ? 10 : TANK_DAMAGE;
+      enemy.lastAttackTime = 0; // Track last attack time
+
       const enemyHealthBar = document.createElement("div");
       enemyHealthBar.classList.add("health-bar-enemy");
       enemyHealthBar.style.width = "100%";
@@ -546,6 +618,7 @@
 
     // ---------------- Enemy Movement Along Path & Avoidance ----------------
     function updateEnemies(){
+      const now = Date.now();
       enemies = enemies.filter(enemy => document.body.contains(enemy));
       enemies.forEach((enemy, idx) => {
         enemies.forEach((other, jdx) => {
@@ -632,33 +705,42 @@
     // ---------------- Tower (Building) Attack Logic for Stationary Buildings ----------------
     let towers = [];
     function towerAttack(){
+      // Filter machinegun towers from your buildings array
       towers = buildings.filter(b => b.getAttribute("data-type") === "machinegun");
+      const now = Date.now();
+      
       towers.forEach(tower => {
+        // Get tower center coordinates
         let tRect = tower.getBoundingClientRect();
-        let tCenterX = tRect.left + tRect.width/2;
-        let tCenterY = tRect.top + tRect.height/2;
+        let tCenterX = tRect.left + tRect.width / 2;
+        let tCenterY = tRect.top + tRect.height / 2;
         let nearest = null;
         let minDist = Infinity;
+        
         enemies.forEach(enemy => {
-          if(!document.body.contains(enemy)) return;
+          if (!document.body.contains(enemy)) return;
           let eRect = enemy.getBoundingClientRect();
-          let eCenterX = eRect.left + eRect.width/2;
-          let eCenterY = eRect.top + eRect.height/2;
+          let eCenterX = eRect.left + eRect.width / 2;
+          let eCenterY = eRect.top + eRect.height / 2;
           let dist = Math.hypot(tCenterX - eCenterX, tCenterY - eCenterY);
-          if(dist < 200 && dist < minDist){
+          
+          if (dist < TURRET_RANGE && dist < minDist) {
             minDist = dist;
             nearest = enemy;
           }
         });
-        if(nearest){
-          fireProjectile(tower, nearest);
+        
+        // If an enemy is within range and the turret's cooldown has elapsed, fire a projectile.
+        if (nearest && (!tower.lastFireTime || now - tower.lastFireTime >= TURRET_FIRE_RATE)) {
+          fireProjectile(tower, nearest, TURRET_DAMAGE);
+          tower.lastFireTime = now;
         }
       });
     }
     setInterval(towerAttack, 1000);
 
     // ---------------- Projectile Firing (Used by Both Troops & Towers) ----------------
-    function fireProjectile(shooter, target){
+    function fireProjectile(shooter, target, damage) {
       const projectile = document.createElement("div");
       projectile.classList.add("projectile");
       let sRect = shooter.getBoundingClientRect();
@@ -685,22 +767,20 @@
         let tRectNew = target.getBoundingClientRect();
         if(isColliding(pRect, tRectNew)){
           createParticles(tRectNew.left + tRectNew.width/2, tRectNew.top + tRectNew.height/2, "orange");
-          target.health -= 25;
-          if(target.health <= 0){
-            // When target dies, drop money at its location
+          target.health -= damage;
+          
+          if (target.health <= 0) {
             dropMoney(tRectNew.left, tRectNew.top);
             target.remove();
             score += 5;
             updateScore();
           } else {
-            if(target.querySelector(".health-bar-enemy")){
-              let baseHealth = target.classList.contains("soldier") ? 50 : 100;
+            if (target.querySelector(".health-bar-enemy")) {
+              let baseHealth = target.classList.contains("soldier") ? 50 : TANK_HEALTH;
               target.querySelector(".health-bar-enemy").style.width = (target.health/baseHealth * 100) + "%";
             }
-            if(target.querySelector(".health-bar-troop")){
-              target.querySelector(".health-bar-troop").style.width = (target.health/100 * 100) + "%";
-            }
           }
+          
           projectile.remove();
           clearInterval(interval);
         }
@@ -771,6 +851,133 @@
       roundCounter.innerText = "Round: " + waveNumber;
       localStorage.setItem("roundNumber", waveNumber);
     }
+
+    // Path definition
+    const gamePath = [
+        {x: 0, y: 300},    // Start point
+        {x: 200, y: 300},  // First turn
+        {x: 200, y: 100},  // Second turn
+        {x: 400, y: 100},  // Third turn
+        {x: 400, y: 400},  // Fourth turn
+        {x: 600, y: 400}   // Base location
+    ];
+
+    class Enemy {
+        constructor(health = 100) {
+            this.x = gamePath[0].x;
+            this.y = gamePath[0].y;
+            this.health = health;
+            this.pathIndex = 0;
+            this.speed = 2;
+        }
+
+        update() {
+            // Move towards next path point
+            const target = gamePath[this.pathIndex];
+            const dx = target.x - this.x;
+            const dy = target.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < this.speed) {
+                this.pathIndex++;
+                if (this.pathIndex >= gamePath.length) {
+                    // Enemy reached the base
+                    damageBase(20);
+                    return true;
+                }
+            } else {
+                this.x += (dx / distance) * this.speed;
+                this.y += (dy / distance) * this.speed;
+            }
+
+            return false;
+        }
+
+        takeDamage(amount) {
+            this.health -= amount;
+            return this.health <= 0;
+        }
+    }
+
+    // Base health and game state
+    let baseHealth = 100;
+    let gameOver = false;
+
+    function damageBase(amount) {
+        baseHealth -= amount;
+        if (baseHealth <= 0) {
+            gameOver = true;
+            showGameOver();
+        }
+    }
+
+    function showGameOver() {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 2000;
+        `;
+        
+        overlay.innerHTML = `
+            <h1 style="color: red; font-size: 4rem;">GAME OVER</h1>
+            <button onclick="restartGame()" style="
+                padding: 1rem 2rem;
+                font-size: 1.5rem;
+                background: red;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            ">Restart Game</button>
+        `;
+        
+        document.body.appendChild(overlay);
+    }
+
+    function restartGame() {
+        baseHealth = 100;
+        gameOver = false;
+        // Reset enemy array and tower placements
+        enemies = [];
+        towers = [];
+        // Remove game over overlay
+        const overlay = document.querySelector('div[style*="rgba(0,0,0,0.8)"]');
+        if (overlay) overlay.remove();
+        // Restart game loop
+        gameLoop();
+    }
+function towerAttack(tower) {
+    enemies.forEach(enemy => {
+        const dx = enemy.x - tower.x;
+        const dy = enemy.y - tower.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < tower.range) {
+            if (enemy.takeDamage(tower.damage)) {
+                enemies = enemies.filter(e => e !== enemy);
+            }
+        }
+    });
+}
+    function gameLoop() {
+        if (gameOver) return;
+        
+        // Update enemies
+        enemies = enemies.filter(enemy => !enemy.update());
+        
+        // Update base health display
+        document.getElementById('base-health').textContent = `Base Health: ${baseHealth}`;
+        
+        requestAnimationFrame(gameLoop);
+    }
   </script>
+
 </body>
 </html>

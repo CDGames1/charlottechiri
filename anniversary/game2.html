@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>7th Month Game</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #87CEFA;
+      font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      width: 100vw;
+    }
+    canvas {
+      display: none; /* hidden until splash done */
+      background: linear-gradient(to top, #87CEFA, #B0E0E6);
+      position: absolute;
+      top: 0; left: 0;
+    }
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #fff;
+      font-size: 2.5em;
+      font-weight: bold;
+      text-shadow: 2px 2px 6px #000;
+      z-index: 10;
+      display: none;         /* Still hidden on splash */
+      user-select: none;
+      pointer-events: none;  /* Prevent accidental taps */
+      text-align: center;
+      width: auto;
+    }
+    #gameOver {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px 50px;
+      border-radius: 10px;
+      font-family: sans-serif;
+      display: none;
+      z-index: 10;
+    }
+    #gameOver button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      background: #00bfff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+
+    /* Splash intro */
+    #intro {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #87CEFA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      animation: fadeOut 1s ease forwards;
+      animation-delay: 4s; /* splash stays visible 4s, then fades 1s */
+    }
+
+    #intro h1 {
+      font-size: 3.5em;
+      color: white;
+      text-shadow: 0 0 6px red, 0 0 12px red;
+      animation: zoomSwoosh 3.5s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: bold;
+      text-align: center;
+      user-select: none;
+      margin: 0;
+    }
+
+    @keyframes zoomSwoosh {
+      0% {
+        transform: scale(0.4);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.4);
+        opacity: 1;
+      }
+      80% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        pointer-events: none;
+        visibility: hidden;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="intro">
+  <h1>7th Month Anniversary Game</h1>
+</div>
+
+<canvas id="game"></canvas>
+<div id="ui">Score: <span id="score">0</span></div>
+<div id="gameOver">
+  <h1>Nooooooo yabbbb xx</h1>
+  <p>This is the score you got babeee xx: <span id="finalScore">0</span></p>
+  <button onclick="location.reload()">Play Again</button>
+</div>
+
+<audio id="background-music" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" autoplay loop></audio>
+
+<script>
+  const intro = document.getElementById('intro');
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  const finalScoreEl = document.getElementById('finalScore');
+  const ui = document.getElementById('ui');
+
+  let w = window.innerWidth;
+  let h = window.innerHeight;
+
+  const tileHeight = 30;
+  const speed = 2.5;
+  const oscillationRange = 60;
+
+  const colors = ['#f39c12', '#e74c3c', '#2ecc71', '#9b59b6', '#ff6f61', '#16a085'];
+
+  let stack = [];
+  let currentTile = null;
+  let direction = 1;
+  let score = 0;
+  let isGameOver = false;
+  let baseX = 0;
+
+  function resizeCanvas() {
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transforms
+    ctx.scale(dpr, dpr);
+  }
+
+  function drawTile(tile) {
+    ctx.fillStyle = tile.color;
+    ctx.beginPath();
+    ctx.roundRect(tile.x, tile.y, tile.width, tileHeight, 6);
+    ctx.fill();
+  }
+
+  function spawnTile() {
+    const last = stack[stack.length - 1];
+    const width = last.width;
+    const y = last.y - tileHeight;
+    const color = colors[stack.length % colors.length];
+    baseX = last.x;
+
+    return {
+      x: baseX,
+      y: y,
+      width: width,
+      color: color,
+      moving: true,
+      offset: 0
+    };
+  }
+
+  function dropCurrentTile() {
+    if (!currentTile || !currentTile.moving || isGameOver) return;
+
+    currentTile.moving = false;
+
+    const last = stack[stack.length - 1];
+    const dx = currentTile.x - last.x;
+    const overlap = currentTile.width - Math.abs(dx);
+
+    if (overlap <= 10) {
+      endGame();
+      return;
+    }
+
+    score++;
+    scoreEl.textContent = score;
+
+    currentTile.width = overlap;
+    currentTile.x = dx >= 0 ? currentTile.x : last.x;
+    stack.push(currentTile);
+
+    if (currentTile.y < h / 3) {
+      for (let tile of stack) {
+        tile.y += tileHeight;
+      }
+    }
+
+    currentTile = spawnTile();
+  }
+
+  function endGame() {
+    isGameOver = true;
+    finalScoreEl.textContent = score;
+    document.getElementById('gameOver').style.display = 'block';
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, w, h);
+
+    for (let tile of stack) {
+      drawTile(tile);
+    }
+
+    if (currentTile && !isGameOver) {
+      if (currentTile.moving) {
+        currentTile.offset += speed * direction;
+        if (Math.abs(currentTile.offset) >= oscillationRange) {
+          direction *= -1;
+        }
+        currentTile.x = baseX + currentTile.offset;
+      }
+
+      drawTile(currentTile);
+      requestAnimationFrame(animate);
+    }
+  }
+
+  function init() {
+    resizeCanvas();
+
+    stack = [];
+
+    const baseTile = {
+      x: w / 2 - 150,
+      y: h - tileHeight,
+      width: 300,
+      color: colors[0],
+      moving: false
+    };
+    stack.push(baseTile);
+
+    score = 0;
+    scoreEl.textContent = score;
+    isGameOver = false;
+    direction = 1;
+
+    currentTile = spawnTile();
+
+    canvas.style.display = 'block';
+    ui.style.display = 'block';
+
+    animate();
+  }
+
+  // Input handlers
+  window.addEventListener('click', dropCurrentTile);
+  window.addEventListener('touchstart', dropCurrentTile);
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') dropCurrentTile();
+  });
+
+  window.addEventListener('resize', () => {
+    resizeCanvas();
+  });
+
+  // RoundRect polyfill
+  if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius) {
+      if (typeof radius === 'number') {
+        radius = { tl: radius, tr: radius, br: radius, bl: radius };
+      } else {
+        var defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
+        for (var side in defaultRadius) {
+          radius[side] = radius[side] || defaultRadius[side];
+        }
+      }
+      this.beginPath();
+      this.moveTo(x + radius.tl, y);
+      this.lineTo(x + width - radius.tr, y);
+      this.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+      this.lineTo(x + width, y + height - radius.br);
+      this.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+      this.lineTo(x + radius.bl, y + height);
+      this.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+      this.lineTo(x, y + radius.tl);
+      this.quadraticCurveTo(x, y, x + radius.tl, y);
+      this.closePath();
+    };
+  }
+
+  // Splash intro end handler
+  intro.addEventListener('animationend', () => {
+    intro.style.display = 'none';
+    init();
+  });
+
+  // Background music
+  const music = document.getElementById('background-music');
+  music.volume = 0.5; // adjust volume as needed
+
+  // Some browsers require a user gesture before playing audio.
+  document.addEventListener('click', () => {
+    if (music.paused) {
+      music.play();
+    }
+  });
+</script>
+</body>
+</html>
