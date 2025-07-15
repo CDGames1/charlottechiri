@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>8th Month Game</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #222;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    canvas {
+      display: none;
+      margin: 0 auto;
+      background: #000;
+    }
+    #ui {
+      text-align: center;
+      color: white;
+      font-size: 2em;
+      margin-top: 10px;
+      display: none;
+    }
+    #gameOver {
+      text-align: center;
+      color: white;
+      font-size: 2em;
+      display: none;
+    }
+    #intro {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: black;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    #slideshow-container {
+      position: relative;
+      width: 400px;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      border: 4px solid #fff;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    #slideshow-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+    }
+    .intro-text {
+      font-size: 3em;
+      color: white;
+      text-shadow: 0 0 8px red;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 1s ease, transform 1s ease;
+      position: absolute;
+      z-index: 1010;
+    }
+  </style>
+</head>
+<body>
+
+<div id="intro">
+  <div id="slideshow-container"></div>
+  <div class="intro-text">8th Month Anniversary Game</div>
+</div>
+
+<canvas id="game" width="300" height="600"></canvas>
+<div id="ui">Score: <span id="score">0</span></div>
+<div id="gameOver">
+  <p>Game Over!</p>
+  <p>High Score: <span id="highscore">0</span></p>
+  <button onclick="location.reload()">Play Again</button>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const scoreEl = document.getElementById("score");
+const highscoreEl = document.getElementById("highscore");
+const gameOverDiv = document.getElementById("gameOver");
+const ui = document.getElementById("ui");
+
+const COLS = 10;
+const ROWS = 20;
+const BLOCK_SIZE = 30;
+canvas.width = COLS * BLOCK_SIZE;
+canvas.height = ROWS * BLOCK_SIZE;
+
+const COLORS = ["cyan", "blue", "orange", "yellow", "green", "purple", "red"];
+const SHAPES = {
+  I: [[1, 1, 1, 1]],
+  J: [[1, 0, 0], [1, 1, 1]],
+  L: [[0, 0, 1], [1, 1, 1]],
+  O: [[1, 1], [1, 1]],
+  S: [[0, 1, 1], [1, 1, 0]],
+  T: [[0, 1, 0], [1, 1, 1]],
+  Z: [[1, 1, 0], [0, 1, 1]]
+};
+
+function randomPiece() {
+  const keys = Object.keys(SHAPES);
+  const type = keys[Math.floor(Math.random() * keys.length)];
+  return {
+    shape: SHAPES[type],
+    color: COLORS[keys.indexOf(type)],
+    x: 3,
+    y: 0
+  };
+}
+
+let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+let current = randomPiece();
+let score = 0;
+let highscore = localStorage.getItem("tetrisHighscore") || 0;
+
+function drawBlock(x, y, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+  ctx.strokeStyle = "#222";
+  ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+}
+
+function drawBoard() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (board[y][x]) drawBlock(x, y, board[y][x]);
+    }
+  }
+  current.shape.forEach((row, dy) => {
+    row.forEach((value, dx) => {
+      if (value) drawBlock(current.x + dx, current.y + dy, current.color);
+    });
+  });
+}
+
+function collide(shape, offsetX, offsetY) {
+  return shape.some((row, dy) => {
+    return row.some((value, dx) => {
+      let x = current.x + dx + offsetX;
+      let y = current.y + dy + offsetY;
+      return value && (x < 0 || x >= COLS || y >= ROWS || board[y] && board[y][x]);
+    });
+  });
+}
+
+function merge() {
+  current.shape.forEach((row, dy) => {
+    row.forEach((value, dx) => {
+      if (value) board[current.y + dy][current.x + dx] = current.color;
+    });
+  });
+}
+
+function clearLines() {
+  board = board.filter(row => row.some(cell => !cell)).concat(
+    Array.from({ length: ROWS - board.length }, () => Array(COLS).fill(0))
+  );
+}
+
+function update() {
+  if (!collide(current.shape, 0, 1)) {
+    current.y++;
+  } else {
+    merge();
+    clearLines();
+    score++;
+    scoreEl.textContent = score;
+    current = randomPiece();
+    if (collide(current.shape, 0, 0)) {
+      gameOver();
+      return;
+    }
+  }
+  drawBoard();
+}
+
+function gameOver() {
+  gameOverDiv.style.display = "block";
+  if (score > highscore) {
+    highscore = score;
+    localStorage.setItem("tetrisHighscore", highscore);
+  }
+  highscoreEl.textContent = highscore;
+  clearInterval(interval);
+}
+
+function rotate(shape) {
+  return shape[0].map((_, i) => shape.map(row => row[i])).reverse();
+}
+
+window.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft" && !collide(current.shape, -1, 0)) {
+    current.x--;
+  } else if (e.key === "ArrowRight" && !collide(current.shape, 1, 0)) {
+    current.x++;
+  } else if (e.key === "ArrowDown") {
+    update();
+  } else if (e.key === "ArrowUp") {
+    const rotated = rotate(current.shape);
+    if (!collide(rotated, 0, 0)) current.shape = rotated;
+  }
+  drawBoard();
+});
+
+let interval;
+
+function startGame() {
+  document.getElementById("intro").style.display = "none";
+  canvas.style.display = "block";
+  ui.style.display = "block";
+  interval = setInterval(update, 500);
+}
+
+// Cinematic slideshow logic
+const slideshowContainer = document.getElementById("slideshow-container");
+const introText = document.querySelector(".intro-text");
+const slides = [];
+for (let i = 1; i <= 28; i++) {
+  const img = document.createElement("img");
+  img.src = `photos/photo${i}.jpg`;
+  slideshowContainer.appendChild(img);
+  slides.push(img);
+}
+
+let currentSlide = 0;
+function showSlide(index) {
+  slides.forEach((img, i) => {
+    img.style.opacity = i === index ? "1" : "0";
+  });
+}
+
+function runSlideshow() {
+  const interval = setInterval(() => {
+    showSlide(currentSlide);
+    currentSlide++;
+    if (currentSlide === slides.length) {
+      clearInterval(interval);
+      introText.style.opacity = "1";
+      introText.style.transform = "scale(1)";
+      setTimeout(startGame, 2000);
+    }
+  }, 400);
+}
+
+runSlideshow();
+</script>
+</body>
+</html>
