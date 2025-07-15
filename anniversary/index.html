@@ -485,7 +485,7 @@ header {
   <button id="skip-button" style="display:none; position: absolute; top: 20px; right: 20px; z-index: 10001; padding: 10px 20px; font-size: 1rem; background: #d6336c; border: none; border-radius: 5px; cursor: pointer;">Skip Intro</button>
   <p id="page-countdown-message"></p>
   <p id="loading-message" style="display:none;">Loading a Special Video xx</p>
-	<iframe id="special-video" width="462" height="821" src="https://www.youtube.com/embed/ng1CHfymSro" title="I love you so much happy 8th month anniversary xx" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+	<iframe id="special-video" style="display:none;" width="462" height="821" src="https://www.youtube.com/embed/ng1CHfymSro" title="I love you so much happy 8th month anniversary xx" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 </div>
 
   <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
@@ -724,7 +724,7 @@ header {
     }
 
     // Page Countdown Timer to available date (adjust as needed)
-    let availableDate = new Date("2025-07-16T20:22:00");
+    let availableDate = new Date("2025-07-16T22:00:00");
     function updatePageCountdown() {
       const now = new Date();
       const overlay = document.getElementById("page-overlay");
