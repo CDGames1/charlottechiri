@@ -87,6 +87,14 @@
   <button onclick="location.reload()">Play Again</button>
 </div>
 
+<!-- Mobile Controls -->
+<div id="mobile-controls" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:2000;">
+  <button id="left-btn" style="font-size:2em; margin:0 10px; padding:15px 25px; border-radius:50%; border:none; background:#d6336c; color:#fff;">←</button>
+  <button id="rotate-btn" style="font-size:2em; margin:0 10px; padding:15px 25px; border-radius:50%; border:none; background:#4caf50; color:#fff;">⟳</button>
+  <button id="down-btn" style="font-size:2em; margin:0 10px; padding:15px 25px; border-radius:50%; border:none; background:#e74c3c; color:#fff;">↓</button>
+  <button id="right-btn" style="font-size:2em; margin:0 10px; padding:15px 25px; border-radius:50%; border:none; background:#d6336c; color:#fff;">→</button>
+</div>
+
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -192,6 +200,7 @@ function update() {
 
 function gameOver() {
   gameOverDiv.style.display = "block";
+  hideMobileControls();
   if (score > highscore) {
     highscore = score;
     localStorage.setItem("tetrisHighscore", highscore);
@@ -224,6 +233,7 @@ function startGame() {
   document.getElementById("intro").style.display = "none";
   canvas.style.display = "block";
   ui.style.display = "block";
+  showMobileControls();
   interval = setInterval(update, 500);
 }
 
@@ -259,6 +269,71 @@ function runSlideshow() {
 }
 
 runSlideshow();
+
+// Mobile controls logic
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+function showMobileControls() {
+  if (isMobile()) {
+    document.getElementById("mobile-controls").style.display = "block";
+  }
+}
+
+function hideMobileControls() {
+  document.getElementById("mobile-controls").style.display = "none";
+}
+
+// Mobile controls event listeners
+document.getElementById("left-btn").addEventListener("touchstart", function(e) {
+  e.preventDefault();
+  if (!collide(current.shape, -1, 0)) {
+    current.x--;
+    drawBoard();
+  }
+});
+document.getElementById("right-btn").addEventListener("touchstart", function(e) {
+  e.preventDefault();
+  if (!collide(current.shape, 1, 0)) {
+    current.x++;
+    drawBoard();
+  }
+});
+document.getElementById("down-btn").addEventListener("touchstart", function(e) {
+  e.preventDefault();
+  update();
+  drawBoard();
+});
+document.getElementById("rotate-btn").addEventListener("touchstart", function(e) {
+  e.preventDefault();
+  const rotated = rotate(current.shape);
+  if (!collide(rotated, 0, 0)) current.shape = rotated;
+  drawBoard();
+});
+
+// Also support mouse clicks for desktop users
+document.getElementById("left-btn").addEventListener("click", function() {
+  if (!collide(current.shape, -1, 0)) {
+    current.x--;
+    drawBoard();
+  }
+});
+document.getElementById("right-btn").addEventListener("click", function() {
+  if (!collide(current.shape, 1, 0)) {
+    current.x++;
+    drawBoard();
+  }
+});
+document.getElementById("down-btn").addEventListener("click", function() {
+  update();
+  drawBoard();
+});
+document.getElementById("rotate-btn").addEventListener("click", function() {
+  const rotated = rotate(current.shape);
+  if (!collide(rotated, 0, 0)) current.shape = rotated;
+  drawBoard();
+});
 </script>
 </body>
 </html>
