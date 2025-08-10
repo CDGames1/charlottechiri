@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>8th Month Anniversary Gift xx</title>
+  <title>9th Month Anniversary Gift xx</title>
   <style>
     /* Global Romantic Theme */
     body {
@@ -99,7 +99,7 @@ header {
 }
     .welcome h1, .welcome h2 { margin: 10px; }
     .hero-image {
-      width: 320px;
+      width: 220px;
       max-width: 90%;
       border-radius: 10px;
       opacity: 0;
@@ -485,7 +485,12 @@ header {
   <button id="skip-button" style="display:none; position: absolute; top: 20px; right: 20px; z-index: 10001; padding: 10px 20px; font-size: 1rem; background: #d6336c; border: none; border-radius: 5px; cursor: pointer;">Skip Intro</button>
   <p id="page-countdown-message"></p>
   <p id="loading-message" style="display:none;">Loading a Special Video xx</p>
-	<iframe id="special-video" style="display:none;" width="462" height="821" src="https://www.youtube.com/embed/ng1CHfymSro" title="I love you so much happy 8th month anniversary xx" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+	<!-- Replace your iframe with this for testing -->
+<iframe id="special-video" width="462" height="821"
+  src="https://www.youtube.com/embed/p5V5VQ6ua8w"
+  title="YouTube video player" frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  allowfullscreen style="display:none;"></iframe>
 </div>
 
   <button id="toggle-sidebar" onclick="toggleSidebar()">☰</button>
@@ -549,8 +554,8 @@ header {
         <img src="recent.JPG" alt="Recent photo" class="hero-image">
         <p>Latest Photo of us</p>
         <br>
-        <h1>Happy 8th Month Anniversary xx</h1>
-        <h3>Ahhh babeee xx 8th Months and i felt like I met you Years ago, our love for each other is incredible and every call, every second with you i always learn something new about my sexy cute wifey xx, i will forever be yours for not just another 8 months, not for another 8 years but for another 80 years xx and even after we die i will always find you xx you have helped me so much babeee xx like when you were here last with that panic attack i had the bad dream i was so freaked out and you were there for me to help me calm down xx, your forever mine babeee xx and i cant wait for the 8th Months to be 8 Years then 80 xx mwahhhh i love you so muchhhh xoxo </h3>      
+        <h1>Happy 9th Month Anniversary xx</h1>
+        <h3>Babeee xx 9 months already and it feels like ive known you forever and ever and ever xx every time we talk, watch movies, text or spend time together babeee xx i fall harder and harder for my cuteee sexy smart and incredible girl xx. there has always been something new to discover about you hehehe and im hooked xx im not just yours for another 9 months or 9 years. it forever and ever and always for the rest of our life xx and even after that xx ill always keep close to you babee xx. you have always been my rock babee xx like when i had that panic attack and nightmare or like that seizure you calmed me down babeee xx and i have no clue what i would do without you xx i cant wait for the 9 months to turn into years xx or laughter, love and hehehe maybe a little one of our xx your everything to me babee xx i loveee you so much xx if your reading this part xx hehehe i want you to say: YAB YAB I WUW YOU XX </h3>      
       </div>
     </header>
 
@@ -566,7 +571,7 @@ header {
           <p>18/09/2024</p>
         </div>
         <div class="timeline-event">
-          <h3>First Date</h3>
+          <h3>First Date At Timezone xx</h3>
           <p>02/11/2024</p>
         </div>
         <div class="timeline-event">
@@ -628,6 +633,10 @@ header {
         <div class="timeline-event">
           <h3>Twelveth Date (Jellybean Time, Birthday Present & McDonalds Date)</h3>
           <p>10/07/2025 - 12/07/2025</p>
+        </div>
+        <div class="timeline-event">
+          <h3>Thirteenth Date (2nd time at your house xx)</h3>
+          <p>TBD</p>
         </div>
       </div>
     </section>
@@ -700,7 +709,8 @@ header {
     <div id="game-dropdown" style="margin-top: 10px;">
       <label for="gameSelect">Select Month:</label>
       <select id="gameSelect">
-          <option value="game3.html" data-img="gamebanner.png" selected>8th Month</option>
+          <option value="game4.html" data-img="gamebanner.png" selected>9th Month</option>
+          <option value="game3.html" data-img="ad8th.png">8th Month</option>
           <option value="game2.html" data-img="ad7th.png">7th Month</option>
           <option value="game1.html" data-img="ad6th.png">6th Month</option>
       </select>
@@ -724,7 +734,7 @@ header {
     }
 
     // Page Countdown Timer to available date (adjust as needed)
-    let availableDate = new Date("2025-07-16T22:00:00");
+    let availableDate = new Date("2025-08-16T22:00:00");
     function updatePageCountdown() {
       const now = new Date();
       const overlay = document.getElementById("page-overlay");
@@ -780,7 +790,7 @@ function startVideoSequence() {
     // Page Countdown Timer (splash screen countdown) 
     function updateSplashCountdown() {
       const now = new Date();
-      const target = new Date("2025-04-16T20:00:00");
+      const target = new Date("2025-08-16T20:00:00");
       if(now >= target) {
         document.getElementById('splash-screen').style.display = "none";
         clearInterval(splashCountdownInterval);
@@ -811,7 +821,7 @@ function startVideoSequence() {
     setInterval(createHeart, 500);
 
     // Countdown Timer in #countdown-section
-    let nextAnniversary = new Date("2024-12-16T00:00:00");
+    let nextAnniversary = new Date("2024-08-16T00:00:00");
     function updateCountdown() {
       const now = new Date();
       const diff = nextAnniversary - now;
