@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Charchi 2.0 (PeerJS Multiplayer)</title>
+<style>
+:root{
+  --bg-a:#0f2027; --bg-b:#2c5364;
+  --card-w:86px; --card-h:126px;
+  --discard-w:68px; --discard-h:100px;
+  --accent:#ffd166;
+}
+*{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+html,body{height:100%;margin:0;background:linear-gradient(135deg,var(--bg-a),var(--bg-b));color:#fff;overflow:hidden}
+
+/* STARTUP / MENU */
+#startup{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;z-index:60;transition:opacity .8s}
+#flashImg{width:230px;height:230px;border-radius:14px;object-fit:cover;box-shadow:0 12px 30px rgba(0,0,0,.7),0 0 40px rgba(255,255,255,.04);animation:imgPulse .9s linear infinite}
+@keyframes imgPulse{0%{filter:brightness(.55)}50%{filter:brightness(1.05)}100%{filter:brightness(.6)}}
+#startupTitle{margin-top:18px;font-weight:800;font-size:36px;letter-spacing:1px;opacity:0;transform:translateY(10px);color:var(--accent);text-shadow:0 3px 18px rgba(0,0,0,.6)}
+
+#mainMenu{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(2,6,23,.6), rgba(2,6,23,.9));z-index:120}
+.menuCard{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.04));padding:22px;border-radius:12px;min-width:320px;box-shadow:0 18px 60px rgba(0,0,0,.6)}
+.menuRow{display:flex;gap:8px;margin-top:8px;align-items:center}
+.smallInput{padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,.03);color:#fff;width:100%}
+.primaryBtn{background:linear-gradient(90deg,#ff758c,#ff7eb3);border:none;color:#fff;padding:10px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+
+/* APP shell */
+#app{display:none;flex-direction:column;height:100vh;width:100vw;align-items:center;justify-content:space-between;padding:16px 20px;gap:10px;position:relative}
+.header{width:100%;display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:56px;height:56px;border-radius:10px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.brand h1{margin:0;font-size:18px}
+.controls{display:flex;gap:8px;align-items:center}
+
+/* PLAY AREA */
+.board{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:1200px}
+.play-area{width:100%;display:flex;justify-content:center;align-items:center;gap:26px;padding:18px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04));box-shadow:inset 0 1px 0 rgba(255,255,255,.02)}
+.pile{display:flex;flex-direction:column;align-items:center;gap:8px}
+.pile .label{font-size:12px;color:#dfeff3;opacity:.9}
+
+/* PILE CARDS */
+.pile-card{width:var(--card-w);height:var(--card-h);border-radius:10px;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.45);position:relative;background:#111;border:2px solid rgba(255,255,255,.03)}
+.pile-card img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* DISCARD smaller & with badge */
+#discardWrap{width:var(--discard-w);height:var(--discard-h);transform:scale(0.96)}
+#discardWrap .pile-card{width:100%;height:100%;border-radius:10px;overflow:hidden;position:relative}
+#discardWrap img{width:100%;height:100%;object-fit:cover}
+#discardBadge{position:absolute;right:6px;bottom:6px;padding:6px 8px;border-radius:8px;font-weight:800;font-size:14px;text-transform:uppercase;box-shadow:0 6px 20px rgba(0,0,0,.45)}
+
+/* CARD / HAND */
+.player-area{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px}
+.hand{display:flex;gap:10px;align-items:flex-end;padding:8px;min-height:140px;overflow-x:auto;width:100%}
+.card{width:var(--card-w);height:var(--card-h);border-radius:10px;position:relative;flex:0 0 auto;cursor:pointer;transition:transform .18s cubic-bezier(.2,.9,.2,1),box-shadow .18s}
+.card img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.card:hover{transform:translateY(-10px) scale(1.04);box-shadow:0 18px 48px rgba(0,0,0,.6)}
+.card.playable{outline:3px solid rgba(255, 220, 100, .95);box-shadow:0 22px 60px rgba(255,220,100,.06)}
+
+.overlay{position:absolute;left:8px;top:8px;padding:6px 8px;border-radius:8px;font-weight:800;font-size:18px;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+
+/* COMPUTER HAND (face-down) */
+.computer-hand{display:flex;gap:8px;align-items:center;height:110px;overflow:hidden;padding:8px}
+.computer-card{width:56px;height:84px;border-radius:8px;background:#0c1216;border:2px solid rgba(255,255,255,.02);box-shadow:0 6px 18px rgba(0,0,0,.5);background-size:cover;background-position:center}
+
+/* STATUS & ACTIONS */
+.statusbar{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:8px;width:100%}
+.status{padding:8px 12px;border-radius:10px;background:rgba(0,0,0,.22);font-weight:700;color:#fff}
+.controls button{background:linear-gradient(90deg,#ff758c,#ff7eb3);border:none;color:#fff;padding:10px 12px;border-radius:10px;font-weight:700;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.38)}
+.controls .small{padding:6px 8px;font-size:14px}
+
+/* MODALS */
+#colorPicker{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:200;background:#07121a;padding:10px;border-radius:10px;display:none;box-shadow:0 18px 60px rgba(0,0,0,.6)}
+.colorBtn{width:52px;height:52px;border-radius:8px;margin:6px;border:3px solid rgba(255,255,255,.06);cursor:pointer;display:inline-block}
+
+/* CHARCHI bubble */
+#charchiBubble{position:fixed;right:18px;bottom:18px;background:rgba(255,255,255,.06);padding:8px 12px;border-radius:20px;display:none;z-index:300;color:#ffd166;font-weight:800;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+
+/* END OVERLAY */
+#endOverlay{position:fixed;inset:0;display:none;z-index:220;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(2,6,23,.55), rgba(2,6,23,.85))}
+.endBox{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));padding:24px;border-radius:12px;text-align:center;color:#fff}
+.endBox h2{margin:0 0 8px 0}
+
+/* responsive tweaks */
+@media (max-width:720px){
+  :root{--card-w:72px;--card-h:106px;--discard-w:56px;--discard-h:82px}
+  #flashImg{width:160px;height:160px}
+  .brand h1{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- CharChi audio -->
+<audio id="charchiAudio" src="CharChi.mp3" preload="auto"></audio>
+
+<!-- CharChi bubble indicator -->
+<div id="charchiBubble">Opponent pressed CharChi!</div>
+
+<!-- STARTUP / SLIDESHOW -->
+<div id="startup" aria-hidden="false">
+  <img id="flashImg" src="photos/photo1.jpg" alt="slideshow image">
+  <div id="startupTitle">10th Month Anniversary Game</div>
+</div>
+
+<!-- MAIN MENU (hidden until startup done) -->
+<div id="mainMenu">
+  <div class="menuCard">
+    <div style="font-size:20px;font-weight:800">Charchi 2.0 — Multiplayer</div>
+    <div style="opacity:.9;margin-top:8px">Enter a username, create a room or join a friend.</div>
+
+    <div class="menuRow">
+      <input id="usernameInput" class="smallInput" placeholder="Your name (e.g. Sara)">
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <div style="flex:1">
+        <div style="font-size:12px;opacity:.85;margin-bottom:6px">Create room</div>
+        <div style="display:flex;gap:8px">
+          <button id="btnCreateRoom" class="primaryBtn" style="width:100%">Create Room</button>
+        </div>
+        <div style="font-size:12px;opacity:.7;margin-top:8px">When you create, share the code shown to your friend.</div>
+      </div>
+
+      <div style="flex:1">
+        <div style="font-size:12px;opacity:.85;margin-bottom:6px">Join room</div>
+        <div style="display:flex;gap:8px">
+          <input id="joinCode" class="smallInput" placeholder="room code">
+          <button id="btnJoinRoom" class="primaryBtn">Join</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;opacity:.85;font-size:13px">
+      Note: this uses PeerJS cloud broker for signaling. For cross-network reliability, add a TURN server (instructions in the script).
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">
+      <div class="logo"><img src="photos/photo1.jpg" alt="logo" style="width:100%;height:100%;object-fit:cover"></div>
+      <div>
+        <h1>10th Month Anniversary game — CharChi</h1>
+        <div id="subInfo" style="font-size:12px;color:#d7e6ea">Multiplayer — waiting to connect</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div style="font-size:13px;color:#e6f0f3;padding-left:8px">Turn: <strong id="turnTag">—</strong></div>
+      <div style="width:10px"></div>
+      <div style="font-size:12px;opacity:.9">You: <strong id="displayName">You</strong></div>
+      <div style="width:6px"></div>
+      <div style="font-size:12px;opacity:.9">Peer: <strong id="peerName">—</strong></div>
+      <div style="width:12px"></div>
+      <button id="btnNew" class="small">Request New Game</button>
+      <button id="btnRules" class="small"></button>
+    </div>
+  </div>
+
+  <!-- PLAY AREA -->
+  <div class="board">
+    <div class="computer-hand" id="computerHand" title="Opponent's cards (face-down)"></div>
+
+    <div class="play-area">
+      <div class="pile">
+        <div class="label">Draw Pile</div>
+        <div class="pile-card" id="drawPile" title="Draw pile (click to draw)">
+          <img src="photos/photo1.jpg" alt="draw">
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+        <div class="label">Discard</div>
+        <div id="discardWrap">
+          <div class="pile-card" id="discard"></div>
+        </div>
+      </div>
+
+      <div style="width:140px;text-align:center">
+        <div style="font-size:12px;color:#cfe9ee">cards left</div>
+        <div id="deckCount" style="font-weight:800;font-size:20px">0</div>
+      </div>
+    </div>
+
+    <div class="player-area" style="width:100%;max-width:1200px">
+      <div style="font-size:13px;color:#cfe9ee">Your cards</div>
+      <div class="hand" id="playerHand"></div>
+
+      <div class="statusbar">
+        <div class="status" id="statusText">Connect both players and press Ready to start.</div>
+        <div style="flex:1"></div>
+        <div>
+          <button id="btnSayUNO" class="small">call CharChi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COLOR PICKER (for wildcard) -->
+<div id="colorPicker">
+  <div style="color:#d9f0f6;font-weight:700;margin-bottom:8px">Choose color</div>
+  <div style="display:flex">
+    <div class="colorBtn" data-color="red" style="background:linear-gradient(180deg,#ff7b7b,#e64545)"></div>
+    <div class="colorBtn" data-color="yellow" style="background:linear-gradient(180deg,#ffe08a,#ffd166)"></div>
+    <div class="colorBtn" data-color="green" style="background:linear-gradient(180deg,#85ffb7,#29be6a)"></div>
+    <div class="colorBtn" data-color="blue" style="background:linear-gradient(180deg,#8fb6ff,#1e7bff)"></div>
+  </div>
+</div>
+
+<!-- ENDGAME -->
+<div id="endOverlay">
+  <div class="endBox">
+    <h2 id="endTitle">You Win!</h2>
+    <div id="endSubtitle" style="opacity:.9;margin-top:8px">Congrats</div>
+    <button id="btnReplay" style="margin-top:12px;padding:10px 14px;border-radius:8px;border:none;background:#ffd166;color:#102027;font-weight:800">Play again</button>
+  </div>
+</div>
+
+<!-- PeerJS CDN -->
+<script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+
+<script>
+/* ===========================
+   IMPORTANT: STUN/TURN CONFIGURATION
+   Insert your TURN server credentials here to make PeerJS work across restrictive NATs.
+   - A simple STUN-only config (Google STUN) is included (may work for many home networks).
+   - For cross-network reliability (corporate/mobile NATs) you must add a TURN server entry.
+     e.g. Xirsys returns an iceServers array you can paste directly.
+   - Replace the TURN placeholders below with real TURN URLs + username + credential.
+*/
+
+const ICE_SERVERS = [
+  // Helpful free STUN servers (not sufficient for all NATs)
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+
+  // ---- Example TURN entries (COMMENTED) ----
+  // Replace these with real TURN server credentials from Xirsys / Twilio / your coturn:
+  // {
+  //   urls: ['turn:turn.example.com:3478?transport=udp', 'turn:turn.example.com:3478?transport=tcp'],
+  //   username: 'TURN_USERNAME',
+  //   credential: 'TURN_PASSWORD'
+  // },
+  // {
+  //   urls: ['turns:turn.example.com:5349?transport=tcp'],
+  //   username: 'TURN_USERNAME',
+  //   credential: 'TURN_PASSWORD'
+  // }
+];
+
+function makePeerOptions(){
+  return {
+    debug: 2,
+    config: { iceServers: ICE_SERVERS }
+    // If you run your own PeerServer, also add host/port/path/secure here.
+  };
+}
+
+/* ===========================
+   Constants & State
+   =========================== */
+const TOTAL_PHOTOS = 28;
+const START_HAND = 7;
+const COLORS = ['red','yellow','green','blue'];
+const ACTION_TYPES = ['skip','reverse','draw2'];
+
+let hostState = null;          // authoritative gamestate (host)
+let localRole = null;          // 'host' | 'guest'
+let localUsername = '';
+let peerUsername = '—';
+let peer = null;
+let conn = null;
+let peerId = null;
+
+let connectionInitialized = false;
+const processedActionIds = new Set();
+
+/* UI refs */
+const startup = document.getElementById('startup');
+const flashImg = document.getElementById('flashImg');
+const startupTitle = document.getElementById('startupTitle');
+const mainMenu = document.getElementById('mainMenu');
+const usernameInput = document.getElementById('usernameInput');
+const btnCreateRoom = document.getElementById('btnCreateRoom');
+const joinCode = document.getElementById('joinCode');
+const btnJoinRoom = document.getElementById('btnJoinRoom');
+
+const appEl = document.getElementById('app');
+const subInfo = document.getElementById('subInfo');
+const displayName = document.getElementById('displayName');
+const peerNameEl = document.getElementById('peerName');
+const turnTag = document.getElementById('turnTag');
+const statusText = document.getElementById('statusText');
+
+const playerHandDiv = document.getElementById('playerHand');
+const computerHandDiv = document.getElementById('computerHand');
+const drawPileDiv = document.getElementById('drawPile');
+const discardDiv = document.getElementById('discard');
+const deckCount = document.getElementById('deckCount');
+
+const btnNew = document.getElementById('btnNew');
+const btnSayUNO = document.getElementById('btnSayUNO');
+const charchiAudio = document.getElementById('charchiAudio');
+const charchiBubble = document.getElementById('charchiBubble');
+
+const colorPicker = document.getElementById('colorPicker');
+let pendingWildIndex = null;
+
+/* Utility */
+function makeRoomCode(){
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let s='';
+  for(let i=0;i<6;i++) s += chars[Math.floor(Math.random()*chars.length)];
+  return s;
+}
+function genActionId(){ return Date.now().toString(36) + '-' + Math.floor(Math.random()*1e9).toString(36); }
+
+/* Safe peer destroy */
+function safeDestroyPeer(){
+  try{ if(peer){ peer.destroy(); peer = null; } }catch(e){}
+}
+
+/* ===========================
+   Startup slideshow -> main menu
+   =========================== */
+let slideIndex = 1;
+function runStartupSlideshow(){
+  const total = TOTAL_PHOTOS;
+  const interval = 90;
+  const timer = setInterval(()=>{
+    const idx = ((slideIndex-1) % total) + 1;
+    flashImg.src = `photos/photo${idx}.jpg`;
+    slideIndex++;
+    if(slideIndex > total){
+      clearInterval(timer);
+      startupTitle.style.opacity = 1; startupTitle.style.transform='translateY(0)';
+      setTimeout(()=>{
+        startup.style.opacity=0;
+        setTimeout(()=>{
+          startup.style.display='none';
+          mainMenu.style.display = 'flex';
+        }, 900);
+      }, 1400);
+    }
+  }, interval);
+}
+runStartupSlideshow();
+
+/* ===========================
+   Peer creation (host/guest)
+   - We pass makePeerOptions() so STUN/TURN used.
+*/
+function createPeerWithId(id){
+  safeDestroyPeer();
+  peer = new Peer(id, makePeerOptions());
+
+  statusText.textContent = 'Creating room...';
+  peer.on('open', id => {
+    peerId = id;
+    subInfo.textContent = `Room: ${id} — waiting for guest...`;
+    btnCreateRoom.disabled = true; btnCreateRoom.style.opacity = 0.6;
+    alert(`Room created. Share this code with friend: ${id}`);
+  });
+
+  peer.on('connection', incoming => {
+    if(conn && conn.open){
+      incoming.on('open', ()=> incoming.send({ type:'info', payload:'busy' }));
+      return;
+    }
+    conn = incoming;
+    localRole = 'host';
+    conn.on('open', ()=> setupConnection());
+  });
+
+  peer.on('error', err => {
+    console.error('peer err', err);
+    alert('Peer error: ' + err);
+    btnCreateRoom.disabled = false; btnCreateRoom.style.opacity = 1;
+    statusText.textContent = 'Create room failed';
+  });
+}
+
+function connectToHostId(id){
+  safeDestroyPeer();
+  const myId = makeRoomCode() + '-g';
+  peer = new Peer(myId, makePeerOptions());
+
+  statusText.textContent = 'Resolving...';
+  let connectionTimeout = setTimeout(()=> {
+    if(!conn || !conn.open){
+      btnJoinRoom.disabled = false; joinCode.disabled = false; btnJoinRoom.style.opacity = 1; joinCode.style.opacity = 1;
+      statusText.textContent = 'Connection timed out. Try again.';
+    }
+  }, 8000);
+
+  peer.on('open', () => {
+    peerId = peer.id;
+    statusText.textContent = 'Connecting to host...';
+    conn = peer.connect(id, { reliable:true });
+    conn.on('open', ()=> {
+      clearTimeout(connectionTimeout);
+      btnJoinRoom.disabled = true; joinCode.disabled = true; btnJoinRoom.style.opacity = 0.6; joinCode.style.opacity = 0.6;
+      localRole = 'guest';
+      setupConnection();
+      subInfo.textContent = `Connected to ${id}`;
+    });
+    conn.on('error', e=> {
+      console.error('conn error', e);
+      clearTimeout(connectionTimeout);
+      btnJoinRoom.disabled = false; joinCode.disabled = false; btnJoinRoom.style.opacity = 1; joinCode.style.opacity = 1;
+      statusText.textContent = 'Connection error';
+      alert('Connection error: ' + e);
+    });
+  });
+
+  peer.on('error', e=> {
+    console.error('peer err', e);
+    clearTimeout(connectionTimeout);
+    btnJoinRoom.disabled = false; joinCode.disabled = false; btnJoinRoom.style.opacity = 1; joinCode.style.opacity = 1;
+    statusText.textContent = 'Peer initialization failed';
+    alert('Peer error: ' + e);
+  });
+}
+
+/* Setup connection once conn is open. Idempotent. */
+function setupConnection(){
+  if(connectionInitialized) return;
+  if(!conn || !conn.open) return;
+  connectionInitialized = true;
+
+  conn.on('data', data => { try{ handleMessage(data); }catch(e){console.error(e);} });
+  conn.on('close', ()=> {
+    subInfo.textContent = 'Connection closed';
+    statusText.textContent = 'Connection closed';
+    resetControlsAfterDisconnect();
+  });
+
+  // exchange username
+  localUsername = (usernameInput.value || 'You').trim();
+  displayName.textContent = localUsername;
+  sendMessage({ type:'introduce', payload:{ name: localUsername }});
+
+  // hide menu and show app
+  mainMenu.style.display='none';
+  appEl.style.display='flex';
+
+  // disable create/join UI now
+  btnCreateRoom.disabled = true; btnCreateRoom.style.opacity = 0.6;
+  btnJoinRoom.disabled = true; joinCode.disabled = true; btnJoinRoom.style.opacity = 0.6; joinCode.style.opacity = 0.6;
+
+  if(localRole === 'host'){
+    subInfo.textContent = `Room: ${peerId} — waiting for guest to Ready`;
+    statusText.textContent = 'Waiting for guest to connect and Ready';
+    showReadyUIHost();
+  } else {
+    subInfo.textContent = `Connected — press Ready`;
+    statusText.textContent = 'Connected. Press Ready to signal host.';
+    showReadyUIGuest();
+  }
+}
+
+/* Send message */
+function sendMessage(obj){
+  if(!conn || !conn.open) return;
+  try { conn.send(obj); } catch(e){ console.warn('send failed', e); }
+}
+
+/* ===========================
+   Ready / Lobby UI (host authoritative)
+*/
+let hostLocalReady = false;
+let hostRemoteReady = false;
+let guestLocalReady = false;
+
+function showReadyUIHost(){
+  if(document.getElementById('hostReadyControls')) return;
+  const container = document.createElement('div');
+  container.id = 'hostReadyControls'; container.style.display = 'flex'; container.style.gap = '8px'; container.style.marginLeft = '12px';
+
+  const readyBtn = document.createElement('button'); readyBtn.textContent = 'Ready'; readyBtn.className='small';
+  readyBtn.onclick = ()=> {
+    hostLocalReady = !hostLocalReady;
+    readyBtn.style.opacity = hostLocalReady ? '1' : '0.6';
+    sendMessage({ type:'ready', payload:{ ready: hostLocalReady }});
+    updateReadyStatusUI();
+  };
+
+  const startBtn = document.createElement('button'); startBtn.textContent = 'Start (host)'; startBtn.className='small';
+  startBtn.onclick = ()=> {
+    if(hostLocalReady && hostRemoteReady) hostStartGame();
+    else { statusText.textContent = 'Both ready required to start'; setTimeout(()=> statusText.textContent = 'Waiting for players...', 1800); }
+  };
+
+  const kickBtn = document.createElement('button'); kickBtn.textContent = 'Reset'; kickBtn.className='small';
+  kickBtn.onclick = ()=> { hostLocalReady=false; hostRemoteReady=false; updateReadyStatusUI(); sendMessage({type:'info', payload:'reset'}); };
+
+  container.appendChild(readyBtn); container.appendChild(startBtn); container.appendChild(kickBtn);
+  document.querySelector('.controls').appendChild(container);
+  updateReadyStatusUI();
+}
+function showReadyUIGuest(){
+  if(document.getElementById('guestReadyControls')) return;
+  const container = document.createElement('div');
+  container.id = 'guestReadyControls'; container.style.display = 'flex'; container.style.gap = '8px'; container.style.marginLeft = '12px';
+
+  const readyBtn = document.createElement('button'); readyBtn.textContent = 'Ready'; readyBtn.className='small';
+  readyBtn.onclick = ()=> {
+    guestLocalReady = !guestLocalReady;
+    readyBtn.style.opacity = guestLocalReady ? '1' : '0.6';
+    sendMessage({ type:'ready', payload:{ ready: guestLocalReady }});
+    if(guestLocalReady) sendMessage({ type:'start_request' });
+    statusText.textContent = guestLocalReady ? 'You are Ready — waiting for host' : 'Not Ready';
+  };
+
+  container.appendChild(readyBtn);
+  document.querySelector('.controls').appendChild(container);
+}
+function updateReadyStatusUI(){
+  const c = document.getElementById('hostReadyControls');
+  if(!c) return;
+  statusText.textContent = `Host Ready: ${hostLocalReady ? 'Yes' : 'No'} — Guest Ready: ${hostRemoteReady ? 'Yes' : 'No'}`;
+}
+
+/* ===========================
+   Message handling
+*/
+function handleMessage(msg){
+  if(!msg || !msg.type) return;
+  const { type, payload, actionId } = msg;
+  if(actionId && processedActionIds.has(actionId)) return;
+  if(actionId) processedActionIds.add(actionId);
+
+  if(type === 'introduce'){
+    peerUsername = payload && payload.name ? payload.name : 'Peer';
+    peerNameEl.textContent = peerUsername;
+    if(localRole === 'host') sendMessage({ type:'introduce_ack', payload:{ name: localUsername }});
+  } else if(type === 'introduce_ack'){
+    peerUsername = payload && payload.name ? payload.name : peerUsername;
+    peerNameEl.textContent = peerUsername;
+  } else if(type === 'ready'){
+    if(localRole === 'host'){
+      hostRemoteReady = !!payload.ready;
+      updateReadyStatusUI();
+    }
+  } else if(type === 'start_request'){
+    if(localRole === 'host') {
+      if(hostLocalReady && hostRemoteReady) hostStartGame();
+      else statusText.textContent = 'Both players must be Ready to start';
+    }
+  } else if(type === 'intent_play'){
+    if(localRole === 'host'){
+      const { cardId, chosenColor } = payload;
+      const aId = actionId || genActionId();
+      handleGuestPlayIntent(cardId, chosenColor, aId);
+    }
+  } else if(type === 'intent_draw'){
+    if(localRole === 'host'){
+      const { howMany } = payload;
+      const aId = actionId || genActionId();
+      handleGuestDrawIntent(howMany || 1, aId);
+    }
+  } else if(type === 'sync_state'){
+    applyHostSync(payload);
+  } else if(type === 'charchi'){
+    showCharchiBubble(false);
+    playCharChiSound();
+  } else if(type === 'info'){
+    if(payload === 'busy') alert('Peer busy');
+    if(payload === 'reset') location.reload();
+    if(payload === 'not_your_turn') statusText.textContent = 'Not your turn';
+    if(payload === 'card_not_found') statusText.textContent = 'Card not found';
+    if(payload === 'not_playable') statusText.textContent = 'Card not playable';
+  }
+}
+
+/* ===========================
+   Gameplay (host authoritative)
+   - hostState is authoritative and broadcast via sync_state
+*/
+function buildDeck(){
+  const deck = [];
+  let id=1;
+  for(const color of COLORS){
+    deck.push({id:id++, kind:'number', color, value:0, img:`photos/photo${((id-2)%TOTAL_PHOTOS)+1}.jpg`});
+    for(let n=1;n<=9;n++){
+      for(let copy=0; copy<2; copy++){
+        deck.push({id:id++, kind:'number', color, value:n, img:`photos/photo${((id-2)%TOTAL_PHOTOS)+1}.jpg`});
+      }
+    }
+    for(const action of ACTION_TYPES){
+      for(let c=0;c<2;c++){
+        deck.push({id:id++, kind:'action', color, value:action, img:`photos/photo${((id-2)%TOTAL_PHOTOS)+1}.jpg`});
+      }
+    }
+  }
+  for(let i=0;i<4;i++) deck.push({id:id++, kind:'wild', color:null, value:'wild', img:`photos/photo${((id-2)%TOTAL_PHOTOS)+1}.jpg`});
+  for(let i=0;i<4;i++) deck.push({id:id++, kind:'wildDraw4', color:null, value:'wildDraw4', img:`photos/photo${((id-2)%TOTAL_PHOTOS)+1}.jpg`});
+  shuffle(deck);
+  return deck;
+}
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } }
+
+function hostStartGame(){
+  hostState = {
+    deck: buildDeck(),
+    discard: { pile: [], currentColor: null },
+    hostHand: [],
+    guestHand: [],
+    currentTurn: Math.random()<0.5 ? 'host' : 'guest'
+  };
+  for(let i=0;i<START_HAND;i++){
+    hostState.hostHand.push( hostState.deck.pop() );
+    hostState.guestHand.push( hostState.deck.pop() );
+  }
+  let starter = hostState.deck.pop();
+  while(starter && starter.kind === 'wildDraw4'){
+    hostState.deck.unshift(starter);
+    starter = hostState.deck.pop();
+  }
+  if(!starter) starter = { kind:'number', color:COLORS[0], value:0, img:`photos/photo1.jpg` };
+  hostState.discard.pile.push(starter);
+  hostState.discard.currentColor = starter.color || COLORS[Math.floor(Math.random()*COLORS.length)];
+
+  const actionId = genActionId(); processedActionIds.add(actionId);
+  sendMessage({ type:'sync_state', payload: hostState, actionId });
+  applyHostSync(hostState);
+  statusText.textContent = 'Game started';
+}
+
+function handleGuestPlayIntent(cardId, chosenColor, actionId){
+  if(!hostState) return;
+  if(hostState.currentTurn !== 'guest'){ sendMessage({ type:'info', payload:'not_your_turn' }); return; }
+  const idx = hostState.guestHand.findIndex(c => c.id === cardId);
+  if(idx === -1){ sendMessage({ type:'info', payload:'card_not_found' }); return; }
+  const card = hostState.guestHand.splice(idx,1)[0];
+  if(!isPlayableHost(card)){ sendMessage({ type:'info', payload:'not_playable' }); hostState.guestHand.splice(idx,0,card); return; }
+  const colorToUse = chosenColor || card.color || COLORS[0];
+  hostState.discard.pile.push(card);
+  hostState.discard.currentColor = colorToUse;
+  applyCardEffectHost(card, 'guest');
+
+  const aId = actionId || genActionId();
+  processedActionIds.add(aId);
+  sendMessage({ type:'sync_state', payload: hostState, actionId: aId });
+  applyHostSync(hostState);
+}
+
+function handleGuestDrawIntent(howMany, actionId){
+  if(!hostState) return;
+  if(hostState.currentTurn !== 'guest'){ sendMessage({ type:'info', payload:'not_your_turn' }); return; }
+  const drawn = [];
+  for(let i=0;i<howMany;i++){
+    if(hostState.deck.length === 0){
+      if(hostState.discard.pile.length > 1){
+        const top = hostState.discard.pile.pop();
+        const rest = hostState.discard.pile.splice(0);
+        hostState.deck = rest;
+        hostState.discard.pile = [top];
+        shuffle(hostState.deck);
+      } else break;
+    }
+    const c = hostState.deck.pop();
+    if(c) drawn.push(c);
+  }
+  hostState.guestHand.push(...drawn);
+  hostState.currentTurn = 'host';
+  const aId = actionId || genActionId();
+  processedActionIds.add(aId);
+  sendMessage({ type:'sync_state', payload: hostState, actionId: aId });
+  applyHostSync(hostState);
+}
+
+function applyCardEffectHost(card, playedBy){
+  if(card.kind === 'number'){ hostState.currentTurn = (playedBy === 'host') ? 'guest' : 'host'; }
+  else if(card.kind === 'action'){
+    if(card.value === 'skip'){ hostState.currentTurn = playedBy; }
+    else if(card.value === 'reverse'){ hostState.currentTurn = playedBy; }
+    else if(card.value === 'draw2'){
+      const targetHand = (playedBy === 'host') ? hostState.guestHand : hostState.hostHand;
+      const drawn = [];
+      for(let i=0;i<2;i++){
+        if(hostState.deck.length===0){
+          if(hostState.discard.pile.length>1){
+            const top = hostState.discard.pile.pop();
+            const rest = hostState.discard.pile.splice(0);
+            hostState.deck = rest; hostState.discard.pile = [top]; shuffle(hostState.deck);
+          } else break;
+        }
+        const c = hostState.deck.pop(); if(c) drawn.push(c);
+      }
+      targetHand.push(...drawn);
+      hostState.currentTurn = playedBy;
+    }
+  } else if(card.kind === 'wild'){ hostState.currentTurn = (playedBy === 'host') ? 'guest' : 'host'; }
+  else if(card.kind === 'wildDraw4'){
+    const targetHand = (playedBy === 'host') ? hostState.guestHand : hostState.hostHand;
+    const drawn = [];
+    for(let i=0;i<4;i++){
+      if(hostState.deck.length===0){
+        if(hostState.discard.pile.length>1){
+          const top = hostState.discard.pile.pop();
+          const rest = hostState.discard.pile.splice(0);
+          hostState.deck = rest; hostState.discard.pile = [top]; shuffle(hostState.deck);
+        } else break;
+      }
+      const c = hostState.deck.pop(); if(c) drawn.push(c);
+    }
+    targetHand.push(...drawn);
+    hostState.currentTurn = playedBy;
+  }
+}
+
+/* Basic playable check for hostState */
+function isPlayableHost(card){
+  const top = hostState.discard.pile.length ? hostState.discard.pile[hostState.discard.pile.length-1] : null;
+  if(!top) return true;
+  if(card.kind === 'wild' || card.kind === 'wildDraw4') return true;
+  if(hostState.discard.currentColor){
+    if(card.color === hostState.discard.currentColor) return true;
+  }
+  if(top.kind === 'number' && card.kind === 'number' && card.value === top.value) return true;
+  if(card.color === top.color) return true;
+  if(card.kind === 'action' && top.kind === 'action' && card.value === top.value) return true;
+  return false;
+}
+
+function applyHostSync(state){
+  hostState = state;
+  updateClientFromHostState();
+}
+
+/* ===========================
+   Client rendering (both host & guest use this to render their view of hostState)
+*/
+function updateClientFromHostState(){
+  if(!hostState) return;
+  let localHand = []; let remoteHand = [];
+  if(localRole === 'host'){ localHand = hostState.hostHand.slice(); remoteHand = hostState.guestHand.slice(); }
+  else { localHand = hostState.guestHand.slice(); remoteHand = hostState.hostHand.slice(); }
+  renderHands(localHand, remoteHand);
+
+  deckCount.textContent = hostState.deck.length;
+
+  if(hostState.discard.pile.length){
+    const top = hostState.discard.pile[hostState.discard.pile.length-1];
+    discardDiv.innerHTML = '';
+    const img = document.createElement('img'); img.src = top.img; img.alt='top';
+    discardDiv.appendChild(img);
+    const badge = document.createElement('div'); badge.id='discardBadge';
+    badge.textContent = top.kind === 'number' ? top.value : (top.kind==='action' ? actionLabel(top.value) : (top.kind==='wildDraw4' ? 'W+4' : 'W'));
+    const effectiveColor = hostState.discard.currentColor || top.color || null;
+    if(effectiveColor){ badge.style.background = colorToGradient(effectiveColor); badge.style.color = (effectiveColor === 'yellow') ? '#042027' : '#fff'; }
+    else { badge.style.background = '#000'; badge.style.color = '#fff'; }
+    badge.style.position = 'absolute'; badge.style.right='6px'; badge.style.bottom='6px'; badge.style.padding='6px 8px'; badge.style.borderRadius='8px'; badge.style.fontWeight='800'; badge.style.fontSize='13px';
+    discardDiv.appendChild(badge);
+  } else { discardDiv.innerHTML = '<div style="padding:8px;color:#ddd">No discard</div>'; }
+
+  const whoseTurn = hostState.currentTurn === (localRole === 'host' ? 'host' : 'guest') ? 'Your turn' : 'Opponent turn';
+  turnTag.textContent = whoseTurn === 'Your turn' ? 'Your' : 'Opponent';
+  statusText.textContent = whoseTurn;
+}
+
+function renderHands(localHand, remoteHand){
+  playerHandDiv.innerHTML = '';
+  for(let i=0;i<localHand.length;i++){
+    const c = localHand[i];
+    const cardEl = document.createElement('div'); cardEl.className='card';
+    const im = document.createElement('img'); im.src = c.img; im.alt='card'; cardEl.appendChild(im);
+    const ov = document.createElement('div'); ov.className='overlay';
+    if(c.kind === 'number'){ ov.textContent = c.value; ov.style.background = c.color; ov.style.color = (c.color==='yellow'?'#042027':'#fff'); }
+    else if(c.kind === 'action'){ ov.textContent = actionLabel(c.value); ov.style.background = c.color; ov.style.color = (c.color==='yellow'?'#042027':'#fff'); }
+    else if(c.kind === 'wild'){ ov.textContent = 'W'; ov.style.background = '#fff'; ov.style.color='#000'; }
+    else if(c.kind === 'wildDraw4'){ ov.textContent = 'W+4'; ov.style.background = '#fff'; ov.style.color='#000'; }
+    ov.style.padding='6px 8px'; ov.style.borderRadius='8px'; ov.style.fontWeight='800';
+    cardEl.appendChild(ov);
+    if(isPlayableClient(c)) cardEl.classList.add('playable');
+
+    cardEl.addEventListener('click', ()=>{
+      if(!hostState) return;
+      const myTurn = hostState.currentTurn === (localRole === 'host' ? 'host' : 'guest');
+      if(!myTurn){ cardEl.animate([{transform:'translateY(0)'},{transform:'translateY(-8px)'},{transform:'translateY(0)'}],{duration:220}); return; }
+      if(!isPlayableClient(c)){ cardEl.animate([{transform:'translateY(0)'},{transform:'translateY(-8px)'},{transform:'translateY(0)'}],{duration:220}); return; }
+
+      if(localRole === 'guest'){
+        if(c.kind === 'wild' || c.kind === 'wildDraw4'){
+          pendingWildIndex = c.id;
+          colorPicker.style.display = 'block';
+        } else {
+          sendMessage({ type:'intent_play', payload:{ cardId: c.id }, actionId: genActionId() });
+        }
+      } else {
+        if(c.kind === 'wild' || c.kind === 'wildDraw4'){
+          const chosen = prompt('Choose color (red,yellow,green,blue)', 'red') || 'red';
+          const chosenColor = COLORS.includes(chosen) ? chosen : 'red';
+          const idx = hostState.hostHand.findIndex(x=>x.id===c.id);
+          if(idx !== -1){
+            hostState.discard.pile.push(hostState.hostHand.splice(idx,1)[0]);
+            hostState.discard.currentColor = chosenColor;
+            applyCardEffectHost(hostState.discard.pile[hostState.discard.pile.length-1], 'host');
+            const aId = genActionId(); processedActionIds.add(aId);
+            sendMessage({ type:'sync_state', payload: hostState, actionId: aId });
+            applyHostSync(hostState);
+          }
+        } else {
+          const idx = hostState.hostHand.findIndex(x=>x.id===c.id);
+          if(idx !== -1){
+            hostState.discard.pile.push(hostState.hostHand.splice(idx,1)[0]);
+            hostState.discard.currentColor = hostState.discard.pile[hostState.discard.pile.length-1].color || hostState.discard.currentColor;
+            applyCardEffectHost(hostState.discard.pile[hostState.discard.pile.length-1], 'host');
+            const aId = genActionId(); processedActionIds.add(aId);
+            sendMessage({ type:'sync_state', payload: hostState, actionId: aId });
+            applyHostSync(hostState);
+          }
+        }
+      }
+    });
+
+    playerHandDiv.appendChild(cardEl);
+  }
+
+  computerHandDiv.innerHTML = '';
+  for(let i=0;i<remoteHand.length;i++){
+    const cdiv = document.createElement('div'); cdiv.className='computer-card';
+    cdiv.style.backgroundImage = `url('photos/photo1.jpg')`;
+    computerHandDiv.appendChild(cdiv);
+  }
+}
+
+function isPlayableClient(card){
+  if(!hostState) return false;
+  const top = hostState.discard.pile.length ? hostState.discard.pile[hostState.discard.pile.length-1] : null;
+  if(!top) return true;
+  if(card.kind === 'wild' || card.kind === 'wildDraw4') return true;
+  if(hostState.discard.currentColor){
+    if(card.color === hostState.discard.currentColor) return true;
+  }
+  if(top.kind === 'number' && card.kind === 'number' && card.value === top.value) return true;
+  if(card.color === top.color) return true;
+  if(card.kind === 'action' && top.kind === 'action' && card.value === top.value) return true;
+  return false;
+}
+
+/* Color picker handling */
+document.querySelectorAll('.colorBtn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    const col = b.dataset.color;
+    colorPicker.style.display = 'none';
+    if(!pendingWildIndex) return;
+    if(localRole === 'guest'){
+      sendMessage({ type:'intent_play', payload:{ cardId: pendingWildIndex, chosenColor: col }, actionId: genActionId() });
+    }
+    pendingWildIndex = null;
+  });
+});
+
+/* Draw pile click */
+drawPileDiv.addEventListener('click', ()=>{
+  if(!hostState) return;
+  const myTurn = hostState.currentTurn === (localRole === 'host' ? 'host' : 'guest');
+  if(!myTurn){ statusText.textContent = 'Not your turn'; return; }
+  if(localRole === 'guest'){
+    sendMessage({ type:'intent_draw', payload:{ howMany: 1 }, actionId: genActionId() });
+  } else {
+    if(hostState.deck.length===0){
+      if(hostState.discard.pile.length>1){
+        const top = hostState.discard.pile.pop();
+        const rest = hostState.discard.pile.splice(0);
+        hostState.deck = rest; hostState.discard.pile = [top]; shuffle(hostState.deck);
+      }
+    }
+    const c = hostState.deck.pop(); if(c) hostState.hostHand.push(c);
+    hostState.currentTurn = 'guest';
+    const aId = genActionId(); processedActionIds.add(aId);
+    sendMessage({ type:'sync_state', payload: hostState, actionId: aId });
+    applyHostSync(hostState);
+  }
+});
+
+/* CharChi button */
+btnSayUNO.addEventListener('click', ()=>{
+  playCharChiSound();
+  showCharchiBubble(true);
+  sendMessage({ type:'charchi' });
+});
+function playCharChiSound(){
+  try{ charchiAudio.pause(); charchiAudio.currentTime = 0; charchiAudio.play().catch(()=>{}); } catch(e){}
+}
+function showCharchiBubble(isLocal=false){
+  charchiBubble.style.display = 'block';
+  charchiBubble.textContent = isLocal ? 'You pressed CharChi!' : 'Opponent pressed CharChi!';
+  setTimeout(()=> charchiBubble.style.display = 'none', 2000);
+}
+
+/* UI helpers */
+function colorToGradient(color){
+  if(color==='red') return 'linear-gradient(180deg,#ff7b7b,#e64545)';
+  if(color==='yellow') return 'linear-gradient(180deg,#ffe08a,#ffd166)';
+  if(color==='green') return 'linear-gradient(180deg,#85ffb7,#29be6a)';
+  return 'linear-gradient(180deg,#8fb6ff,#1e7bff)';
+}
+function actionLabel(val){ if(val==='draw2') return '+2'; if(val==='reverse') return '↺'; if(val==='skip') return '⦸'; return val; }
+
+function resetControlsAfterDisconnect(){
+  btnCreateRoom.disabled = false; btnCreateRoom.style.opacity = 1;
+  btnJoinRoom.disabled = false; joinCode.disabled = false; btnJoinRoom.style.opacity = 1; joinCode.style.opacity = 1;
+  connectionInitialized = false;
+  processedActionIds.clear();
+}
+
+/* Menu buttons binding */
+btnCreateRoom.addEventListener('click', ()=>{
+  const name = (usernameInput.value || '').trim();
+  if(!name) return alert('Enter your username first');
+  localUsername = name;
+  const id = makeRoomCode();
+  createPeerWithId(id);
+});
+
+btnJoinRoom.addEventListener('click', ()=>{
+  const name = (usernameInput.value || '').trim();
+  const code = (joinCode.value || '').trim().toLowerCase();
+  if(!name) return alert('Enter your username first');
+  if(!code) return alert('Enter a room code to join');
+  localUsername = name;
+  statusText.textContent = 'Attempting to join...';
+  connectToHostId(code);
+});
+
+/* Request new game */
+btnNew.addEventListener('click', ()=>{
+  if(!conn || !conn.open) { statusText.textContent = 'Not connected'; return; }
+  if(localRole === 'host'){
+    if(hostLocalReady && hostRemoteReady) hostStartGame();
+    else statusText.textContent = 'Both must be Ready to start';
+  } else {
+    sendMessage({ type:'start_request' });
+    statusText.textContent = 'Requested new game';
+  }
+});
+
+/* pointerdown to unlock audio on some browsers */
+document.addEventListener('pointerdown', ()=> { try{ document.querySelector('audio') && document.querySelector('audio').play(); } catch(e){} }, { once:true });
+
+</script>
+</body>
+</html>

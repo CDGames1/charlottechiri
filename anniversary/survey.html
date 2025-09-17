@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Love Quiz (Big Edition) xx</title>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #ffd6e0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .survey-container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 750px;
+      width: 95%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #d6336c;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .question {
+      margin: 20px 0;
+    }
+    .question h3 {
+      color: #d6336c;
+      margin-bottom: 10px;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #d6336c;
+      border-radius: 10px;
+      margin-top: 5px;
+      font-size: 1em;
+    }
+    label {
+      display: block;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 10px;
+      border: 2px solid #d6336c;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    input[type="radio"] {
+      margin-right: 10px;
+    }
+    label:hover {
+      background: #d6336c;
+      color: white;
+    }
+    button {
+      margin-top: 30px;
+      padding: 15px 30px;
+      background: #d6336c;
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .thank-you {
+      display: none;
+      text-align: center;
+      font-size: 1.3em;
+      margin-top: 20px;
+      color: green;
+    }
+    .error {
+      display: none;
+      text-align: center;
+      font-size: 1.1em;
+      margin-top: 20px;
+      color: red;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      font-size: 1.1em;
+      margin-top: 20px;
+      color: #d6336c;
+    }
+  </style>
+</head>
+<body>
+  <div class="survey-container">
+    <h1>Love Quiz (Big Edition) xx</h1>
+    <form id="love-quiz">
+
+      <!-- Section 1 -->
+      <div class="question">
+        <h3>Section 1 of 6 – What mode babeee xx</h3>
+        <label><input type="radio" name="mode" value="spicy">Spicy xx</label>
+        <label><input type="radio" name="mode" value="romantic">Romantic xx</label>
+        <p>Extra Q: If jonothan could talk, what would he be saying right nowww xx</p>
+        <input type="text" name="jonothan-talks">
+      </div>
+
+      <!-- Section 2 -->
+      <div class="question">
+        <h3>Section 2 of 6 – snackkkk xx</h3>
+        <p>Extra Q: What's my fave late night snack we alwayssss fight over xx</p>
+        <input type="text" name="snack">
+      </div>
+
+      <!-- Section 3 -->
+      <div class="question">
+        <h3>Section 3 of 6 – Random lil test hehe xx</h3>
+        <p>What is my comfort foood xx (hint: you always laugh at me when I eat it)</p>
+        <input type="text" name="comfort-food">
+        <p>When jonothan gets hungry hungry hippooo what does he want first babee xx</p>
+        <input type="text" name="jonothan-hungry">
+        <p>What do babies do when they feel left out hehehe xx</p>
+        <input type="text" name="babies-leftout">
+        <p>If peaches could talkkk what would they complain about xx</p>
+        <input type="text" name="peaches-complain">
+      </div>
+
+      <!-- Section 4 (Spicy) -->
+      <div class="question">
+        <h3>Section 4 of 6 – Spicyyy Mode xx</h3>
+        <p>What's one thing you want me to do to jellybean when she's extra needy xx</p>
+        <textarea name="q4"></textarea>
+        <p>If jonothan wanted seconds babeee how would you tease him first xx</p>
+        <textarea name="q5"></textarea>
+        <p>Fast or slow sessionss babee be honest xx</p>
+        <label><input type="radio" name="pace" value="fast">Fast xx</label>
+        <label><input type="radio" name="pace" value="slow">Slow xx</label>
+        <label><input type="radio" name="pace" value="mix">Mix babee xx</label>
+        <p>What trick do you want me to try on babies next time xx</p>
+        <textarea name="babies-trick"></textarea>
+        <p>If jellybean had a secret power what would it beee xx</p>
+        <input type="text" name="jellybean-power">
+        <p>What position makes jonothan happiestttt xx</p>
+        <input type="text" name="jonothan-position">
+      </div>
+
+      <!-- Section 5 (Romantic) -->
+      <div class="question">
+        <h3>Section 5 of 6 – Romanticttt xx</h3>
+        <p>Pick one: Beach picnic with cuddles or late night drive singing to musiccc xx</p>
+        <label><input type="radio" name="date" value="beach">Beach Picnic xx</label>
+        <label><input type="radio" name="date" value="drive">Late Night Drive xx</label>
+        <p>Write me a lil note: why do you love meee most babee xx</p>
+        <textarea name="love-note"></textarea>
+        <p>What's your fave spot for kisses right now xx</p>
+        <input type="text" name="kiss-spot">
+        <p>Sauce quiz babee pickkk xx</p>
+        <label><input type="radio" name="sauce" value="bbq">BBQ xx</label>
+        <label><input type="radio" name="sauce" value="tomato">Tomato xx</label>
+        <label><input type="radio" name="sauce" value="sweet">Sweet n Sour xx</label>
+        <label><input type="radio" name="sauce" value="kewpie">Kewpie xx</label>
+        <p>If we had to do a date at homeee what would you plan for us xx</p>
+        <textarea name="home-date"></textarea>
+        <p>What's the first thing that made you fall for meeee xx</p>
+        <input type="text" name="first-thing">
+        <p>Finish this: "Every since you came into my life…" xx</p>
+        <textarea name="lyrics"></textarea>
+      </div>
+
+      <!-- Section 6 -->
+      <div class="question">
+        <h3>Section 6 of 6 – Treat babee xx</h3>
+        <p>Do you want a supriseeee xx</p>
+        <label><input type="radio" name="suprise" value="yes">Yupppp xx</label>
+        <label><input type="radio" name="suprise" value="police">Yes police xx</label>
+        <label><input type="radio" name="suprise" value="ya">YAAAA xx</label>
+        <p>Extra Q: If I gave you jonothan as a present wrapped in a bowww what would u do xx</p>
+        <textarea name="jonothan-present"></textarea>
+      </div>
+
+      <button type="submit">Submit xx</button>
+      <div class="loading">Sending your quiz answers babee... xx</div>
+      <div class="thank-you">Supriseeee is waiting babee xx hehehe</div>
+      <div class="error">Oops! Something went wrong. Try again babee xx</div>
+    </form>
+  </div>
+
+  <script>
+    // Initialize EmailJS with your User ID
+    (function(){
+      emailjs.init("GkE4tWZN85GGLS7BY"); // Replace with your actual User ID
+    })();
+
+    document.getElementById("love-quiz").addEventListener("submit", function(e) {
+      e.preventDefault();
+      
+      // Check if EmailJS is loaded
+      if (typeof emailjs === 'undefined') {
+        console.error('EmailJS not loaded');
+        document.querySelector('.error').style.display = 'block';
+        return;
+      }
+      
+      const submitButton = document.querySelector('button[type="submit"]');
+      const loadingDiv = document.querySelector('.loading');
+      const thankYouDiv = document.querySelector('.thank-you');
+      const errorDiv = document.querySelector('.error');
+      
+      // Show loading state
+      submitButton.disabled = true;
+      loadingDiv.style.display = 'block';
+      thankYouDiv.style.display = 'none';
+      errorDiv.style.display = 'none';
+      
+      // Collect form data
+      const formData = new FormData(this);
+      const responses = {};
+      
+      // Get all form values
+      for (let [key, value] of formData.entries()) {
+        responses[key] = value;
+      }
+      
+      // Format the email content
+      let emailContent = "Love Quiz Results xx\n\n";
+      
+      emailContent += "=== SECTION 1 ===\n";
+      emailContent += `Mode: ${responses['mode'] || 'Not answered'}\n`;
+      emailContent += `Jonothan talks: ${responses['jonothan-talks'] || 'Not answered'}\n\n`;
+      
+      emailContent += "=== SECTION 2 ===\n";
+      emailContent += `Late night snack: ${responses['snack'] || 'Not answered'}\n\n`;
+      
+      emailContent += "=== SECTION 3 ===\n";
+      emailContent += `Comfort food: ${responses['comfort-food'] || 'Not answered'}\n`;
+      emailContent += `Jonothan hungry: ${responses['jonothan-hungry'] || 'Not answered'}\n`;
+      emailContent += `Babies left out: ${responses['babies-leftout'] || 'Not answered'}\n`;
+      emailContent += `Peaches complain: ${responses['peaches-complain'] || 'Not answered'}\n\n`;
+      
+      emailContent += "=== SECTION 4 (SPICY) ===\n";
+      emailContent += `Jellybean needy: ${responses['q4'] || 'Not answered'}\n`;
+      emailContent += `Jonothan seconds tease: ${responses['q5'] || 'Not answered'}\n`;
+      emailContent += `Pace preference: ${responses['pace'] || 'Not answered'}\n`;
+      emailContent += `Babies trick: ${responses['babies-trick'] || 'Not answered'}\n`;
+      emailContent += `Jellybean power: ${responses['jellybean-power'] || 'Not answered'}\n`;
+      emailContent += `Jonothan position: ${responses['jonothan-position'] || 'Not answered'}\n\n`;
+      
+      emailContent += "=== SECTION 5 (ROMANTIC) ===\n";
+      emailContent += `Date choice: ${responses['date'] || 'Not answered'}\n`;
+      emailContent += `Love note: ${responses['love-note'] || 'Not answered'}\n`;
+      emailContent += `Kiss spot: ${responses['kiss-spot'] || 'Not answered'}\n`;
+      emailContent += `Sauce choice: ${responses['sauce'] || 'Not answered'}\n`;
+      emailContent += `Home date plan: ${responses['home-date'] || 'Not answered'}\n`;
+      emailContent += `First thing fell for: ${responses['first-thing'] || 'Not answered'}\n`;
+      emailContent += `Lyrics finish: ${responses['lyrics'] || 'Not answered'}\n\n`;
+      
+      emailContent += "=== SECTION 6 ===\n";
+      emailContent += `Want surprise: ${responses['suprise'] || 'Not answered'}\n`;
+      emailContent += `Jonothan present: ${responses['jonothan-present'] || 'Not answered'}\n`;
+      
+      // Send email using EmailJS
+      emailjs.send('service_x8pyzn9', 'template_543jt8q', {
+        to_email: 'tepukeolif@gmail.com',
+        subject: 'Love Quiz Results xx',
+        message: emailContent
+      }).then(function(response) {
+        console.log('SUCCESS!', response.status, response.text);
+        loadingDiv.style.display = 'none';
+        thankYouDiv.style.display = 'block';
+      }, function(error) {
+        console.log('FAILED...', error);
+        loadingDiv.style.display = 'none';
+        errorDiv.style.display = 'block';
+        submitButton.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>

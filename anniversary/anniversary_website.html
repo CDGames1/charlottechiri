@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10th Month Anniversary Gift xx</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #ff6b9d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            margin-top: 50px;
+        }
+
+        .sidebar nav li {
+            margin: 15px 0;
+        }
+
+        .sidebar nav a {
+            text-decoration: none;
+            color: #333;
+            font-size: 18px;
+            padding: 10px;
+            display: block;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .sidebar nav a:hover {
+            background: #ff6b9d;
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: 0;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 50px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            color: #ff6b9d;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .hero h3 {
+            font-size: 1.2em;
+            line-height: 1.6;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            text-align: left;
+        }
+
+        .hero-image {
+            max-width: 400px;
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+        }
+
+        .hero-caption {
+            font-style: italic;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        /* Countdown */
+        .countdown-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .countdown-display {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff6b9d;
+        }
+
+        /* Timeline */
+        .timeline {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .timeline h2 {
+            text-align: center;
+            color: #ff6b9d;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .timeline-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .timeline-item h3 {
+            color: #2d3436;
+            margin-bottom: 5px;
+        }
+
+        .timeline-item .date {
+            color: #636e72;
+            font-size: 0.9em;
+        }
+
+        .timeline-item a {
+            color: #0984e3;
+            text-decoration: none;
+        }
+
+        /* Gallery */
+        .gallery {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .gallery h2 {
+            text-align: center;
+            color: #ff6b9d;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Games Section */
+        .games-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .games-dropdown {
+            margin: 20px 0;
+        }
+
+        .games-dropdown select {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 2px solid #ff6b9d;
+            font-size: 16px;
+            background: white;
+        }
+
+        .game-banner {
+            max-width: 400px;
+            width: 100%;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .game-link {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #ff6b9d;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 18px;
+            transition: background 0.3s ease;
+        }
+
+        .game-link:hover {
+            background: #e55a87;
+        }
+
+        /* Quiz Section */
+        .quiz-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .quiz-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .love-meter {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .love-meter-container {
+            background: #e0e0e0;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            max-width: 300px;
+            margin: 10px auto;
+        }
+
+        .love-meter-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b9d, #ff8fab);
+            width: 70%;
+            transition: width 0.5s ease;
+        }
+
+        .quiz-status {
+            margin: 10px 0;
+            font-weight: bold;
+            color: #ff6b9d;
+            display: none;
+        }
+
+        /* Advertisement */
+        .ad-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .ad-link img {
+            max-width: 300px;
+            width: 100%;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .ad-link:hover img {
+            transform: scale(1.05);
+        }
+
+        /* NPCs */
+        .npc {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            z-index: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .npc img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .npc-speech {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            white-space: nowrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            max-width: 200px;
+            overflow: hidden;
+        }
+
+        /* Heart Particles */
+        .heart {
+            position: fixed;
+            font-size: 20px;
+            color: #ff6b9d;
+            pointer-events: none;
+            z-index: 100;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(calc(100vh + 100px)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Overlays */
+        .page-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .page-countdown-message, .splash-countdown {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px;
+        }
+
+        .loading-message {
+            font-size: 1.5em;
+            margin: 20px;
+        }
+
+        .video-container {
+            position: relative;
+            width: 80%;
+            max-width: 800px;
+            height: 450px;
+            margin: 20px;
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .skip-button {
+            background: #ff6b9d;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .skip-button:hover {
+            background: #e55a87;
+        }
+
+        /* Love Event Overlay */
+        .love-event {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1500;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        .love-event img {
+            max-width: 200px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .love-emojis {
+            font-size: 2em;
+            letter-spacing: 10px;
+        }
+
+        /* Love Note Modal */
+        .love-note-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-content p {
+            line-height: 1.8;
+            color: #333;
+            font-size: 18px;
+        }
+
+        /* Game Controls */
+        .game-controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .control-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .control-button.stop {
+            background: #dc3545;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .hero h1 {
+                font-size: 2em;
+            }
+
+            .hero h3 {
+                font-size: 1em;
+            }
+
+            .countdown-display {
+                font-size: 1.5em;
+            }
+
+            .page-countdown-message, .splash-countdown {
+                font-size: 1.8em;
+            }
+
+            .video-container {
+                width: 95%;
+                height: 250px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Audio -->
+    <audio id="click-sound" preload="auto">
+        <source src="click.wav" type="audio/wav">
+    </audio>
+
+    <!-- Page Overlay -->
+    <div id="page-overlay" class="page-overlay">
+        <div id="page-countdown-message" class="page-countdown-message">Loading...</div>
+        <div id="loading-message" class="loading-message hidden">Loading a Special Video xx</div>
+        <div id="video-container" class="video-container hidden">
+            <iframe id="special-video" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <button id="skip-button" class="skip-button hidden">Skip Intro</button>
+    </div>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="splash-screen">
+        <h1>Loading countdown...</h1>
+        <div id="splash-countdown" class="splash-countdown">Loading...</div>
+    </div>
+
+    <!-- Sidebar -->
+    <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+    <nav class="sidebar" id="sidebar">
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#gallery">Gallery</a></li>
+            <li><a href="#memories">Memories</a></li>
+            <li><a href="#quiz">Quiz</a></li>
+            <li><a href="#games">Games</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <h1>Happy 10th Month Anniversary xx</h1>
+            <h3>Babeee xx 10 months already and i honestly can’t believe how fast time has flown xx every single moment we’ve spent talking, watching movies, texting, or just being together has made me fall even deeper for my cuteee, smart, sexy, and amazing girl xx. there’s always something new about you to discover hehehe and i’m completely hooked xx i’m not just yours for 10 months or 10 years it’s forever and ever, always, for the rest of our lives xx and even after that xx i’ll always keep you close babee xx. you’ve been my rock through everything babee xx whether it’s panic attacks, nightmares, or seizures you’ve always been there to calm me down xx i really have no idea what i’d do without you xx i loved going to your ball with you seeing you shine and enjoying every moment together made it unforgettable xx hehehe i still get all the butterflies thinking about it xx and i can’t wait for the 10 months to turn into years xx filled with laughter, love, and maybe a little one of our own xx you are literally my everything babee xx and guess what when you come over, i’ve got so many treats and surprises just for you xx snacks, cuddles, and little things to make you smile xx i can’t wait to spoil you babee xx i loveee you so much xx and if you’re reading this part yabbb xx i fucking love you so muchhhh xoxo i cant wait for our 1 year xx</h3>
+            <img src="recent.JPG" alt="Latest Photo" class="hero-image">
+            <p class="hero-caption">Latest Photo of us</p>
+        </section>
+
+        <!-- Countdown Section -->
+        <section class="countdown-section">
+            <div id="countdown" class="countdown-display">Countdown: Loading...</div>
+        </section>
+
+        <!-- Timeline -->
+        <section id="memories" class="timeline">
+            <h2>Our Journey</h2>
+            <div class="timeline-item">
+                <h3>First Message</h3>
+                <div class="date">18/09/2024</div>
+            </div>
+            <div class="timeline-item">
+                <h3>First Date At Timezone xx</h3>
+                <div class="date">02/11/2024</div>
+            </div>
+            <div class="timeline-item">
+                <h3>First Kiss</h3>
+                <div class="date">16/11/2024</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Race to Countdown</h3>
+                <div class="date">17/11/2024</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Second Date (Moana 2)</h3>
+                <div class="date">30/11/2024</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Third Date (BBQ)</h3>
+                <div class="date">01/12/2024</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Fourth Date (Papamoa Beach)</h3>
+                <div class="date">20/12/2024</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Fifth Date (Movie at Chiri's)</h3>
+                <div class="date">23/12/2024</div>
+            </div>
+            <div class="timeline-item">
+                <h3>New Year's Eve Date</h3>
+                <div class="date">31/12/2024 - 02/01/2025</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Sixth Date (At my house)</h3>
+                <div class="date">10/01/2025 - 15/01/2025</div>
+            </div>
+            <div class="timeline-item">
+                <h3><a href="https://cdgames1.github.io/charlottechiri/" target="_blank">Valentine's Day</a></h3>
+                <div class="date">14/02/2025</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Seventh Date (at narissas wedding)</h3>
+                <div class="date">01/03/2025 - 02/03/2025</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Eighth Date (Amber's Party)</h3>
+                <div class="date">5/04/2025 - 6/04/2025</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Ninth Date (Your Fathers New House)</h3>
+                <div class="date">16/04/2025</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Tenth Date (Friday Night Fun at Chiri's)</h3>
+                <div class="date">18/04/2025 - 19/04/2025</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Eleventh Date (40 Hour Famine)</h3>
+                <div class="date">13/06/2025 - 15/06/2025</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Twelveth Date (Jellybean Time, Birthday Present & McDonalds Date)</h3>
+                <div class="date">10/07/2025 - 12/07/2025</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Thirteenth Date (Fun Time at Chiri's xx)</h3>
+                <div class="date">16/08/2025</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Fourtenth Date (Weekend At Charlottes House, Subway Cooking Date and PIZZA xx)</h3>
+                <div class="date">22/08/2025 - 24/08/2025</div>
+            </div>
+            <div class="timeline-item">
+                <h3>Fifthtenth Date (School Ball 2025 xx First Time at School Ball)</h3>
+                <div class="date">12/09/2025 - 14/09/2025</div>
+            </div>
+        </section>
+
+        <!-- Gallery -->
+        <section id="gallery" class="gallery">
+            <h2>Our Photos</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item"><img src="photos/photo1.jpg" alt="Photo 1"></div>
+                <div class="gallery-item"><img src="photos/photo2.jpg" alt="Photo 2"></div>
+                <div class="gallery-item"><img src="photos/photo3.jpg" alt="Photo 3"></div>
+                <div class="gallery-item"><img src="photos/photo4.jpg" alt="Photo 4"></div>
+                <div class="gallery-item"><img src="photos/photo5.jpg" alt="Photo 5"></div>
+                <div class="gallery-item"><img src="photos/photo6.jpg" alt="Photo 6"></div>
+                <div class="gallery-item"><img src="photos/photo7.jpg" alt="Photo 7"></div>
+                <div class="gallery-item"><img src="photos/photo8.jpg" alt="Photo 8"></div>
+                <div class="gallery-item"><img src="photos/photo9.jpg" alt="Photo 9"></div>
+                <div class="gallery-item"><img src="photos/photo10.jpg" alt="Photo 10"></div>
+                <div class="gallery-item"><img src="photos/photo11.jpg" alt="Photo 11"></div>
+                <div class="gallery-item"><img src="photos/photo12.jpg" alt="Photo 12"></div>
+                <div class="gallery-item"><img src="photos/photo13.jpg" alt="Photo 13"></div>
+                <div class="gallery-item"><img src="photos/photo14.jpg" alt="Photo 14"></div>
+                <div class="gallery-item"><img src="photos/photo15.jpg" alt="Photo 15"></div>
+                <div class="gallery-item"><img src="photos/photo16.jpg" alt="Photo 16"></div>
+                <div class="gallery-item"><img src="photos/photo17.jpg" alt="Photo 17"></div>
+                <div class="gallery-item"><img src="photos/photo18.jpg" alt="Photo 18"></div>
+                <div class="gallery-item"><img src="photos/photo19.jpg" alt="Photo 19"></div>
+                <div class="gallery-item"><img src="photos/photo20.jpg" alt="Photo 20"></div>
+                <div class="gallery-item"><img src="photos/photo21.jpg" alt="Photo 21"></div>
+                <div class="gallery-item"><img src="photos/photo22.jpg" alt="Photo 22"></div>
+                <div class="gallery-item"><img src="photos/photo23.jpg" alt="Photo 23"></div>
+                <div class="gallery-item"><img src="photos/photo24.jpg" alt="Photo 24"></div>
+                <div class="gallery-item"><img src="photos/photo25.jpg" alt="Photo 25"></div>
+                <div class="gallery-item"><img src="photos/photo26.jpg" alt="Photo 26"></div>
+                <div class="gallery-item"><img src="photos/photo27.jpg" alt="Photo 27"></div>
+                <div class="gallery-item"><img src="photos/photo28.jpg" alt="Photo 28"></div>
+            </div>
+        </section>
+
+        <!-- Games Section -->
+        <section id="games" class="games-section">
+            <h2>Our Games</h2>
+            <div class="games-dropdown">
+                <select id="game-selector">
+                    <option value="game5.html" data-img="gamebanner.png">10th Month</option>
+                    <option value="game4.html" data-img="ad9th.png">9th Month</option>
+                    <option value="game3.html" data-img="ad8th.png">8th Month</option>
+                    <option value="game2.html" data-img="ad7th.png">7th Month</option>
+                    <option value="game1.html" data-img="ad6th.png">6th Month</option>
+                </select>
+            </div>
+            <img id="game-banner" src="gamebanner.png" alt="Game Banner" class="game-banner">
+            <div class="game-controls">
+            </div>
+            <a href="#" id="game-link" class="game-link" target="_blank">Play Game</a>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz" class="quiz-section">
+            <h2>Love Quiz</h2>
+            <div class="love-meter">
+                <h3>Love Meter</h3>
+                <div class="love-meter-container">
+                    <div class="love-meter-bar" id="love-meter-bar"></div>
+                </div>
+                <div id="quiz-status" class="quiz-status">Response saved!</div>
+            </div>
+            <iframe src="survey.html" class="quiz-iframe" frameborder="0"></iframe>
+        </section>
+
+        <!-- Advertisement -->
+        <section class="ad-section">
+            <a href="gamewifeybird/index.html" target="_blank" class="ad-link">
+                <img src="ad.png" alt="Advertisement">
+            </a>
+        </section>
+    </main>
+
+    <!-- NPCs -->
+    <div id="npc-chiri" class="npc" style="top: 100px; left: 100px;">
+        <img src="photo1.jpg" alt="Chiri">
+        <div class="npc-speech">wandering around</div>
+    </div>
+
+    <div id="npc-charlotte" class="npc" style="top: 200px; left: 200px;">
+        <img src="photo2.jpg" alt="Charlotte">
+        <div class="npc-speech">thinking of you</div>
+    </div>
+
+    <!-- Love Event -->
+    <div id="love-event" class="love-event">
+        <img src="bed.png" alt="Love">
+        <div class="love-emojis">🍆🪼🫘👅</div>
+    </div>
+
+
+    <script>
+        // Global variables
+        let heartParticleInterval;
+        let npcMoveInterval;
+        let npcSpeechInterval;
+        let loveEventInterval;
+        let chiriClickCount = 0;
+        let charlotteClickCount = 0;
+        let loveMeterValue = 70;
+        let isConversationEvent = false;
+        
+        // NPC Speech Arrays
+        const npcActionsPhoto1 = [
+            "wandering around", "smiling softly", "thinking of you", "giggling quietly",
+            "dreaming about us", "I love you more", "i do xx", 
+            "I love you more than all the blocks in minecraft",
+            "i wanna lick jellybean babeee im hungryyy xx",
+            "leftie, stay out of trouble hehe",
+            "rightie, i secretly love you more than leftie oops hehehe maybeee, but ill love charlotte the most",
+            "Babeeeee i love youuu", "Babeee xx look someones awake",
+            "Babeee is it a bird, is it a plane no its just Moody xd",
+            "True love Forever xx", "Jellybean will be dry when your here babeeeeeeeee",
+            "moody", "Dry in the inside and wet on the outside",
+            "Jellybean needs me so much, open those legs!!!!", "i will wake up first to clean jellybean",
+            "jonothan helmets hehehe xx",
+        ];
+
+        const npcActionsPhoto2 = [
+            "why did you say moody", "moody is always moody and will forever be moody",
+            "i am yours forever, and your mineeeeee xx", "I love you moreeeee xx",
+            "i doooo xx mwahhhh", "shell be right", "wandering around", "smiling softly",
+            "thinking of you", "giggling quietly", "dreaming about us",
+            "Jellybean is soaked for you", "Leftie and rightie should be both the same",
+            "Babeee your my sexy cute handsome man", "Jonothan needs me right now!! its urgent",
+            "Jonothans Brothers are gonna be dry when im at yours", "I love jonothans hat",
+            "i Love you so much babeee xx so muchhhhhh",
+            "i so badly want jonothans helmet inside of me xx",
+        ];
+
+        const conversationPairs = [
+            { chiri: "I love you more", charlotte: "No, I love you more!" },
+            { chiri: "You're my everything", charlotte: "You're my world!" }
+        ];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCountdowns();
+            initializeNPCs();
+            initializeEventListeners();
+            startHeartParticles();
+            startLoveEvent();
+            updateLoveMeter();
+        });
+
+        // Click sound
+        document.addEventListener('click', function() {
+            const audio = document.getElementById('click-sound');
+            audio.currentTime = 0;
+            audio.play().catch(e => console.log('Audio play failed:', e));
+        });
+
+        // Sidebar toggle
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Initialize countdowns
+        function initializeCountdowns() {
+            updatePageOverlay();
+            updateSplashScreen();
+            updateMainCountdown();
+            
+            setInterval(updatePageOverlay, 1000);
+            setInterval(updateSplashScreen, 1000);
+            setInterval(updateMainCountdown, 1000);
+        }
+
+        function updatePageOverlay() {
+            const targetDate = new Date('2025-08-16T10:30:00');
+            const now = new Date();
+            const overlay = document.getElementById('page-overlay');
+            
+            if (now >= targetDate) {
+                showVideo();
+            } else {
+                const diff = targetDate - now;
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                document.getElementById('page-countdown-message').textContent = 
+                    `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
+        }
+
+        function showVideo() {
+            const overlay = document.getElementById('page-overlay');
+            const countdownMsg = document.getElementById('page-countdown-message');
+            const loadingMsg = document.getElementById('loading-message');
+            const videoContainer = document.getElementById('video-container');
+            const skipButton = document.getElementById('skip-button');
+            const video = document.getElementById('special-video');
+            
+            countdownMsg.classList.add('hidden');
+            loadingMsg.classList.remove('hidden');
+            
+            setTimeout(() => {
+                loadingMsg.classList.add('hidden');
+                video.src = 'https://www.youtube.com/embed/p5V5VQ6ua8w?autoplay=1';
+                videoContainer.classList.remove('hidden');
+                skipButton.classList.remove('hidden');
+            }, 2000);
+        }
+
+        document.getElementById('skip-button').addEventListener('click', function() {
+            const overlay = document.getElementById('page-overlay');
+            const video = document.getElementById('special-video');
+            
+            video.src = '';
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                document.getElementById('splash-screen').style.display = 'none';
+            }, 500);
+        });
+
+        function updateSplashScreen() {
+            const targetDate = new Date('2025-08-16T20:00:00');
+            const now = new Date();
+            const splash = document.getElementById('splash-screen');
+            
+            if (now >= targetDate) {
+                splash.style.display = 'none';
+                return;
+            }
+            
+            const diff = targetDate - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('splash-countdown').textContent = 
+                `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        function updateMainCountdown() {
+            const targetDate = new Date('2024-08-16T00:00:00');
+            const now = new Date();
+            const countdown = document.getElementById('countdown');
+            
+            if (now >= targetDate) {
+                countdown.textContent = 'Happy Anniversary!';
+                return;
+            }
+            
+            const diff = targetDate - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            countdown.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        // Heart particles
+        function startHeartParticles() {
+            heartParticleInterval = setInterval(() => {
+                createHeartParticle();
+            }, 2000);
+        }
+
+        function createHeartParticle() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = '💖';
+            heart.style.left = Math.random() * window.innerWidth + 'px';
+            heart.style.animationDuration = (3 + Math.random() * 2) + 's';
+            
+            document.body.appendChild(heart);
+            
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }
+
+        // NPCs
+        function initializeNPCs() {
+            moveNPCsRandomly();
+            updateNPCSpeech();
+            
+            npcMoveInterval = setInterval(moveNPCsRandomly, 3000);
+            npcSpeechInterval = setInterval(updateNPCSpeech, 10000);
+            
+            // NPC click events
+            document.getElementById('npc-chiri').addEventListener('click', function() {
+                handleNPCClick('chiri');
+            });
+            
+            document.getElementById('npc-charlotte').addEventListener('click', function() {
+                handleNPCClick('charlotte');
+            });
+        }
+
+        function moveNPCsRandomly() {
+            if (isConversationEvent) return;
+            
+            const chiri = document.getElementById('npc-chiri');
+            const charlotte = document.getElementById('npc-charlotte');
+            
+            const maxX = window.innerWidth - 80;
+            const maxY = window.innerHeight - 80;
+            
+            chiri.style.left = Math.random() * maxX + 'px';
+            chiri.style.top = Math.random() * maxY + 'px';
+            
+            charlotte.style.left = Math.random() * maxX + 'px';
+            charlotte.style.top = Math.random() * maxY + 'px';
+        }
+
+        function updateNPCSpeech() {
+            if (isConversationEvent) return;
+            
+            const chiriSpeech = document.querySelector('#npc-chiri .npc-speech');
+            const charlotteSpeech = document.querySelector('#npc-charlotte .npc-speech');
+            
+            chiriSpeech.textContent = npcActionsPhoto1[Math.floor(Math.random() * npcActionsPhoto1.length)];
+            charlotteSpeech.textContent = npcActionsPhoto2[Math.floor(Math.random() * npcActionsPhoto2.length)];
+        }
+
+        function handleNPCClick(npc) {
+            if (npc === 'chiri') {
+                chiriClickCount++;
+                const speech = document.querySelector('#npc-chiri .npc-speech');
+                if (chiriClickCount < 5) {
+                    speech.textContent = "Click meee ahh keep touchingggg";
+                } else {
+                    speech.textContent = "ahhhh making him hard babeeee xx";
+                }
+            } else {
+                charlotteClickCount++;
+                const speech = document.querySelector('#npc-charlotte .npc-speech');
+                if (charlotteClickCount < 5) {
+                    speech.textContent = "ahhh jellybean is gonna get wet";
+                } else {
+                    speech.textContent = "ahhh jellybean is soaked time for you to clean babe xx";
+                }
+            }
+            
+            if (chiriClickCount >= 5 && charlotteClickCount >= 5) {
+                startConversationEvent();
+            }
+        }
+
+        function startConversationEvent() {
+            isConversationEvent = true;
+            
+            const chiri = document.getElementById('npc-chiri');
+            const charlotte = document.getElementById('npc-charlotte');
+            const chiriSpeech = document.querySelector('#npc-chiri .npc-speech');
+            const charlotteSpeech = document.querySelector('#npc-charlotte .npc-speech');
+            
+            // Center NPCs
+            chiri.style.left = '40%';
+            chiri.style.top = '50%';
+            charlotte.style.left = '60%';
+            charlotte.style.top = '50%';
+            
+            // Random conversation pair
+            const pair = conversationPairs[Math.floor(Math.random() * conversationPairs.length)];
+            chiriSpeech.textContent = pair.chiri;
+            charlotteSpeech.textContent = pair.charlotte;
+            
+            // Resume after 5 seconds
+            setTimeout(() => {
+                isConversationEvent = false;
+                chiriClickCount = 0;
+                charlotteClickCount = 0;
+            }, 5000);
+        }
+
+        // Love Event
+        function startLoveEvent() {
+            loveEventInterval = setInterval(() => {
+                showLoveEvent();
+            }, 60000);
+        }
+
+        function showLoveEvent() {
+            const loveEvent = document.getElementById('love-event');
+            const chiri = document.getElementById('npc-chiri');
+            const charlotte = document.getElementById('npc-charlotte');
+            
+            // Position NPCs near right side
+            chiri.style.left = '80%';
+            chiri.style.top = '60%';
+            charlotte.style.left = '85%';
+            charlotte.style.top = '40%';
+            
+            loveEvent.style.display = 'block';
+            
+            setTimeout(() => {
+                loveEvent.style.display = 'none';
+            }, 3000);
+        }
+
+        // Games
+        document.getElementById('game-selector').addEventListener('change', function() {
+            const selected = this.options[this.selectedIndex];
+            const banner = document.getElementById('game-banner');
+            const link = document.getElementById('game-link');
+            
+            banner.src = selected.getAttribute('data-img');
+            link.href = selected.value;
+        });
+
+        // Game controls
+        document.getElementById('run-game').addEventListener('click', function() {
+            console.log('Game started');
+        });
+
+        document.getElementById('stop-game').addEventListener('click', function() {
+            console.log('Game stopped');
+        });
+
+        // Love meter
+        function updateLoveMeter() {
+            const bar = document.getElementById('love-meter-bar');
+            bar.style.width = loveMeterValue + '%';
+        }
+
+        // Modal
+        document.getElementById('modal-close').addEventListener('click', function() {
+            document.getElementById('love-note-modal').style.display = 'none';
+        });
+
+        // Show love note modal on hero image click
+        document.querySelector('.hero-image').addEventListener('click', function() {
+            document.getElementById('love-note-modal').style.display = 'flex';
+        });
+
+        function initializeEventListeners() {
+            // Quiz response handler (simulated)
+            window.addEventListener('message', function(event) {
+                if (event.data === 'true') {
+                    document.getElementById('quiz-status').style.display = 'block';
+                    loveMeterValue = Math.min(100, loveMeterValue + 10);
+                    updateLoveMeter();
+                    setTimeout(() => {
+                        document.getElementById('quiz-status').style.display = 'none';
+                    }, 3000);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
