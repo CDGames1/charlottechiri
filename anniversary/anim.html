@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>10th Month Anniversary   Cinematic Intro (Fixed Voice & Subtitles)</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{height:100%}
+        body{font-family:Inter, Arial, Helvetica, sans-serif;background:linear-gradient(135deg,#ffd1dd 0%,#fff0f6 100%);overflow:hidden;color:#222}
+        .page-overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(8,6,10,0.92),rgba(6,4,8,0.85));z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white}
+        .overlay-top{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
+        #intro-canvas{width:92vw;max-width:1200px;height:66vh;border-radius:14px;background:linear-gradient(180deg,#0f0f12,#101217);box-shadow:0 30px 80px rgba(0,0,0,0.6)}
+        .overlay-controls{margin-top:14px;display:flex;gap:10px;align-items:center}
+        .btn{background:#ff6b9d;color:white;border:none;padding:10px 16px;border-radius:9px;font-size:15px;cursor:pointer}
+        .btn.ghost{background:transparent;border:2px solid rgba(255,255,255,0.12)}
+        .status{margin-top:8px;font-size:0.95rem;color:#ffddeb}
+        @media(max-width:768px){#intro-canvas{width:96vw;height:48vh}}
+        .subtitle{position:fixed;left:50%;bottom:54px;transform:translateX(-50%);color:white;font-size:1.02rem;padding:12px 18px;border-radius:999px;background:linear-gradient(90deg,rgba(0,0,0,0.65),rgba(0,0,0,0.4));max-width:86vw;text-align:center;z-index:10010}
+        .final-card{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:white;color:#333;padding:26px;border-radius:14px;box-shadow:0 24px 80px rgba(0,0,0,0.28);max-width:720px;display:none;z-index:10000;text-align:center}
+        .final-card h2{color:#ff6b9d;margin-bottom:8px}
+        .final-card p{line-height:1.6}
+        .ui-row{display:flex;gap:8px;align-items:center}
+
+        /* Big central play modal to ensure a user gesture for speech */
+        .play-modal{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);padding:20px;border-radius:12px;z-index:10005;display:flex;flex-direction:column;align-items:center;gap:10px}
+        .play-modal h3{margin-bottom:6px;color:#ffddeb}
+        .small{font-size:13px;color:#ffddeb;opacity:0.9}
+    </style>
+</head>
+<body>
+
+<div id="page-overlay" class="page-overlay">
+    <div class="overlay-top">
+        <div id="page-countdown-message" class="page-countdown-message" style="color:#ffddeb">Loading...</div>
+        <canvas id="intro-canvas" width="1280" height="720"></canvas>
+        <div class="overlay-controls ui-row">
+            <button id="skip-button" class="btn">Skip Intro</button>
+            <button id="pause-button" class="btn ghost">Pause</button>
+            <button id="replay-button" class="btn ghost">Replay</button>
+            <button id="enable-voice" class="btn ghost">Enable Voiceover</button>
+        </div>
+        <div id="anim-status" class="status">Preparing cinematic...</div>
+    </div>
+    <div id="subtitle" class="subtitle" style="display:none"></div>
+
+    <div id="play-modal" class="play-modal" style="display:flex">
+        <h3>Start Intro</h3>
+        <div class="small">Click to enable voiceover and sound (required for narration). Or start without voice.</div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+            <button id="play-with-voice" class="btn">Play with Voice</button>
+            <button id="play-no-voice" class="btn ghost">Play without Voice</button>
+        </div>
+    </div>
+</div>
+
+<div id="final-card" class="final-card">
+    <h2>Happy 10th Month Anniversary xx</h2>
+    <p id="final-text">Chiri &amp; Charlotte i love you so much babeee xx</p>
+    <button id="close-final" class="btn">Close</button>
+</div>
+
+<script>
+// -------------------- Fixed: subtitles & voice sync --------------------
+// This file ensures:
+// - subtitles are always shown on scene change
+// - voiceover only starts after a user gesture (Play with Voice) and blocks scene progression until finished
+// - provides explicit Play with Voice / Play without Voice controls to avoid browser autoplay restrictions
+// - robust timers and cancellation so scenes don't double-advance
+
+document.getElementById("close-final").addEventListener("click", () => {
+    // redirect with ?skipIntro=true
+    window.location.href = "index.html?skipIntro=true";
+});
+
+// Canvas setup
+const canvas = document.getElementById('intro-canvas');
+const ctx = canvas.getContext('2d');
+let cw = canvas.width, ch = canvas.height;
+function resizeCanvas(){ const ratio = window.devicePixelRatio || 1; const w = canvas.clientWidth || 1280; const h = canvas.clientHeight || 720; canvas.width = Math.round(w*ratio); canvas.height = Math.round(h*ratio); canvas.style.width = w+'px'; canvas.style.height = h+'px'; ctx.setTransform(ratio,0,0,ratio,0,0); cw = canvas.width/ratio; ch = canvas.height/ratio; }
+window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+// Assets
+const headLeftPath = 'photo1.jpg';
+const headRightPath = 'photo2.jpg';
+const photoCount = 28; const photoPaths = []; for(let i=1;i<=photoCount;i++) photoPaths.push(`photos/photo${i}.jpg`);
+let images = {};
+function loadImage(src){ return new Promise(resolve=>{ const img = new Image(); img.onload = ()=>resolve({ok:true,img}); img.onerror = ()=>resolve({ok:false,img:null}); img.src = src + '?_=' + Math.random(); }); }
+async function loadAll(){ const tasks = []; tasks.push(loadImage(headLeftPath)); tasks.push(loadImage(headRightPath)); for(const p of photoPaths) tasks.push(loadImage(p)); const res = await Promise.all(tasks); images.headL = res[0].img; images.headR = res[1].img; for(let i=0;i<photoCount;i++) images[`p${i+1}`] = res[2+i].img; }
+
+// Story
+const scenes = [
+    {key:'wizz', text: `We began on separate beds and separate screens. Our phones lit the dark as we talked until the small hours. Your laugh over the call made the room feel warm; your quiet moments made me lean closer.`},
+    {key:'lance', text: `The first time I met you in person we stood on Lance's Deck our two awkward faces that felt familiar already. Your family welcomed me, and when you hugged me that first time it felt like arriving somewhere right.`},
+    {key:'kmart', text: `We walked Kmart together, smelling candles and trying ridiculous hats. We then went to Timezone, neon buzzing and games clattering then bowling, then laughter.`},
+    {key:'beach', text: `Later, the beach sand between toes and the tide as company. We walked and talked until the sea made everything feel soft and easy.`},
+    {key:'kiss', text: `The first kiss was quiet an office, a closed door, a small, deliberate moment. It changed everything.`},
+    {key:'finale', text: `Those little ordinary moments built us. Ten months later, I want a lifetime more more candles, more games, more quiet beaches, and more of your hand in mine. hehehehe xx and more spicyyy jonothan and jellybean timeee xx. I love you so much babeee and forever willl xx`}
+];
+
+// WebAudio SFX (lightweight)
+const AudioCtx = window.AudioContext || window.webkitAudioContext; const audioCtx = AudioCtx ? new AudioCtx() : null;
+function playBeep(freq, time=0.12, type='sine'){ if (!audioCtx) return; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type = type; o.frequency.value = freq; g.gain.value = 0.0001; o.connect(g); g.connect(audioCtx.destination); const now = audioCtx.currentTime; g.gain.linearRampToValueAtTime(0.12, now + 0.01); o.start(now); g.gain.linearRampToValueAtTime(0.0001, now + time); o.stop(now + time + 0.05); }
+function playRing(){ playBeep(880,0.35,'sine'); setTimeout(()=>playBeep(660,0.22,'sine'),120); }
+function playDoor(){ playBeep(220,0.08,'square'); setTimeout(()=>playBeep(330,0.18,'sine'),120); }
+function playArcade(){ playBeep(1200,0.07,'sawtooth'); setTimeout(()=>playBeep(1500,0.06,'sine'),60); }
+function playWave(){ if (!audioCtx) return; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(220,audioCtx.currentTime); g.gain.value=0.02; o.connect(g); g.connect(audioCtx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime + 2.5); o.stop(audioCtx.currentTime + 2.5); }
+function playKiss(){ playBeep(1200,0.18,'triangle'); setTimeout(()=>playBeep(1700,0.12,'sine'),80); }
+
+// Speech helper that returns a Promise and waits for onend
+function ensureVoicesLoaded(){ return new Promise(resolve=>{ const v = window.speechSynthesis.getVoices(); if (v && v.length) return resolve(v); window.speechSynthesis.onvoiceschanged = ()=> resolve(window.speechSynthesis.getVoices()); setTimeout(()=>resolve(window.speechSynthesis.getVoices()||[]),1500); }); }
+
+let voiceEnabled = false;
+async function speakAwait(text){ if (!voiceEnabled || !('speechSynthesis' in window)) return; const voices = await ensureVoicesLoaded(); const u = new SpeechSynthesisUtterance(text); u.rate = 0.98; u.pitch = 1; u.volume = 1; u.voice = (voices && voices.length)? (voices.find(v=>/en-?gb|en-?us|google/i.test(v.lang)) || voices[0]) : null; return new Promise(resolve=>{ u.onend = ()=> resolve(); u.onerror = ()=> resolve(); // don't cancel existing speech   cancel only if present to avoid overlap
+    window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }); }
+
+// UI: play modal buttons
+const playModal = document.getElementById('play-modal');
+const btnWithVoice = document.getElementById('play-with-voice');
+const btnNoVoice = document.getElementById('play-no-voice');
+btnWithVoice.addEventListener('click', async ()=>{ // user gesture
+    voiceEnabled = true; try{ if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume(); }catch(e){}
+    document.getElementById('enable-voice').textContent='Voice Enabled'; document.getElementById('enable-voice').disabled = true; playModal.style.display='none'; document.getElementById('anim-status').textContent='Voice enabled   playing'; enterScene(0); startVisualLoop(); });
+btnNoVoice.addEventListener('click', ()=>{ voiceEnabled = false; playModal.style.display='none'; document.getElementById('anim-status').textContent='Playing without voice'; enterScene(0); startVisualLoop(); });
+
+// Enable-voice button also acts as a gesture enhancer
+document.getElementById('enable-voice').addEventListener('click', ()=>{ voiceEnabled = true; document.getElementById('enable-voice').textContent='Voice Enabled'; document.getElementById('enable-voice').disabled = true; try{ if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }catch(e){} });
+
+// Drawing & scene renderers (kept concise but visually improved)
+function clear(){ ctx.clearRect(0,0,cw,ch); }
+function roundedRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function drawPhone(x,y,w,h,avatar){ roundedRect(x,y,w,h,14); ctx.fillStyle='rgba(18,18,20,0.96)'; ctx.fill(); ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fillRect(x+8,y+10,w-16,h-36); ctx.save(); if (avatar && avatar.naturalWidth){ const iw=avatar.naturalWidth, ih=avatar.naturalHeight; const s=Math.min((w-40)/iw,(h-80)/ih); ctx.drawImage(avatar, x + (w - iw*s)/2, y + 24, iw*s, ih*s); } ctx.restore(); ctx.save(); ctx.shadowBlur = 18; ctx.shadowColor = 'rgba(255,120,160,0.12)'; ctx.fillStyle='rgba(255,120,160,0.02)'; ctx.fillRect(x-6,y-6,w+12,h+12); ctx.restore(); }
+function drawStickHeaded(x,y,headImg,scale=1,lean=0){ ctx.save(); ctx.translate(x,y); ctx.scale(scale,scale); ctx.strokeStyle='white'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-70); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0,-50); ctx.lineTo(lean*28,-22); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-16,36); ctx.moveTo(0,0); ctx.lineTo(16,36); ctx.stroke(); const r=30; ctx.beginPath(); ctx.arc(0,-100,r,0,Math.PI*2); ctx.closePath(); ctx.save(); ctx.clip(); if (headImg && headImg.naturalWidth){ const iw=headImg.naturalWidth, ih=headImg.naturalHeight; const s=Math.min((r*2)/iw,(r*2)/ih); ctx.drawImage(headImg,-r,-100,iw*s,ih*s);} else { ctx.fillStyle='#f6c'; ctx.fillRect(-r,-100,r*2,r*2);} ctx.restore(); ctx.restore(); }
+function drawHouse(cx,cy,size){ ctx.save(); ctx.fillStyle='rgba(36,37,42,0.98)'; roundedRect(cx-size/2, cy-size/6, size, size/2, 8); ctx.fill(); ctx.beginPath(); ctx.moveTo(cx-size/2, cy-size/6); ctx.lineTo(cx, cy-size/2); ctx.lineTo(cx+size/2, cy-size/6); ctx.closePath(); ctx.fillStyle='rgba(60,50,70,0.95)'; ctx.fill(); ctx.fillStyle='rgba(255,200,120,0.12)'; roundedRect(cx+size*0.13, cy+4, size*0.12, size*0.12,6); ctx.fill(); ctx.restore(); }
+function drawHat(x,y,scale=1){ ctx.save(); ctx.translate(x,y); ctx.scale(scale,scale); ctx.fillStyle='rgba(40,30,60,0.95)'; roundedRect(-28,-140,56,18,8); ctx.fill(); ctx.beginPath(); ctx.ellipse(0,-120,32,12,0,0,Math.PI*2); ctx.fillStyle='rgba(255,180,160,0.95)'; ctx.fill(); ctx.restore(); }
+function drawArcade(x,y){ ctx.save(); roundedRect(x-70,y-120,140,160,12); ctx.fillStyle='rgba(10,10,18,0.98)'; ctx.fill(); ctx.fillStyle='rgba(255,120,50,0.9)'; ctx.fillRect(x-40,y-90,80,60); ctx.fillStyle='white'; ctx.fillRect(x-6,y-30,12,22); ctx.restore(); }
+function drawBeachScene(alpha){ const g = ctx.createLinearGradient(0,0,0,ch); g.addColorStop(0,'rgba(38,115,185,'+(0.3+alpha*0.7)+')'); g.addColorStop(0.6,'rgba(240,220,170,'+(0.4+alpha*0.6)+')'); ctx.fillStyle = g; ctx.fillRect(0,0,cw,ch); ctx.fillStyle = 'rgba(244,223,166,'+(0.95*alpha+0.05)+')'; ctx.fillRect(0,ch*0.6,cw,ch*0.4); }
+function drawKissBurst(cx,cy,t){ const n=16; for(let i=0;i<n;i++){ const a=(i/n)*Math.PI*2 + t*6; const r=6 + t*100; const x=cx + Math.cos(a)*r; const y=cy + Math.sin(a)*r*0.7; ctx.save(); ctx.fillStyle = `rgba(255,90,140,${1-t})`; ctx.beginPath(); ctx.ellipse(x,y,6*(1-t)+2,8*(1-t)+2,0,0,Math.PI*2); ctx.fill(); ctx.restore(); } }
+function drawCenteredPhoto(img,alpha=1,scale=1){ if (!img || !img.naturalWidth) return; const maxW=cw*0.86, maxH=ch*0.78; const iw=img.naturalWidth, ih=img.naturalHeight; const ratio=Math.min(maxW/iw, maxH/ih); const w=iw*ratio*scale, h=ih*ratio*scale; ctx.save(); ctx.globalAlpha=alpha; ctx.drawImage(img,(cw-w)/2,(ch-h)/2-30,w,h); ctx.restore(); }
+function drawHearts(count,size,phase){ for(let i=0;i<count;i++){ const x=(i+1)*(cw/(count+1)) + Math.sin(phase + i)*18; const y = 64 + Math.abs(Math.cos(phase*0.7 + i))*26; ctx.save(); ctx.fillStyle = `rgba(255,90,140,0.95)`; ctx.beginPath(); ctx.ellipse(x,y,size,size+2,0,0,Math.PI*2); ctx.fill(); ctx.restore(); } }
+
+// Renderers mapping
+const renderers = {
+    'wizz': (t,p)=>{
+        clear(); const phoneW=Math.min(240,cw*0.22), phoneH=Math.min(380,ch*0.54); const leftX=cw*0.22-phoneW/2, rightX=cw*0.78-phoneW/2, phoneY=ch*0.32; drawPhone(leftX,phoneY,phoneW,phoneH,images.headL); drawPhone(rightX,phoneY,phoneW,phoneH,images.headR); ctx.beginPath(); ctx.strokeStyle='rgba(255,160,180,0.12)'; ctx.lineWidth=3; ctx.moveTo(leftX+phoneW,phoneY+phoneH*0.2); ctx.bezierCurveTo(cw/2,phoneY, cw/2,phoneY+phoneH*0.5, rightX, phoneY+phoneH*0.2); ctx.stroke(); },
+    'lance': (t,p)=>{ clear(); drawHouse(cw*0.5,ch*0.45,Math.min(520,cw*0.45)); const leftX=cw*0.32+Math.sin(t/600)*4; const rightX=cw*0.68+Math.cos(t/560)*4; drawStickHeaded(leftX,ch*0.72,images.headL,1,0.2); drawStickHeaded(rightX,ch*0.72,images.headR,1,-0.2); },
+    'kmart': (t,p)=>{ clear(); const leftW=cw*0.44,leftX=cw*0.05; const g=ctx.createLinearGradient(leftX,0,leftX+leftW,0); g.addColorStop(0,'rgba(255,245,240,0.02)'); g.addColorStop(1,'rgba(240,240,245,0.02)'); ctx.fillStyle=g; ctx.fillRect(leftX,0,leftW,ch); const candleBaseY=ch*0.5; for(let i=0;i<6;i++){ const cx=leftX+40+i*60; const flick=1+Math.sin((t/300)+i)*0.12; ctx.fillStyle=`rgba(255,230,200,${0.9 - i*0.06})`; roundedRect(cx-10,candleBaseY-80,20,80,6); ctx.fill(); ctx.beginPath(); ctx.ellipse(cx,candleBaseY-90-Math.sin(t/120+i)*3,6*flick,10*flick,0,0,Math.PI*2); ctx.fillStyle='rgba(255,150,80,0.95)'; ctx.fill(); } drawStickHeaded(leftX+leftW*0.35,ch*0.68,images.headL,0.98,0.05); drawHat(leftX+leftW*0.35,ch*0.68-100,0.9); drawStickHeaded(leftX+leftW*0.6,ch*0.68,images.headR,0.98,-0.05); drawHat(leftX+leftW*0.6,ch*0.68-100,0.95); const arcadeX=cw*0.73, arcadeY=ch*0.42; drawArcade(arcadeX,arcadeY); const pinBase=ch*0.68; ctx.fillStyle='white'; for(let i=0;i<3;i++){ const x=cw*0.62 + i*0.09*cw; const y=pinBase - Math.abs(Math.sin((t/350+i)*2))*6; ctx.fillRect(x,y,6,20); } },
+    'beach': (t,p)=>{ clear(); drawBeachScene(1); const walkX=cw*0.22 + (cw*0.56)*p; drawStickHeaded(walkX,ch*0.72,images.headL,0.95,0.02); drawStickHeaded(walkX+88,ch*0.72,images.headR,0.95,-0.02); for(let i=0;i<6;i++){ ctx.globalAlpha=0.08+0.04*Math.sin(t/400+i); ctx.beginPath(); ctx.ellipse((i+1)*(cw/7),ch*0.56+Math.sin(t/600+i)*6,120,18,0,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.12)'; ctx.fill(); } ctx.globalAlpha=1; },
+    'kiss': (t,p)=>{ clear(); ctx.fillStyle='rgba(12,12,14,0.95)'; ctx.fillRect(0,0,cw,ch); const lampX=cw*0.5, lampY=ch*0.32, glow=0.12+0.2*Math.sin(t/300); ctx.beginPath(); ctx.ellipse(lampX,lampY,260,160,0,0,Math.PI*2); ctx.fillStyle=`rgba(255,205,165,${glow})`; ctx.fill(); ctx.fillStyle='rgba(120,80,60,0.95)'; ctx.fillRect(cw*0.54,ch*0.58,cw*0.2,12); const centerX=cw*0.5, centerY=ch*0.62, approach=p; drawStickHeaded(centerX-64*(1-approach),centerY,images.headL,1-0.06*(1-approach),0.02); drawStickHeaded(centerX+64*(1-approach),centerY,images.headR,1-0.06*(1-approach),-0.02); if (approach>0.9){ const kt=(approach-0.9)/0.1; drawKissBurst(centerX,centerY-40,kt); } },
+    'finale': (t,p)=>{ clear(); if (images['p5'] && images['p5'].naturalWidth) drawCenteredPhoto(images['p5'],0.25+0.7*p,1+0.03*p); drawStickHeaded(cw*0.5-36,ch*0.78,images.headL,0.9,0.02); drawStickHeaded(cw*0.5+36,ch*0.78,images.headR,0.9,-0.02); drawHearts(10,12,t/240); }
+};
+
+// Scene control variables
+const SCENE_ORDER = ['wizz','lance','kmart','beach','kiss','finale'];
+let sceneIdx = 0; let sceneStart = 0; let animLoopRAF = null; let sceneTimer = null; let animRunning = false; let paused = false; let assetsLoaded = false;
+const sceneDurFallback = {'wizz':15000,'lance':16000,'kmart':32000,'beach':16000,'kiss':22000,'finale':15000};
+
+// show subtitle
+function showSubtitle(text){ const el = document.getElementById('subtitle'); if (!text){ el.style.display='none'; return;} el.textContent = text; el.style.display='block'; }
+
+// enter scene: sets subtitle, plays SFX, and either waits for voice to finish or uses fallback timer
+async function enterScene(idx){ // cancel prev timer
+    if (sceneTimer) { clearTimeout(sceneTimer); sceneTimer = null; }
+    sceneIdx = idx; sceneStart = performance.now(); const key = SCENE_ORDER[sceneIdx]; // SFX cues
+    if (key==='wizz') { if (audioCtx && audioCtx.state==='suspended') audioCtx.resume(); playRing(); }
+    if (key==='lance') playDoor(); if (key==='kmart') playArcade(); if (key==='beach') playWave(); if (key==='kiss') setTimeout(()=>playKiss(),600);
+    // show subtitle immediately
+    showSubtitle(scenes[sceneIdx].text);
+    // if voice enabled: speak and wait (blocks progression)
+    if (voiceEnabled && ('speechSynthesis' in window)){
+        try{ await speakAwait(scenes[sceneIdx].text); }catch(e){ console.warn('speech failed', e); }
+        // small pause after voice
+        sceneTimer = setTimeout(()=>{ advanceScene(); }, 800);
+    } else {
+        // fallback: auto-advance after fallback duration
+        const d = sceneDurFallback[key] || 15000;
+        sceneTimer = setTimeout(()=>{ advanceScene(); }, d);
+    }
+}
+
+function advanceScene(){ if (sceneIdx >= SCENE_ORDER.length - 1) return endAnimation(); enterScene(sceneIdx + 1); }
+
+// visual loop updates at rAF irrespective of voice (ensures smooth visuals)
+function visualLoop(){ if (!animRunning || paused) return; const now = performance.now(); const t = now - sceneStart; const key = SCENE_ORDER[sceneIdx]; const dur = sceneDurFallback[key] || 15000; const progress = Math.min(1, t / dur); try{ const renderer = renderers[key]; if (renderer) renderer(t, progress); } catch(e){ console.error('render error', e); } // status
+    const rem = SCENE_ORDER.slice(sceneIdx).reduce((acc,k)=>acc + (sceneDurFallback[k]||15000),0) - t; document.getElementById('anim-status').textContent = ``; animLoopRAF = requestAnimationFrame(visualLoop); }
+
+function startVisualLoop(){ if (animLoopRAF) cancelAnimationFrame(animLoopRAF); animRunning = true; paused = false; visualLoop(); }
+function pauseAll(){ if (!animRunning) return; paused = !paused; if (paused){ if (animLoopRAF) cancelAnimationFrame(animLoopRAF); if (audioCtx) audioCtx.suspend(); if (voiceEnabled) window.speechSynthesis.pause(); document.getElementById('pause-button').textContent='Resume'; document.getElementById('anim-status').textContent='Paused'; } else { if (audioCtx && audioCtx.state==='suspended') audioCtx.resume(); if (voiceEnabled) window.speechSynthesis.resume(); document.getElementById('pause-button').textContent='Pause'; sceneStart = performance.now() - (sceneElapsed()); visualLoop(); } }
+function sceneElapsed(){ return performance.now() - sceneStart; }
+function replayAll(){ if (sceneTimer) { clearTimeout(sceneTimer); sceneTimer = null; } if (voiceEnabled && ('speechSynthesis' in window)) window.speechSynthesis.cancel(); sceneIdx = 0; enterScene(0); startVisualLoop(); }
+function skipAll(){ if (sceneTimer) clearTimeout(sceneTimer); if (voiceEnabled && ('speechSynthesis' in window)) window.speechSynthesis.cancel(); document.getElementById('page-overlay').style.display='none'; document.getElementById('final-card').style.display='block'; animRunning=false; }
+function endAnimation(){ if (sceneTimer) clearTimeout(sceneTimer); if (voiceEnabled && ('speechSynthesis' in window)) window.speechSynthesis.cancel(); document.getElementById('page-overlay').style.display='none'; document.getElementById('final-card').style.display='block'; animRunning=false; }
+
+// Buttons
+document.getElementById('pause-button').addEventListener('click', ()=>{ pauseAll(); });
+document.getElementById('replay-button').addEventListener('click', ()=>{ replayAll(); });
+document.getElementById('skip-button').addEventListener('click', ()=>{ skipAll(); });
+document.getElementById('close-final').addEventListener('click', ()=>{ document.getElementById('final-card').style.display='none'; });
+
+// Boot: load images. Do not auto-start voice; show play modal until user chooses.
+(async function boot(){ document.getElementById('anim-status').textContent = 'Loading images & preparing audio...'; await loadAll(); assetsLoaded = true; document.getElementById('anim-status').textContent = 'Ready   choose Play with Voice or Play without Voice'; // preload voices (best-effort)
+    if ('speechSynthesis' in window) window.speechSynthesis.getVoices(); // keep modal visible until user chooses
+})();
+
+// Keep countdown but do not gate playback
+function updateCountdown(){ const targetDate = new Date('2025-08-16T10:30:00'); const now = new Date(); const msg = document.getElementById('page-countdown-message'); if (now >= targetDate) msg.style.display='none'; else { const diff = targetDate - now; const days = Math.floor(diff/(1000*60*60*24)); const hours = Math.floor((diff%(1000*60*60*24))/(1000*60*60)); const minutes = Math.floor((diff%(1000*60*60))/(1000*60)); const seconds = Math.floor((diff%(1000*60))/1000); msg.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`; } }
+setInterval(updateCountdown,1000); updateCountdown();
+
+</script>
+</body>
+</html>
