@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Charlotte's Monopoly — 11th Month Anniversary Game</title>
+  <style>
+    :root{
+      --bg1:#071025; --bg2:#07243b; --accent1:#ffd166; --accent2:#7de3c7; --glass:rgba(255,255,255,0.04); --muted:rgba(255,255,255,0.7);
+      font-family:Inter,Segoe UI,Roboto,Arial,sans-serif; color:#eaf6ff
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));}
+    .center{display:flex;align-items:center;justify-content:center}
+    /* Splash */
+    #splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:50}
+    #photo-strip{width:80vmin;height:48vmin;position:relative;overflow:hidden;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+    #photo-strip img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.06);transition:all .9s ease}
+    #photo-strip img.show{opacity:1;transform:scale(1);filter:saturate(115%)}
+    #splash h1{margin-top:16px;font-size:2rem}
+    .sub{color:var(--muted);margin-top:6px}
+
+    /* UI */
+    #ui{display:none;position:fixed;inset:0;padding:12px;box-sizing:border-box}
+    header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px}
+    .logo{display:flex;gap:12px;align-items:center}
+    .logo .icon{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--accent2),var(--accent1));display:flex;align-items:center;justify-content:center;font-weight:800;color:#062}
+    nav{display:flex;gap:8px}
+    button.btn{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:10px;color:inherit;cursor:pointer}
+
+    .layout{display:flex;gap:12px;height:calc(100% - 64px)}
+    .left{width:320px;display:flex;flex-direction:column;gap:12px}
+    .main{flex:1;display:flex;flex-direction:column}
+
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+
+    #board-wrap{flex:1;display:flex;gap:12px}
+    #board-canvas{flex:1;border-radius:12px;background:linear-gradient(180deg,#052032,#08243b);}
+    #sidebar{width:340px;display:flex;flex-direction:column;gap:12px}
+
+    .players-list{display:flex;flex-direction:column;gap:8px}
+    .player-row{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px}
+    .prop-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow:auto}
+
+    /* modal & console */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:80}
+    .modal .panel{width:900px;max-width:96%;padding:16px;border-radius:12px}
+    #console{position:fixed;left:10px;bottom:10px;width:calc(100% - 20px);max-width:1200px;height:260px;background:#001018;border-radius:8px;padding:8px;color:#bfe6df;display:none;z-index:90}
+    #console .log{overflow:auto;height:190px;font-family:monospace;padding:6px;border-radius:6px;background:rgba(255,255,255,0.02)}
+    #console input{width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+
+    /* small */
+    @media (max-width:1000px){.left{display:none}.layout{flex-direction:column}.sidebar{width:100%}}
+  </style>
+</head>
+<body>
+  <div id="splash" class="center">
+    <div id="photo-strip"></div>
+    <h1>11th Month Anniversary Game</h1>
+    <div class="sub">Charlotte's Monopoly — A super-advanced board experience</div>
+  </div>
+
+  <div id="ui">
+    <header class="card">
+      <div class="logo">
+        <div class="icon">CM</div>
+        <div>
+          <div style="font-weight:700">Charlotte's Monopoly</div>
+          <div style="font-size:12px;color:var(--muted)">Advanced Monopoly — Trading, Auctions, Multiplayer</div>
+        </div>
+      </div>
+      <nav>
+        <button class="btn" id="btn-new">New Game</button>
+        <button class="btn" id="btn-save">Save</button>
+        <button class="btn" id="btn-load">Load</button>
+        <button class="btn" id="btn-multi">Multiplayer</button>
+      </nav>
+    </header>
+
+    <div class="layout">
+      <div class="left">
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div id="avatar-preview" style="width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,var(--accent2),var(--accent1));display:flex;align-items:center;justify-content:center;font-weight:800;color:#051">C</div>
+            <div>
+              <div id="profile-name">Guest</div>
+              <div style="font-size:12px;color:var(--muted)" id="profile-id">ID: local</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;"><input id="name-input" placeholder="Display name" style="flex:1;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04)"><button class="btn" id="save-profile">Save</button></div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:6px">Bank</div>
+          <div>Bank Cash: <span id="bank-cash">$20580</span></div>
+          <div style="margin-top:6px">Bank Rules: Houses cost based on property colorset. Mortgage enabled.</div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:6px">Multiplayer</div>
+          <div style="display:flex;gap:8px"><input id="mp-code" placeholder="room id" style="flex:1;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04)"><button class="btn" id="mp-join">Join</button></div>
+          <div style="margin-top:8px"><button class="btn" id="mp-host">Host</button></div>
+          <div style="margin-top:6px;color:var(--muted)" id="mp-status">Not connected</div>
+        </div>
+      </div>
+
+      <div class="main">
+        <div id="board-wrap" class="card">
+          <canvas id="board-canvas"></canvas>
+          <div style="position:absolute;right:24px;top:24px;z-index:10">
+            <button class="btn" id="roll-dice">Roll Dice</button>
+            <button class="btn" id="end-turn">End Turn</button>
+            <button class="btn" id="open-trade">Trade</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:12px">
+          <div class="card" style="flex:1">
+            <div style="font-weight:700">Players</div>
+            <div class="players-list" id="players-list"></div>
+          </div>
+          <div class="card" style="width:340px">
+            <div style="font-weight:700">Selected Property</div>
+            <div id="selected-prop" style="margin-top:8px">None</div>
+            <div style="margin-top:8px;display:flex;gap:8px"><button class="btn" id="buy-prop">Buy</button><button class="btn" id="auction-prop">Auction</button><button class="btn" id="build-house">Build House</button></div>
+            <div style="margin-top:12px;font-size:13px;color:var(--muted)">Tip: Click a board square to view details. Use trade to swap properties and cash.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="sidebar">
+        <div class="card">
+          <div style="font-weight:700">Card Decks</div>
+          <div style="display:flex;gap:6px;margin-top:8px"><button class="btn" id="draw-chance">Chance</button><button class="btn" id="draw-comm">Community Chest</button></div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700">Game Logs</div>
+          <div id="gamelog" style="max-height:220px;overflow:auto;font-family:monospace;font-size:13px;margin-top:8px"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div id="modal" class="modal center"><div class="panel card" id="modal-content"></div></div>
+  <div id="console">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-weight:700">Debug Console</div><div style="font-size:12px;color:var(--muted)">Commands: give <amt>,goto <tile>, export</div></div>
+    <div class="log" id="console-log"></div>
+    <input id="console-input" placeholder="Type command and press Enter">
+  </div>
+
+  <input type="file" id="file-load" accept="application/json" style="display:none">
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+
+  <script>
+  // ---------- Splash (photos) ----------
+  const NUM_PHOTOS = 28; const photoStrip = document.getElementById('photo-strip');
+  for(let i=1;i<=NUM_PHOTOS;i++){ const img=document.createElement('img'); img.src=`photos/photo${i}.jpg`; if(i===1) img.classList.add('show'); photoStrip.appendChild(img); }
+  (function cycle(){ const imgs=Array.from(photoStrip.querySelectorAll('img')); let idx=0; const step=()=>{ imgs.forEach(im=>im.classList.remove('show')); imgs[idx].classList.add('show'); idx=(idx+1)%imgs.length; }; step(); const it=setInterval(step,900); setTimeout(()=>{ clearInterval(it); document.getElementById('splash').style.transition='all .9s ease'; document.getElementById('splash').style.opacity=0; setTimeout(()=>document.getElementById('splash').style.display='none',950); document.getElementById('ui').style.display='block'; },3800); })();
+
+  // ---------- Game Data ----------
+  const canvas = document.getElementById('board-canvas'); const ctx = canvas.getContext('2d'); function resize(){ canvas.width = Math.floor(canvas.clientWidth * devicePixelRatio); canvas.height = Math.floor(canvas.clientHeight * devicePixelRatio); }
+  window.addEventListener('resize',resize); resize();
+
+  const TILE_COUNT = 40; // classic
+  const board = []; // will hold tile objects
+
+  // default monopoly-like data (simplified for brevity but extensible)
+  const defaultTiles = [
+    {name:'GO',type:'corner'},
+    {name:'Mediterranean Ave',type:'property',color:'#8b6a4a',price:60,rent:[2,10,30,90,160,250]},
+    {name:'Community Chest',type:'card'},
+    {name:'Baltic Ave',type:'property',color:'#8b6a4a',price:60,rent:[4,20,60,180,320,450]},
+    {name:'Income Tax',type:'tax',amount:200},
+    {name:'Reading Railroad',type:'rail',price:200},
+    {name:'Oriental Ave',type:'property',color:'#a5d8ff',price:100,rent:[6,30,90,270,400,550]},
+    {name:'Chance',type:'card'},
+    {name:'Vermont Ave',type:'property',color:'#a5d8ff',price:100,rent:[6,30,90,270,400,550]},
+    {name:'Connecticut Ave',type:'property',color:'#a5d8ff',price:120,rent:[8,40,100,300,450,600]},
+    {name:'Jail',type:'corner'},
+    {name:'St. Charles Place',type:'property',color:'#ffc5d0',price:140,rent:[10,50,150,450,625,750]},
+    {name:'Electric Company',type:'utility',price:150},
+    {name:'States Ave',type:'property',color:'#ffc5d0',price:140,rent:[10,50,150,450,625,750]},
+    {name:'Virginia Ave',type:'property',color:'#ffc5d0',price:160,rent:[12,60,180,500,700,900]},
+    {name:'Pennsylvania RR',type:'rail',price:200},
+    {name:'St. James Place',type:'property',color:'#ffd166',price:180,rent:[14,70,200,550,750,950]},
+    {name:'Community Chest',type:'card'},
+    {name:'Tennessee Ave',type:'property',color:'#ffd166',price:180,rent:[14,70,200,550,750,950]},
+    {name:'New York Ave',type:'property',color:'#ffd166',price:200,rent:[16,80,220,600,800,1000]},
+    {name:'Free Parking',type:'corner'},
+    {name:'Kentucky Ave',type:'property',color:'#ff6b6b',price:220,rent:[18,90,250,700,875,1050]},
+    {name:'Chance',type:'card'},
+    {name:'Indiana Ave',type:'property',color:'#ff6b6b',price:220,rent:[18,90,250,700,875,1050]},
+    {name:'Illinois Ave',type:'property',color:'#ff6b6b',price:240,rent:[20,100,300,750,925,1100]},
+    {name:'B&O RR',type:'rail',price:200},
+    {name:'Atlantic Ave',type:'property',color:'#b7ffd6',price:260,rent:[22,110,330,800,975,1150]},
+    {name:'Ventnor Ave',type:'property',color:'#b7ffd6',price:260,rent:[22,110,330,800,975,1150]},
+    {name:'Water Works',type:'utility',price:150},
+    {name:'Marvin Gardens',type:'property',color:'#b7ffd6',price:280,rent:[24,120,360,850,1025,1200]},
+    {name:'Go To Jail',type:'corner'},
+    {name:'Pacific Ave',type:'property',color:'#9ad1ff',price:300,rent:[26,130,390,900,1100,1275]},
+    {name:'North Carolina Ave',type:'property',color:'#9ad1ff',price:300,rent:[26,130,390,900,1100,1275]},
+    {name:'Community Chest',type:'card'},
+    {name:'Pennsylvania Ave',type:'property',color:'#9ad1ff',price:320,rent:[28,150,450,1000,1200,1400]},
+    {name:'Short Line',type:'rail',price:200},
+    {name:'Chance',type:'card'},
+    {name:'Park Place',type:'property',color:'#b9a4ff',price:350,rent:[35,175,500,1100,1300,1500]},
+    {name:'Luxury Tax',type:'tax',amount:100},
+    {name:'Boardwalk',type:'property',color:'#b9a4ff',price:400,rent:[50,200,600,1400,1700,2000]}
+  ];
+
+  // initialize board
+  for(let i=0;i<TILE_COUNT;i++){ board[i]= defaultTiles[i] || {name:'Tile '+i, type:'empty'}; board[i].index=i; board[i].owner=null; board[i].houses=0; board[i].mortgaged=false; }
+
+  // deck basics
+  const chanceDeck = [{text:'Bank pays you dividend $50',fn:(p)=>{p.cash+=50}}, {text:'Go to Boardwalk',fn:(p)=>{p.pos=39}}, {text:'Pay poor tax $15',fn:(p)=>{p.cash-=15}}];
+  const commDeck = [{text:'Doctor fee $50',fn:(p)=>{p.cash-=50}}, {text:'Advance to GO',fn:(p)=>{p.pos=0;p.cash+=200}}, {text:'Receive $100',fn:(p)=>{p.cash+=100}}];
+
+  // players
+  const players = [];
+  function newPlayer(name,local=true){ const p={id: 'p'+Math.floor(Math.random()*999999),name:name||('Player'+(players.length+1)),cash:1500,pos:0,inJail:false,jailTurns:0,properties:[],bankrupt:false,avatar:null}; players.push(p); return p; }
+
+  // sample AI player
+  function addAI(name){ const p=newPlayer(name,false); p.isAI=true; }
+
+  // default players for quick start
+  newPlayer('You',true); addAI('Bot A'); addAI('Bot B'); addAI('Bot C');
+
+  // ---------- Rendering Board ----------
+  function drawBoard(){ ctx.clearRect(0,0,canvas.width,canvas.height); const w=canvas.width, h=canvas.height; // draw square board with tiles around
+    const padding = Math.min(w,h)*0.06; const boardSize = Math.min(w,h) - padding*2; const tileW = boardSize/11; const x0 = (w-boardSize)/2, y0=(h-boardSize)/2;
+    // outer rect
+    ctx.save(); ctx.translate(0,0);
+    // draw background
+    ctx.fillStyle='#061726'; ctx.fillRect(x0,y0,boardSize,boardSize);
+    // draw tiles
+    for(let i=0;i<40;i++){
+      const t = board[i]; let tx,ty,tw,th,angle=0;
+      if(i<=10){ // bottom row left->right (10->0 is left to right for classic; we'll map so 0 GO is bottom-right)
+        const idx = (10 - i);
+        tx = x0 + idx*tileW; ty = y0 + boardSize - tileW; tw=tileW; th=tileW; angle=0;
+      } else if(i<=20){ const idx = i-10; tx = x0; ty = y0 + boardSize - tileW - idx*tileW; tw=tileW; th=tileW; angle=-90; }
+      else if(i<=30){ const idx = i-20; tx = x0 + idx*tileW; ty = y0; tw=tileW; th=tileW; angle=180; }
+      else { const idx = 40 - i; tx = x0 + boardSize - tileW; ty = y0 + idx*tileW; tw=tileW; th=tileW; angle=90; }
+      // tile bg
+      ctx.save(); ctx.translate(tx,ty);
+      ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fillRect(0,0,tw,th);
+      // color stripe for properties
+      if(t.type==='property'){ ctx.fillStyle = t.color || '#999'; ctx.fillRect(4,4,tw-8,16); }
+      // tile name
+      ctx.fillStyle='#dff2ff'; ctx.font = `${Math.max(10,tw/8)}px Arial`; wrapText(ctx,t.name,6,tw-12,tw-10,tw-10);
+      // owner mark
+      if(t.owner){ ctx.fillStyle='#ffd166'; ctx.fillRect(tw-14,th-14,10,10); }
+      // houses
+      if(t.houses>0){ for(let k=0;k<Math.min(5,t.houses);k++){ ctx.fillStyle = (k<4)?'#2ecc71':'#e74c3c'; ctx.fillRect(6+k*10,th-22,8,8); } }
+      ctx.restore();
+    }
+    // draw players as circles on board
+    for(let pi=0;pi<players.length;pi++){ const p=players[pi]; const pos = tileToXY(p.pos); const cx = pos.x, cy=pos.y; ctx.beginPath(); ctx.arc(cx,cy,12,0,Math.PI*2); ctx.fillStyle = p.isAI? '#ffd166' : '#7de3c7'; ctx.fill(); ctx.fillStyle='#023'; ctx.font='10px Arial'; ctx.fillText(p.name.charAt(0),cx-4,cy+4); }
+    ctx.restore();
+  }
+
+  function wrapText(ctx,text,x,maxw,tw,th){ const words=text.split(' '); let line=''; let y=24; for(let n=0;n<words.length;n++){ const test=line + words[n] + ' '; const metrics=ctx.measureText(test); if(metrics.width > maxw && n>0){ ctx.fillText(line,x,y); line = words[n] + ' '; y+=12; } else { line=test; } } ctx.fillText(line,x,y);
+  }
+
+  // map tile index to canvas coords (center of tile top layer)
+  function tileToXY(i){ const w=canvas.width, h=canvas.height; const padding = Math.min(w,h)*0.06; const boardSize = Math.min(w,h) - padding*2; const tileW = boardSize/11; const x0 = (w-boardSize)/2, y0=(h-boardSize)/2; let tx,ty; if(i<=10){ const idx = (10 - i); tx = x0 + idx*tileW + tileW/2; ty = y0 + boardSize - tileW/2; }
+    else if(i<=20){ const idx = i-10; tx = x0 + tileW/2; ty = y0 + boardSize - tileW - idx*tileW + tileW/2; }
+    else if(i<=30){ const idx = i-20; tx = x0 + idx*tileW + tileW/2; ty = y0 + tileW/2; }
+    else { const idx = 40 - i; tx = x0 + boardSize - tileW/2; ty = y0 + idx*tileW + tileW/2; }
+    return {x:tx,y:ty}; }
+
+  // ---------- Game Logic ----------
+  let currentPlayerIndex = 0; let dice=[0,0]; let rolled=false;
+
+  function rollDice(){ dice=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)]; log(`Rolled ${dice[0]} + ${dice[1]}`); rolled=true; moveCurrentPlayer(dice[0]+dice[1]); }
+
+  function moveCurrentPlayer(steps){ const p = players[currentPlayerIndex]; if(p.inJail){ log(`${p.name} is in Jail.`); return; } p.pos = (p.pos + steps) % 40; const tile = board[p.pos]; log(`${p.name} moved to ${tile.name}`); handleTile(p,tile); drawBoard(); refreshUI(); }
+
+  function handleTile(player,tile){ if(tile.type==='property'){ if(!tile.owner){ // option to buy
+        log(`${tile.name} is unowned. Price $${tile.price}`);
+      } else if(tile.owner !== player.id){ // pay rent
+        const owner = players.find(pl=>pl.id===tile.owner); const rent = calcRent(tile); player.cash -= rent; owner.cash += rent; log(`${player.name} paid $${rent} rent to ${owner.name}`); }
+    } else if(tile.type==='tax'){ player.cash -= tile.amount; log(`${player.name} paid tax $${tile.amount}`); }
+    else if(tile.type==='card'){ if(Math.random()>0.5){ const c=chanceDeck[Math.floor(Math.random()*chanceDeck.length)]; log(`${player.name} drew Chance: ${c.text}`); c.fn(player);} else { const c=commDeck[Math.floor(Math.random()*commDeck.length)]; log(`${player.name} drew Community: ${c.text}`); c.fn(player);} }
+  }
+
+  function calcRent(tile){ if(tile.houses>0){ return tile.rent[tile.houses]; } return tile.rent? tile.rent[0] : (tile.type==='rail'?25:0); }
+
+  function endTurn(){ // advance turn
+    currentPlayerIndex = (currentPlayerIndex +1) % players.length; rolled=false; log(`Turn: ${players[currentPlayerIndex].name}`); refreshUI(); }
+
+  // basic buy property
+  function buyProperty(){ const p = players[currentPlayerIndex]; const tile = board[p.pos]; if(tile.type==='property' && !tile.owner){ if(p.cash >= tile.price){ p.cash -= tile.price; tile.owner = p.id; p.properties.push(tile.index); log(`${p.name} bought ${tile.name} for $${tile.price}`); refreshUI(); drawBoard(); } else alert('Not enough cash'); } }
+
+  // auction (simple auto-bid by bots)
+  function auctionProperty(tileIndex){ const tile = board[tileIndex]; let highest = {player:null,amount:0}; // simple auction among players
+    for(let pl of players){ if(pl.bankrupt) continue; const bid = Math.random()>0.6? Math.floor(Math.random()*pl.cash):0; if(bid>highest.amount){ highest={player:pl,amount:bid}; } }
+    if(highest.player && highest.amount>0){ highest.player.cash -= highest.amount; tile.owner = highest.player.id; highest.player.properties.push(tile.index); log(`${highest.player.name} won auction for ${tile.name} at $${highest.amount}`); refreshUI(); drawBoard(); } else log(`No bids for ${tile.name}`);
+  }
+
+  // build house (simple rules)
+  function buildHouse(){ const tile = board[players[currentPlayerIndex].pos]; if(tile.type!=='property') return alert('Not a property'); if(tile.owner !== players[currentPlayerIndex].id) return alert('You do not own this'); if(tile.houses<5){ const cost = Math.floor(tile.price/2); players[currentPlayerIndex].cash -= cost; tile.houses++; log(`${players[currentPlayerIndex].name} built house on ${tile.name} for $${cost}`); drawBoard(); refreshUI(); } }
+
+  // trading modal
+  function openTrade(){ const modal=document.getElementById('modal'); const panel=document.getElementById('modal-content'); panel.innerHTML=''; const div=document.createElement('div'); div.innerHTML = `<h2>Trade</h2><div style="display:flex;gap:12px"><div style="flex:1"><div>You:</div><div id="trade-you"></div></div><div style="flex:1"><div>Partner:</div><div id="trade-partner"></div></div></div><div style="margin-top:12px;text-align:right"><button class="btn" id="trade-send">Send Offer</button></div>`; panel.appendChild(div); // fill players
+    const you = players[currentPlayerIndex]; const partner = players.find((_,i)=>i!==currentPlayerIndex); panel.querySelector('#trade-you').textContent = you.properties.map(i=>board[i].name).join(', ');
+    panel.querySelector('#trade-partner').textContent = partner.properties.map(i=>board[i].name).join(', ');
+    panel.querySelector('#trade-send').addEventListener('click', ()=>{ alert('Trade system minimal demo — extendable'); hideModal(); }); modal.style.display='flex'; }
+
+  function hideModal(){ document.getElementById('modal').style.display='none'; }
+
+  // UI bindings
+  document.getElementById('roll-dice').addEventListener('click', ()=>{ if(!rolled) rollDice(); else alert('Already rolled'); });
+  document.getElementById('end-turn').addEventListener('click', ()=> endTurn());
+  document.getElementById('buy-prop').addEventListener('click', ()=> buyProperty());
+  document.getElementById('auction-prop').addEventListener('click', ()=> auctionProperty(players[currentPlayerIndex].pos));
+  document.getElementById('build-house').addEventListener('click', ()=> buildHouse());
+  document.getElementById('open-trade').addEventListener('click', ()=> openTrade());
+
+  // draw board repeatedly
+  function loop(){ drawBoard(); requestAnimationFrame(loop); } requestAnimationFrame(loop);
+
+  // click board to inspect
+  canvas.addEventListener('click',(ev)=>{ const rect=canvas.getBoundingClientRect(); const x=(ev.clientX-rect.left), y=(ev.clientY-rect.top); // find nearest tile center
+    let nearest=iNearestTile(x,y); if(nearest!=null){ const t=board[nearest]; document.getElementById('selected-prop').innerHTML = `<strong>${t.name}</strong><div>Type: ${t.type}</div><div>Price: ${t.price||'-'}</div><div>Owner: ${t.owner? players.find(p=>p.id===t.owner).name:'None'}</div>`; }
+  });
+
+  function iNearestTile(x,y){ let best=null,bd=1e9; for(let i=0;i<40;i++){ const c=tileToXY(i); const dx=c.x - x; const dy=c.y - y; const d=dx*dx+dy*dy; if(d<bd){ bd=d; best=i; } } return best; }
+
+  // players UI
+  function refreshUI(){ const list = document.getElementById('players-list'); list.innerHTML=''; for(let i=0;i<players.length;i++){ const p=players[i]; const row=document.createElement('div'); row.className='player-row'; row.style.background = (i===currentPlayerIndex)?'rgba(255,255,255,0.03)':'transparent'; row.innerHTML = `<div style="width:36px;height:36px;border-radius:8px;background:#062;padding:6px;display:flex;align-items:center;justify-content:center">${p.name.charAt(0)}</div><div style="flex:1"><div style="font-weight:700">${p.name}</div><div style="font-size:12px;color:var(--muted)">$${p.cash} • Pos: ${p.pos}</div></div>`; list.appendChild(row); }
+    document.getElementById('bank-cash').textContent = '$'+20580; // static bank for demo
+    // gamelog highlight
+  }
+  refreshUI();
+
+  // logging
+  function log(msg){ const g=document.getElementById('gamelog'); const d=document.createElement('div'); d.textContent = '['+new Date().toLocaleTimeString()+'] '+msg; g.prepend(d); }
+
+  // ---------- Save & Load ----------
+  function exportSave(){ const payload = {players:players.map(p=>({id:p.id,name:p.name,cash:p.cash,pos:p.pos,inJail:p.inJail,properties:p.properties})),board:board.map(b=>({owner:b.owner,houses:b.houses,mortgaged:b.mortgaged})),currentPlayerIndex}; const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='charlotte_monopoly_save.json'; a.click(); URL.revokeObjectURL(url); }
+  document.getElementById('btn-save').addEventListener('click',exportSave);
+  document.getElementById('btn-load').addEventListener('click', ()=> document.getElementById('file-load').click());
+  document.getElementById('file-load').addEventListener('change',(ev)=>{ const f=ev.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=e=>{ try{ const data=JSON.parse(e.target.result); // load
+      for(let i=0;i<data.board.length;i++){ board[i].owner = data.board[i].owner; board[i].houses = data.board[i].houses; board[i].mortgaged = data.board[i].mortgaged; }
+      // load players
+      players.length=0; for(const pp of data.players){ const p=newPlayer(pp.name); p.id = pp.id; p.cash = pp.cash; p.pos = pp.pos; p.properties = pp.properties; }
+      currentPlayerIndex = data.currentPlayerIndex||0; refreshUI(); drawBoard(); alert('Save loaded'); } catch(err){ alert('Invalid save'); } }; r.readAsText(f); });
+
+  // new game
+  document.getElementById('btn-new').addEventListener('click', ()=>{ if(confirm('Start a new game?')) location.reload(); });
+
+  // profile save
+  document.getElementById('save-profile').addEventListener('click', ()=>{ const name = document.getElementById('name-input').value || 'Guest'; players[0].name = name; document.getElementById('profile-name').textContent = name; refreshUI(); });
+
+  // chance / community draws
+  document.getElementById('draw-chance').addEventListener('click', ()=>{ const c = chanceDeck.shift(); chanceDeck.push(c); c.fn(players[currentPlayerIndex]); log('Chance: '+c.text); refreshUI(); });
+  document.getElementById('draw-comm').addEventListener('click', ()=>{ const c = commDeck.shift(); commDeck.push(c); c.fn(players[currentPlayerIndex]); log('Community Chest: '+c.text); refreshUI(); });
+
+  // ---------- Multiplayer (PeerJS basic) ----------
+  let peer=null, conn=null; document.getElementById('mp-host').addEventListener('click', ()=>{ if(peer) peer.destroy(); peer=new Peer(); peer.on('open', id=>{ document.getElementById('mp-status').textContent = 'Hosting: '+id; alert('Share code: '+id); }); peer.on('connection', c=>{ conn=c; setupConn(c); }); });
+  document.getElementById('mp-join').addEventListener('click', ()=>{ const code=document.getElementById('mp-code').value.trim(); if(!code) return alert('Enter code'); if(peer) peer.destroy(); peer=new Peer(); peer.on('open', ()=>{ const c = peer.connect(code); c.on('open', ()=>{ conn=c; setupConn(c); document.getElementById('mp-status').textContent = 'Connected to: '+code; }); }); });
+  function setupConn(c){ c.on('data', d=>{ consoleLog('rx: '+JSON.stringify(d)); // handle commands - limited
+      if(d.type==='move'){ // basic move command for demo
+        log('Remote action: '+d.action); }
+    }); }
+
+  // ---------- Console ----------
+  const consoleEl = document.getElementById('console'); const consoleLogEl = document.getElementById('console-log'); function consoleToggle(){ consoleEl.style.display = (consoleEl.style.display==='none' || !consoleEl.style.display)?'block':'none'; }
+  document.addEventListener('keydown',(e)=>{ if(e.key==='`'){ consoleToggle(); document.getElementById('console-input').focus(); } });
+  function consoleLog(msg){ const d=document.createElement('div'); d.textContent = '['+new Date().toLocaleTimeString()+'] '+msg; consoleLogEl.appendChild(d); consoleLogEl.scrollTop = consoleLogEl.scrollHeight; }
+  document.getElementById('console-input').addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ const t=e.target.value.trim(); e.target.value=''; consoleLog('> '+t); handleConsole(t); } });
+  function handleConsole(txt){ const p=players[currentPlayerIndex]; const parts=txt.split(' '); if(parts[0]==='give'){ const amt=parseInt(parts[1]||0); p.cash += amt; refreshUI(); consoleLog('Gave $'+amt); } else if(parts[0]==='goto'){ p.pos = parseInt(parts[1]||0); refreshUI(); drawBoard(); } else if(parts[0]==='export'){ exportSave(); consoleLog('exported save'); } else consoleLog('Unknown'); }
+
+  // ---------- Utilities ----------
+  function iNearestTileXY(x,y){ return iNearestTile(x,y); }
+
+  // initial UI
+  drawBoard(); refreshUI();
+  </script>
+</body>
+</html>
