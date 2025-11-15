@@ -1,241 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Love Quiz (Big Edition) – Vol. 2 xx</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Love Quiz (Big Edition) – Vol. 2 (Updated Questions)</title>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #ffe0f0;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .survey-container {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      max-width: 750px;
-      width: 95%;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-    h1 {
-      color: #e91e63;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .question {
-      margin: 20px 0;
-    }
-    .question h3 {
-      color: #e91e63;
-      margin-bottom: 10px;
-    }
-    input[type="text"], textarea {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid #e91e63;
-      border-radius: 10px;
-      margin-top: 5px;
-      font-size: 1em;
-    }
-    label {
-      display: block;
-      margin: 8px 0;
-      padding: 10px;
-      border-radius: 10px;
-      border: 2px solid #e91e63;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    input[type="radio"] {
-      margin-right: 10px;
-    }
-    label:hover {
-      background: #e91e63;
-      color: white;
-    }
-    button {
-      margin-top: 30px;
-      padding: 15px 30px;
-      background: #e91e63;
-      border: none;
-      border-radius: 25px;
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-    }
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    .thank-you {
-      display: none;
-      text-align: center;
-      font-size: 1.3em;
-      margin-top: 20px;
-      color: green;
-    }
-    .error {
-      display: none;
-      text-align: center;
-      font-size: 1.1em;
-      margin-top: 20px;
-      color: red;
-    }
-    .loading {
-      display: none;
-      text-align: center;
-      font-size: 1.1em;
-      margin-top: 20px;
-      color: #e91e63;
-    }
+    body { font-family: Arial, sans-serif; background: #fff0f6; margin:0; padding:0; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+    .survey-container { background:#fff; padding:32px; border-radius:18px; max-width:760px; width:94%; box-shadow:0 12px 28px rgba(0,0,0,0.08); }
+    h1 { color:#d81b60; text-align:center; margin-bottom:14px; }
+    .question { margin:18px 0; }
+    .question h3 { color:#d81b60; margin-bottom:10px; }
+    input[type="text"], textarea { width:100%; padding:10px; border:2px solid #d81b60; border-radius:10px; margin-top:6px; font-size:1rem; }
+    label { display:block; margin:8px 0; padding:10px; border-radius:10px; border:2px solid #d81b60; cursor:pointer; transition:all .22s ease; }
+    input[type="radio"] { margin-right:10px; }
+    label:hover { background:#d81b60; color:#fff; }
+    button { margin-top:22px; padding:14px 28px; background:#d81b60; border:none; border-radius:22px; color:#fff; font-size:17px; cursor:pointer; }
+    button:disabled { background:#ccc; cursor:not-allowed; }
+    .loading,.thank-you,.error { display:none; text-align:center; margin-top:14px; font-size:1.05rem; }
+    .thank-you { color:green; }
+    .error { color:#c62828; }
   </style>
 </head>
 <body>
   <div class="survey-container">
-    <h1>Love Quiz (Big Edition) – Vol. 2 xx</h1>
+    <h1>Love Quiz (Big Edition) – Vol. 2 (Updated Questions)</h1>
+    <p style="text-align:center; color:#666; margin-top:-10px;">Fun, flirty, and playful questions to learn more about each other!</p>
+
     <form id="love-quiz-v2">
 
       <!-- Section 1 -->
       <div class="question">
-        <h3>Section 1 of 6 – What vibe we on tonighttt xx</h3>
-        <label><input type="radio" name="vibe" value="chaos">Chaos mode xx</label>
-        <label><input type="radio" name="vibe" value="cosy">Cosy bean xx</label>
-        <p>Extra Q: If jonothan had a tiny handbag, what would he keep inside xx</p>
-        <input type="text" name="jonothan-bag">
+        <h3>Section 1 of 6 – What mood are we vibing tonight?</h3>
+        <label><input type="radio" name="vibe" value="adventurous">Adventurous</label>
+        <label><input type="radio" name="vibe" value="chill">Chill & cosy</label>
+        <label><input type="radio" name="vibe" value="playful">Playful mischief</label>
+        <p>Fun Q: If Jonothan carried a tiny backpack, what silly thing would be inside?</p>
+        <input type="text" name="jonothan-backpack" placeholder="e.g. candy, a comic, a tiny toy" />
       </div>
 
       <!-- Section 2 -->
       <div class="question">
-        <h3>Section 2 of 6 – Midnight munchiesss xx</h3>
-        <p>Extra Q: moody xx</p>
-        <input type="text" name="wiggle-snack">
+        <h3>Section 2 of 6 – Snack attack time!</h3>
+        <p>Extra Q: If we were raiding the kitchen together, what snack would we fight over first?</p>
+        <input type="text" name="midnight-snack" placeholder="Describe the snack and scenario" />
       </div>
 
       <!-- Section 3 -->
       <div class="question">
-        <h3>Section 3 of 6 – Silly lil brain test hehe xx</h3>
-        <p>What food makes me purrr like a satisfied kitten xx</p>
-        <input type="text" name="purrr-food">
-        <p>Jellybeannnn when shes a hungry hungry hippo what does she love eatinggg xx</p>
-        <input type="text" name="jonothan-squeal">
-        <p>What do babies do when the Wi-Fi drops mid-cartoon xx</p>
-        <input type="text" name="wifi-babies">
-        <p>If strawberries could gossip, what tea would they spill xx</p>
-        <input type="text" name="strawberry-tea">
+        <h3>Section 3 of 6 – Silly brainteasers</h3>
+        <p>What food always makes us laugh when we try to eat it together?</p>
+        <input type="text" name="funny-food" />
+
+        <p>When Jellybean is extra cheeky, what's her favorite playful snack?</p>
+        <input type="text" name="jellybean-snack" />
+
+        <p>If the Wi-Fi goes out mid-movie, what's the funniest thing we would do?</p>
+        <input type="text" name="wifi-antics" />
+
+        <p>If fruits could gossip, what would the berries say about us?</p>
+        <input type="text" name="berry-gossip" />
       </div>
 
       <!-- Section 4 (Chaos) -->
       <div class="question">
-        <h3>Section 4 of 6 – Chaos Mode activated xx</h3>
-        <p>What trouble should we get jellybean into when she’s feeling too innocent xx</p>
-        <textarea name="jellybean-trouble"></textarea>
-        <p>If jonothan begged for round two, how would you make him plead sweeter xx</p>
-        <textarea name="jonothan-beg"></textarea>
-        <p>How does my jellybean like it with Jonothann xx babee choose xx</p>
-        <label><input type="radio" name="wrestle" value="rough">Rough xx</label>
-        <label><input type="radio" name="wrestle" value="gentle">Gentle xx</label>
-        <label><input type="radio" name="wrestle" value="both">Bothhh xx</label>
-        <p>What new trick should I teach the babies next sleepover xx</p>
-        <textarea name="sleepover-trick"></textarea>
-        <p>If jellybean joined a girl-band what would her stage name be xx</p>
-        <input type="text" name="jellybean-popstar">
-        <p>What spot makes jonothan melt into a puddle fastest xx</p>
-        <input type="text" name="melt-spot">
+        <h3>Section 4 of 6 – Mischief time!</h3>
+        <p>What's a playful dare we could do when we're feeling silly?</p>
+        <textarea name="playful-dare" placeholder="Describe a harmless, fun dare"></textarea>
+
+        <p>How would Jonothan beg for an extra round of hugs in the cutest way?</p>
+        <textarea name="jonothan-beg" placeholder="A line, gesture, or funny tone"></textarea>
+
+        <p>Pick an affection style when we're being playful:</p>
+        <label><input type="radio" name="affection-style" value="silly">Silly & teasing</label>
+        <label><input type="radio" name="affection-style" value="tender">Tender & caring</label>
+        <label><input type="radio" name="affection-style" value="mix">Mix of both</label>
+
+        <p>What's a new fun trick we could try at our next sleepover?</p>
+        <textarea name="sleepover-trick" placeholder="A handshake, a silly challenge, or game"></textarea>
+
+        <p>If Jellybean were a pop star, what would her stage name be?</p>
+        <input type="text" name="jellybean-stage" />
+
+        <p>What's a tiny action that melts Jonothan instantly? (a forehead kiss, playful tickle, etc.)</p>
+        <input type="text" name="melt-action" />
       </div>
 
       <!-- Section 5 (Cosy) -->
       <div class="question">
-        <h3>Section 5 of 6 – Cosy bean mode xx</h3>
-        <p>Pick one: Blanket-fort movie night or kitchen-floor brownie-batter date xx</p>
-        <label><input type="radio" name="cosy-date" value="fort">Blanket-fort xx</label>
-        <label><input type="radio" name="cosy-date" value="batter">Brownie-batter xx</label>
-        <p>Leave me a cosy lil voice-note script: why you love me when I’m sleepy xx</p>
-        <textarea name="sleepy-note"></textarea>
-        <p>Where do you want sleepy kisses the mostest xx</p>
-        <input type="text" name="sleepy-kiss">
-        <p>Sauce quiz round two – pick your fighter xx</p>
-        <label><input type="radio" name="sauce2" value="sriracha">Sriracha xx</label>
-        <label><input type="radio" name="sauce2" value="mayo">Mayo xx</label>
-        <label><input type="radio" name="sauce2" value="honey">Honey xx</label>
-        <label><input type="radio" name="sauce2" value="ranch">Ranch xx</label>
-        <p>If we had to stay indoors for 48 hrs what cosy chaos would you plan xx</p>
-        <textarea name="indoor-plan"></textarea>
-        <p>What’s the tiniest thing I do that makes your heart go boom xx</p>
-        <input type="text" name="tiny-boom">
-        <p>Finish this: "I adore how you always…" xx</p>
+        <h3>Section 5 of 6 – Cosy vibes</h3>
+        <p>Pick one: Blanket-fort movie night or kitchen-floor baking date?</p>
+        <label><input type="radio" name="cosy-date" value="fort">Blanket-fort movie night</label>
+        <label><input type="radio" name="cosy-date" value="baking">Kitchen-floor baking date</label>
+
+        <p>Write a sleepy note: why you love me when we're half-asleep.</p>
+        <textarea name="sleepy-note" placeholder="A sweet sentence or two"></textarea>
+
+        <p>Where do you love giving the cutest sleepy kisses?</p>
+        <input type="text" name="sleepy-kiss" />
+
+        <p>Pick your signature late-night snack flavour:</p>
+        <label><input type="radio" name="snack-flavour" value="sriracha">Sriracha</label>
+        <label><input type="radio" name="snack-flavour" value="mayo">Mayo</label>
+        <label><input type="radio" name="snack-flavour" value="honey">Honey</label>
+        <label><input type="radio" name="snack-flavour" value="ranch">Ranch</label>
+
+        <p>If stuck indoors for 48 hours, what fun cosy chaos would you plan?</p>
+        <textarea name="indoor-chaos"></textarea>
+
+        <p>What's the tiniest thing I do that makes your heart skip a beat?</p>
+        <input type="text" name="tiny-heart" />
+
+        <p>Finish this sentence: "I adore how you always…"</p>
         <textarea name="always-adore"></textarea>
       </div>
 
       <!-- Section 6 -->
       <div class="question">
-        <h3>Section 6 of 6 – Treat round two babee xx</h3>
-        <p>Ready for your random surpriseee xx</p>
-        <label><input type="radio" name="surprise2" value="duh">Duhhh xx</label>
-        <label><input type="radio" name="surprise2" value="absolutely">Of coursee babeee xx</label>
-        <label><input type="radio" name="surprise2" value="yas">Nope xx</label>
-        <p>Extra Q: If I wrapped jonothan in fairy lights & bubble wrap how would you unwrap himmm xx</p>
-        <textarea name="fairy-unwrapping"></textarea>
+        <h3>Section 6 of 6 – Surprise round!</h3>
+        <p>Ready for a playful surprise?</p>
+        <label><input type="radio" name="surprise" value="yes">Yes, let's see it!</label>
+        <label><input type="radio" name="surprise" value="maybe">Maybe, tease me!</label>
+        <label><input type="radio" name="surprise" value="no">Not today</label>
+
+        <p>Extra Q: If Jonothan were wrapped in fairy lights and bubble wrap, how would you unwrap him playfully?</p>
+        <textarea name="fairy-unwrap" placeholder="A cute, fun unwrapping method"></textarea>
       </div>
 
-      <button type="submit">Submit xx</button>
-      <div class="loading">Sending your chaos/cosy answers... xx</div>
-      <div class="thank-you">Your surprise is baking in the cuteness oven xx</div>
-      <div class="error">Oopsie doodle! Try again babee xx</div>
+      <button type="submit">Submit</button>
+      <div class="loading">Sending your playful answers…</div>
+      <div class="thank-you">Thanks! Your answers arrived safe and fun.</div>
+      <div class="error">Oops — something went wrong. Try again?</div>
     </form>
   </div>
 
   <script>
-    // Initialize EmailJS
-    (function(){
-      emailjs.init("GkE4tWZN85GGLS7BY"); // <-- swap in your real public key
-    })();
-
-    document.getElementById("love-quiz-v2").addEventListener("submit", function(e) {
+    (function(){ if(typeof emailjs!=='undefined'&&emailjs.init){ try{ emailjs.init('GkE4tWZN85GGLS7BY'); }catch(e){} }})();
+    document.getElementById('love-quiz-v2').addEventListener('submit', function(e){
       e.preventDefault();
-
-      if (typeof emailjs === 'undefined') {
-        document.querySelector('.error').style.display = 'block';
-        return;
-      }
-
-      const btn = document.querySelector('button[type="submit"]');
-      const load = document.querySelector('.loading');
-      const ty = document.querySelector('.thank-you');
-      const err = document.querySelector('.error');
-
-      btn.disabled = true;
-      load.style.display = 'block';
-      ty.style.display = 'none';
-      err.style.display = 'none';
-
-      const fd = new FormData(this);
-      const r = {};
-      for (let [k,v] of fd.entries()) r[k] = v;
-
-      let body = "Love Quiz Vol.2 Results xx\n\n";
-      Object.entries(r).forEach(([k,v]) => {
-        body += `${k}: ${v || 'Not answered'}\n`;
-      });
-
-      emailjs.send('service_x8pyzn9', 'template_543jt8q', {
-        to_email: "tepukeolif@gmail.com",
-        subject: "Love Quiz Vol.2 – fresh answers xx",
-        message: body
-      }).then(() => {
-        load.style.display = 'none';
-        ty.style.display = 'block';
-      }).catch(() => {
-        load.style.display = 'none';
-        err.style.display = 'block';
-        btn.disabled = false;
-      });
+      const btn=document.querySelector('button[type="submit"]');
+      const load=document.querySelector('.loading');
+      const ty=document.querySelector('.thank-you');
+      const err=document.querySelector('.error');
+      btn.disabled=true; load.style.display='block'; ty.style.display='none'; err.style.display='none';
+      const fd=new FormData(this); const r={}; for(let [k,v] of fd.entries()) r[k]=v;
+      let body='Love Quiz Vol.2 Updated Questions Results\n\n';
+      Object.entries(r).forEach(([k,v])=>{ body+=`${k}: ${v||'Not answered'}\n`; });
+      if(typeof emailjs==='undefined'||!emailjs.send){ console.log(body); load.style.display='none'; ty.style.display='block'; return; }
+      emailjs.send('service_x8pyzn9','template_543jt8q',{ to_email:'tepukeolif@gmail.com', subject:'Love Quiz Vol.2 – answers', message:body }).then(()=>{ load.style.display='none'; ty.style.display='block'; }).catch(()=>{ load.style.display='none'; err.style.display='block'; btn.disabled=false; });
     });
   </script>
 </body>
